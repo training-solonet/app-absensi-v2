@@ -22,3 +22,19 @@ Route::get('/dashboard', function () {
     return view('dashboard');
 })->name('dashboard');
 
+// Data Siswa
+use App\Http\Controllers\SiswaController;
+
+Route::get('/siswa', [SiswaController::class, 'index'])->name('siswa.index');
+Route::post('/siswa', [SiswaController::class, 'store'])->name('siswa.store');
+
+//lapooran absensi
+use App\Http\Controllers\AbsensiController;
+
+Route::get('/absensi', function () {
+    return view('absensi');
+})->name('absensi.index');
+
+
+
+
