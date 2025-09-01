@@ -1,0 +1,66 @@
+name: CI CD
+
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+jobs:
+  format-code:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+
+      - name: Install blade-formatter
+        run: npm install -g blade-formatter
+
+      - name: Format Blade templates
+        run: blade-formatter -w "resources/views/**/*.blade.php"
+
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: '8.3'
+          extensions: json, dom, curl, libxml, mbstring
+          coverage: none
+
+      - name: Install Pint
+        run: composer global require laravel/pint
+
+      - name: Run Pint (lint code)
+        run: pint
+
+      - name: Commit formatted and linted files if any changes
+        uses: stefanzweifel/git-auto-commit-action@v5
+        with:
+          commit_message: "Format Blade views and fix coding style"
+          file_pattern: "resources/views/**/*.blade.php"
+
+  staging:
+    needs: [ format-code ]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Execute remote SSH commands for staging deployment
+        uses: appleboy/ssh-action@master
+        with:
+          host: ${{ secrets.HOST }}
+          username: ${{ secrets.USERNAME }}
+          password: ${{ secrets.PASSWORD }}
+          port: ${{ secrets.PORT }}
+          script: |
+            set -e
+            echo "Connecting to remote staging server..."
+            cd /var/www/app-absensi-v2
+            echo "Pulling latest code from main branch..."
+            git pull origin main
+            composer install --no-dev
+            php artisan optimize
+            php artisan  migrate
+            echo "Staging deployment completed."
