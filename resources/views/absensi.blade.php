@@ -16,67 +16,125 @@
       top: 0;
       left: 0;
       width: 240px;
-      transition: background-color 0.3s ease;
+      transition: all 0.3s ease;
+      z-index: 1000;
+    }
+    .sidebar.collapsed {
+      width: 70px !important;
+      overflow: hidden;
+    }
+    .sidebar.collapsed .nav-link span,
+    .sidebar.collapsed .badge,
+    .sidebar.collapsed .text-center img[alt="Connectis Logo"] {
+      display: none !important;
     }
     .sidebar .nav-link {
       font-weight: 500;
       color: #333;
       margin-bottom: 10px;
+      display: flex;
+      align-items: center;
     }
+    .sidebar .nav-link i {
+      font-size: 18px;
+      margin-right: 8px;
+    }
+    .sidebar.collapsed .nav-link { justify-content: center; }
     .sidebar .nav-link.active {
       background: #687EFF;
       color: #fff;
       border-radius: 8px;
       padding: 10px;
     }
+    .toggle-btn {
+      position: absolute;
+      top: 50%;
+      right: -15px;
+      transform: translateY(-50%);
+      background: #fff;
+      border: none;
+      border-radius: 50%;
+      width: 30px;
+      height: 30px;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+      cursor: pointer;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 1100;
+    }
     .content { 
-        margin-left: 260px; 
-        padding: 20px; 
-        padding-top: 80px; 
+      margin-left: 260px; 
+      padding: 20px; 
+      padding-top: 80px; 
+      transition: all 0.3s ease;
     }
+    .content.collapsed { margin-left: 80px !important; }
     header.navbar { 
-        background-color: #ffffff; 
-        transition: background-color 0.3s ease; 
+      background-color: #96EFFF;
+      position: fixed;
+      top: 0; 
+      left: 240px; 
+      right: 0; 
+      height: 60px;
+      z-index: 900;
+      transition: all 0.3s ease; 
     }
+    header.navbar.collapsed { left: 70px; }
     .card-custom { 
-        border-radius: 12px; 
-        border: none; 
-        box-shadow: 0 4px 8px rgba(0,0,0,0.05); 
+      border-radius: 12px; 
+      border: none; 
+      box-shadow: 0 4px 8px rgba(0,0,0,0.05); 
     }
   </style>
 </head>
 <body>
 
-  <!-- Sidebar sama seperti dashboard -->
+  <!-- Sidebar -->
   <div class="sidebar p-3" id="sidebar">
+    <!-- Logo -->
     <div class="text-center mb-4">
       <img src="{{ asset('img/logo.png') }}" alt="Connectis Logo" width="120">
     </div>
+
+    <!-- Profil Admin -->
     <div class="d-flex flex-column align-items-center text-center mb-4">
-      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Admin" width="60" class="mb-2 rounded-circle">
+      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
+           alt="Admin" width="60" class="mb-2 rounded-circle">
       <div>
         <span class="badge bg-white text-dark">Administrator</span>
       </div>
     </div>
+
+    <!-- Navigasi dengan ikon -->
     <nav class="nav flex-column">   
-      <a class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}" href="/dashboard">Dashboard</a>
-      <a class="nav-link {{ request()->is('siswa') ? 'active' : '' }}" href="{{ route('siswa.index') }}">Data Siswa</a>
-      <a class="nav-link {{ request()->is('absensi') ? 'active' : '' }}" href="{{ url('/absensi') }}">Laporan Absensi</a>
+      <a class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}" href="/dashboard">
+        <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
+      </a>
+      <a class="nav-link {{ request()->is('siswa') ? 'active' : '' }}" href="{{ route('siswa.index') }}">
+        <i class="bi bi-people-fill"></i> <span>Data Siswa</span>
+      </a>
+      <a class="nav-link {{ request()->is('absensi') ? 'active' : '' }}" href="{{ url('/absensi') }}">
+        <i class="bi bi-clipboard-check"></i> <span>Laporan Absensi</span>
+      </a>
     </nav>  
+
+    <!-- Tombol Panah -->
+    <button class="toggle-btn" id="toggleBtn">
+      <i class="bi bi-chevron-left"></i>
+    </button>
   </div>
 
   <!-- Content -->
-  <div class="content">
+  <div class="content" id="content">
 
     <!-- Header -->
-    <header class="navbar shadow-sm px-4" id="header"
-            style="position: fixed; top: 0; left: 240px; right: 0; z-index: 1000; height: 60px;">
+    <header class="navbar shadow-sm px-4" id="header">
       <div class="container-fluid d-flex justify-content-between align-items-center h-100">
         <h5 class="fw-bold mb-0 text-dark">Laporan Absensi</h5>
-        <div class="d-flex align-items-center">
-          <span class="text-muted me-3">
-            {{ \Carbon\Carbon::now()->translatedFormat('l, d F Y H:i:s') }}
-          </span>
+
+       <div class="d-flex align-items-center">
+        <span class="text-muted me-3" id="live-clock"></span>
 
           <!-- Dropdown Profil -->
           <div class="dropdown">
@@ -105,10 +163,12 @@
       </div>
     </header>
 
-    <!-- Filter & Tombol Export -->
+    <!-- Card Laporan Absensi dengan Filter -->
     <div class="card card-custom mt-4 p-3">
       <div class="card-body">
-        <form class="row g-3">
+
+        <!-- Filter -->
+        <form class="row g-3 mb-4">
           <div class="col-md-4">
             <label for="tanggal" class="form-label">Pilih Tanggal</label>
             <input type="date" id="tanggal" class="form-control">
@@ -122,12 +182,8 @@
             </select>
           </div>
         </form>
-      </div>
-    </div>
 
-    <!-- Tabel Laporan Absensi -->
-    <div class="card card-custom mt-4 p-3">
-      <div class="card-body">
+        <!-- Tabel -->
         <h5 class="fw-bold mb-3">Data Absensi</h5>
         <div class="table-responsive">
           <table class="table table-striped align-middle">
@@ -163,15 +219,59 @@
         </div>
       </div>
     </div>
-
   </div>
 
+  <!-- JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-  <script>
-    function setTheme(sidebarColor, headerColor) {
-      document.getElementById("sidebar").style.backgroundColor = sidebarColor;
-      document.getElementById("header").style.backgroundColor = headerColor;
+<script>
+  function setTheme(sidebarColor, headerColor) {
+    document.getElementById("sidebar").style.backgroundColor = sidebarColor;
+    document.getElementById("header").style.backgroundColor = headerColor;
+  }
+
+  const sidebar = document.getElementById("sidebar");
+  const content = document.getElementById("content");
+  const header = document.getElementById("header");
+  const toggleBtn = document.getElementById("toggleBtn");
+  const icon = toggleBtn.querySelector("i");
+
+  toggleBtn.addEventListener("click", () => {
+    sidebar.classList.toggle("collapsed");
+    content.classList.toggle("collapsed");
+    header.classList.toggle("collapsed");
+
+    if (sidebar.classList.contains("collapsed")) {
+      icon.classList.replace("bi-chevron-left", "bi-chevron-right");
+    } else {
+      icon.classList.replace("bi-chevron-right", "bi-chevron-left");
     }
-  </script>
+  });
+
+  // Live Clock
+  function updateClock() {
+    const now = new Date();
+
+    // Format tanggal
+    const tanggal = now.toLocaleDateString('id-ID', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+
+    // Format jam
+    const jam = now.toLocaleTimeString('id-ID', {
+      hour: '2-digit',
+      minute: '2-digit',
+      second: '2-digit'
+    });
+
+    // Gabung dengan tanda |
+    document.getElementById('live-clock').textContent = `${tanggal} | ${jam}`;
+  }
+
+  setInterval(updateClock, 1000);
+  updateClock();
+</script>
 </body>
 </html>
