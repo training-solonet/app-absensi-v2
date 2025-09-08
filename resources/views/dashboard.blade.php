@@ -181,15 +181,6 @@
                  alt="Profile" width="40" height="40" class="rounded-circle border border-2 border-primary">
           </a>
           <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
-            <li class="dropdown-header">Pilih Warna Tema</li>
-            <li><button class="dropdown-item" onclick="setTheme('#8DD8FF','#ffffff')">Biru Muda</button></li>
-            <li><button class="dropdown-item" onclick="setTheme('#28a745','#218838')">Hijau</button></li>
-            <li><button class="dropdown-item" onclick="setTheme('#6f42c1','#5a32a3')">Ungu</button></li>
-            <li><button class="dropdown-item" onclick="setTheme('#fd7e14','#e8590c')">Oranye</button></li>
-            <li><button class="dropdown-item" onclick="setTheme('#007bff','#0056b3')">Biru Tua</button></li>
-            <li><button class="dropdown-item" onclick="setTheme('#dc3545','#bd2130')">Merah</button></li>
-            <li><hr class="dropdown-divider"></li>
-            <li>
               <a class="dropdown-item d-flex align-items-center text-danger" href="/login">
                 <i class="bi bi-box-arrow-right me-2"></i> Logout
               </a>
@@ -289,26 +280,11 @@
             <tr>
               <th>No</th>
               <th>Nama</th>
-              <th>Jenis Kelamin</th>
               <th>Jam</th>
               <th>Keterangan</th>
             </tr>
           </thead>
           <tbody>
-            <tr>
-              <td>1</td>
-              <td>Inayah Fauziah</td>
-              <td>Perempuan</td>
-              <td>08:15</td>
-              <td><span class="badge bg-danger">Terlambat</span></td>
-            </tr>
-            <tr>
-              <td>2</td>
-              <td>Budi Santoso</td>
-              <td>Laki-laki</td>
-              <td>08:10</td>
-              <td><span class="badge bg-danger">Terlambat</span></td>
-            </tr>
           </tbody>
         </table>
       </div>

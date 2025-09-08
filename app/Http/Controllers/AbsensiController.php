@@ -9,6 +9,6 @@ class AbsensiController extends Controller
     {
         $absen = Absen::all();
 
-        return view('absensi.index', compact('absen'));
+        return view('absen', compact('absensi'));
     }
 }

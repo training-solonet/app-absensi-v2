@@ -161,15 +161,6 @@
               <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" width="40" height="40" class="rounded-circle border border-2 border-primary">
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
-              <li class="dropdown-header">Pilih Warna Tema</li>
-              <li><button class="dropdown-item" onclick="setTheme('#8DD8FF','#ffffff')">Biru Muda</button></li>
-              <li><button class="dropdown-item" onclick="setTheme('#28a745','#218838')">Hijau</button></li>
-              <li><button class="dropdown-item" onclick="setTheme('#6f42c1','#5a32a3')">Ungu</button></li>
-              <li><button class="dropdown-item" onclick="setTheme('#fd7e14','#e8590c')">Oranye</button></li>
-              <li><button class="dropdown-item" onclick="setTheme('#007bff','#0056b3')">Biru Tua</button></li>
-              <li><button class="dropdown-item" onclick="setTheme('#dc3545','#bd2130')">Merah</button></li>
-              <li><hr class="dropdown-divider"></li>
-              <li>
                 <a class="dropdown-item d-flex align-items-center text-danger" href="/login">
                   <i class="bi bi-box-arrow-right me-2"></i> Logout
                 </a>
@@ -215,7 +206,7 @@
                       </tr>
                     </thead>
                   <tbody>
-              @forelse($absen as $absensi)
+              @forelse($absensi as $absen)
               <tr>
                 <td>{{ $absensi->id }}</td>
                 <td>{{ $absensi->id_siswa }}</td>
