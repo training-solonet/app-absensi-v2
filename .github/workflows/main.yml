@@ -13,6 +13,7 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
+      # Setup Node.js untuk Blade formatter
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
@@ -24,6 +25,7 @@ jobs:
       - name: Format Blade templates
         run: blade-formatter -w "resources/views/**/*.blade.php"
 
+      # Setup PHP untuk Laravel Pint
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
@@ -34,14 +36,21 @@ jobs:
       - name: Install Pint
         run: composer global require laravel/pint
 
-      - name: Run Pint (lint code)
+      - name: Run Pint (auto fix all PHP files)
         run: pint
+
+      - name: Check coding style (fail if still unformatted)
+        run: pint --test
 
       - name: Commit formatted and linted files if any changes
         uses: stefanzweifel/git-auto-commit-action@v5
         with:
-          commit_message: "Format Blade views and fix coding style"
-          file_pattern: "resources/views/**/*.blade.php"
+          commit_message: "Format Blade views & PHP code style"
+          file_pattern: |
+            resources/views/**/*.blade.php
+            app/**/*.php
+            routes/**/*.php
+            database/**/*.php
 
   staging:
     needs: [ format-code ]
@@ -60,7 +69,6 @@ jobs:
             cd /var/www/app-absensi-v2
             echo "Pulling latest code from main branch..."
             git pull origin main
-            composer install
+            composer install --no-interaction --prefer-dist --optimize-autoloader
             php artisan optimize
-            php artisan  migrate
             echo "Staging deployment completed."
