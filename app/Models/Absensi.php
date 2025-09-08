@@ -7,9 +7,16 @@ use Illuminate\Database\Eloquent\Model;
 
 class Absensi extends Model
 {
-  public function index()
-    {
-        $absen = Absen::all();
-        return view('absensi.index', compact('absen'));
-    }
+protected $Connection='absensi_v2';
+    protected $absen = 'view_absen'; 
+    public $timestamps = false; 
+
+    protected $fillable = [
+        'id_siswa',
+        'tanggal',
+        'waktu_masuk',
+        'waktu_keluar',
+        'keterangan',
+        'catatan',
+    ];
 }

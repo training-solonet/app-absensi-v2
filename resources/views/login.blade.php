@@ -116,5 +116,22 @@
       <button type="submit" class="btn btn-custom">Login</button>
     </form>
   </div>
+
+  <div class="text-center mt-4">
+        <div class="social-icons">
+          <!-- Facebook -->
+          <a href="https://www.facebook.com/solonetjalabuana" target="_blank">
+            <i class="bi bi-facebook"></i>
+          </a>
+          <!-- Instagram -->
+          <a href="https://www.instagram.com/solonet_internet/" target="_blank">
+            <i class="bi bi-instagram"></i>
+          </a>
+          <!-- Website -->
+          <a href="https://www.waze.com/id/live-map/directions/id/jawa-tengah/connectis-solonet?to=place.ChIJSRrvQpwWei4RbZ0N4I3fZu4" target="_blank">
+            <i class="bi bi-globe"></i>
+          </a>
+        </div>
+      </div>
 </body>
 </html>
