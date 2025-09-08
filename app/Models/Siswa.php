@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Model;
 
 class Siswa extends Model
 {
+    protected $connection ='siswa_connectis';
     protected $table = 'view_siswa'; // pakai view, bukan tabel siswas
     public $timestamps = false; // kalau view tidak ada created_at & updated_at
 }
