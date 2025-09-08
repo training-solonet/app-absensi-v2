@@ -2,14 +2,16 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\Absensi;
 
 class AbsensiController extends Controller
 {
-    public function laporan()
+    public function index()
     {
-        $absensi = Absensi::with('siswa')->get();
-        return view('absensi', compact('absensi.index'));
+        // ambil semua data absen
+        $data = Absensi::all();
+
+        // kirim ke view
+        return view('absensi', compact('absen'));
     }
 }

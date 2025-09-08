@@ -31,9 +31,8 @@ Route::post('/siswa', [SiswaController::class, 'store'])->name('siswa.store');
 //lapooran absensi
 use App\Http\Controllers\AbsensiController;
 
-Route::get('/absensi', function () {
-    return view('absensi');
-})->name('absensi.index');
+Route::get('/absensi', [AbsensiController::class, 'index']);
+
 
 
 

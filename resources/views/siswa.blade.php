@@ -137,7 +137,7 @@
       <div class="container-fluid d-flex justify-content-between align-items-center h-100">
         <h5 class="fw-bold mb-0 text-dark">Data Siswa</h5>
 
-         <div class="d-flex align-items-center">
+        <div class="d-flex align-items-center">
         <span class="text-muted me-3" id="live-clock"></span>
 
           <!-- Dropdown Profil -->
@@ -181,7 +181,8 @@
           <tr>
             <th>ID</th>
             <th>Nama</th>
-            <th>ID Card</th>
+            <th>NIM</th>
+            <th>Sekolah</th> 
           </tr>
         </thead>
         <tbody>
@@ -189,20 +190,17 @@
             <tr>
               <td>{{ $siswa->id }}</td>
               <td>{{ $siswa->name }}</td>
-              <td>{{ $siswa->id_card }}</td>
+              <td>{{ $siswa->nim }}</td>
+              <td>{{ $siswa->schools }}</td> 
             </tr>
           @empty
-            <tr>
-              <td colspan="3" class="text-center">Belum ada data siswa</td>
-            </tr>
           @endforelse
         </tbody>
       </table>
     </div>
-
   </div>
 
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   function setTheme(sidebarColor, headerColor) {
     document.getElementById("sidebar").style.backgroundColor = sidebarColor;
@@ -228,7 +226,7 @@
   });
 
   // Live Clock
-  function updateClock() {
+   function updateClock() {
     const now = new Date();
 
     // Format tanggal
@@ -255,3 +253,4 @@
 </script>
 </body>
 </html>
+
