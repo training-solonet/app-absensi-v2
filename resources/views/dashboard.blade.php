@@ -101,21 +101,6 @@
       background: linear-gradient(135deg, #60B5FF, #ff9f68); 
       color: #fff;
     }
-    .small-card {
-      border-radius: 12px;
-      border: none;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
-      padding: 20px;
-      background: #fff;
-    }
-    .small-card h6 {
-      font-size: 14px;
-      color: #6c757d;
-    }
-    .small-card h3 {
-      font-weight: bold;
-      color: #333;
-    }
     .summary-card {
       background: #fff;
       border-radius: 10px;
@@ -150,12 +135,10 @@
   
 <!-- Sidebar -->
 <div class="sidebar p-3" id="sidebar">
-  <!-- Logo -->
   <div class="text-center mb-4">
     <img src="{{ asset('img/logo.png')}}" alt="Connectis Logo" width="120">
   </div>
 
-  <!-- Profil Admin -->
   <div class="d-flex flex-column align-items-center text-center mb-4">
     <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
          alt="Admin" width="60" class="mb-2 rounded-circle">
@@ -164,20 +147,18 @@
     </div>
   </div>
 
-  <!-- Navigasi -->
   <nav class="nav flex-column">   
-    <a class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}" href="/dashboard">
+    <a class="nav-link active" href="/dashboard">
       <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
     </a>
-    <a class="nav-link {{ request()->is('siswa') ? 'active' : '' }}" href="{{ route('siswa.index') }}">
+    <a class="nav-link" href="{{ route('siswa.index') }}">
       <i class="bi bi-people-fill"></i> <span>Data Siswa</span>
     </a>
-    <a class="nav-link {{ request()->is('absensi') ? 'active' : '' }}" href="{{ url('/absensi') }}">
+    <a class="nav-link" href="{{ url('/absensi') }}">
       <i class="bi bi-clipboard-check"></i> <span>Laporan Absensi</span>
     </a>
   </nav>  
 
-  <!-- Tombol Panah -->
   <button class="toggle-btn" id="toggleBtn">
     <i class="bi bi-chevron-left"></i>
   </button>
@@ -193,8 +174,6 @@
   
       <div class="d-flex align-items-center">
         <span class="text-muted me-3" id="live-clock"></span>
-
-        <!-- Dropdown Profil -->
         <div class="dropdown">
           <a href="#" class="d-flex align-items-center" id="profileDropdown" 
              role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -223,29 +202,43 @@
 
   <!-- Dashboard Content -->
   <div class="row mb-3">
-  <!-- Card Selamat Datang -->
-  <div class="col-md-6">
-    <div class="card card-custom card-orange p-3 text-center">
-      <div class="row align-items-center">
-        <div class="col-8 text-start">
-          <h4>Selamat Datang, I'am Admin</h4>
-          <p>Terus pantau kegiatan penerimaan mahasiswa baru dan absensi siswa PKL</p>
+    <!-- Card Selamat Datang -->
+    <div class="col-md-6">
+      <div class="card card-custom card-orange p-3 text-center">
+        <div class="row align-items-center">
+          <div class="col-8 text-start">
+            <h4>Selamat Datang, I'am Admin</h4>
+            <p>Terus pantau kegiatan penerimaan mahasiswa baru dan absensi siswa PKL</p>
+          </div>
+          <div class="col-4 text-end">
+            <img src="{{ asset('img/absen.png') }}" alt="Welcome Image" class="img-fluid" style="max-height:100px;">
+          </div> 
         </div>
-        <div class="col-4 text-end">
-          <img src="{{ asset('img/absen.png') }}" alt="Welcome Image" class="img-fluid" style="max-height:100px;">
-        </div> 
+      </div>
+    </div>
+
+    <!-- Statistik Absen (Donut Chart) -->
+    <div class="col-md-6">
+      <div class="card card-custom p-3">
+        <h5 class="fw-bold mb-3">Statistics Absen</h5>
+        <p class="text-muted">Data realtime dari absen</p>
+        <div class="row text-center">
+          <div class="col-md-4">
+            <canvas id="izinChart" width="120" height="120"></canvas>
+            <p class="mt-2">Rata rata Izin</p>
+          </div>
+          <div class="col-md-4">
+            <canvas id="alpaChart" width="120" height="120"></canvas>
+            <p class="mt-2">Rata rata Alpa</p>
+          </div>
+          <div class="col-md-4">
+            <canvas id="hadirChart" width="120" height="120"></canvas>
+            <p class="mt-2">Rata rata Hadir</p>
+          </div>
+        </div>
       </div>
     </div>
   </div>
-
-  <!-- Card Grafik Kehadiran -->
-  <div class="col-md-6">
-    <div class="card card-custom p-3">
-      <h5 class="fw-bold mb-3">Presentase Kehadiran Siswa per Bulan</h5>
-      <canvas id="attendanceChart" height="150"></canvas>
-    </div>
-  </div>
-</div>
 
   <!-- Cards -->
   <div class="container mt-4">
@@ -325,6 +318,7 @@
 
 <!-- JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script>
   function setTheme(sidebarColor, headerColor) {
     document.getElementById("sidebar").style.backgroundColor = sidebarColor;
@@ -350,77 +344,49 @@
   });
 
   // Live Clock
-   function updateClock() {
+  function updateClock() {
     const now = new Date();
-
-    // Format tanggal
     const tanggal = now.toLocaleDateString('id-ID', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
-
-    // Format jam
     const jam = now.toLocaleTimeString('id-ID', {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit'
     });
-
-    // Gabung dengan tanda |
     document.getElementById('live-clock').textContent = `${tanggal} | ${jam}`;
   }
-
   setInterval(updateClock, 1000);
   updateClock();
-</script>
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-<script>
-  const ctx = document.getElementById('attendanceChart').getContext('2d');
 
-  const attendanceChart = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
-      datasets: [
-        {
-          label: 'Hadir (%)',
-          data: [80, 85, 90, 88, 92, 87],
-          backgroundColor: 'rgba(40, 167, 69, 0.8)',
-        },
-        {
-          label: 'Terlambat (%)',
-          data: [20, 15, 10, 12, 8, 13],
-          backgroundColor: 'rgba(220, 53, 69, 0.8)',
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      plugins: {
-        legend: { position: 'top' },
-        tooltip: {
-          callbacks: {
-            label: function(context) {
-              return context.dataset.label + ': ' + context.raw + '%';
-            }
-          }
-        }
+  // Fungsi untuk buat donut chart
+  function buatChart(id, value, color) {
+    return new Chart(document.getElementById(id), {
+      type: 'doughnut',
+      data: {
+        datasets: [{
+          data: [value, 100 - value],
+          backgroundColor: [color, '#e9ecef'],
+          borderWidth: 0
+        }]
       },
-      scales: {
-        y: {
-          beginAtZero: true,
-          max: 100,
-          ticks: {
-            callback: function(value) {
-              return value + '%';
-            }
-          }
+      options: {
+        cutout: '75%',
+        plugins: {
+          legend: { display: false },
+          tooltip: { enabled: false }
         }
       }
-    }
-  });
+    });
+  }
+
+  // Generate chart
+  buatChart('izinChart', 5, '#f39c12');
+  buatChart('alpaChart', 36, '#27ae60');
+  buatChart('hadirChart', 12, '#e74c3c');
 </script>
 </body>
 </html>

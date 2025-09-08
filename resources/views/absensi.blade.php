@@ -215,7 +215,7 @@
                       </tr>
                     </thead>
                   <tbody>
-              @forelse($absensi as $absen)
+              @forelse($absen as $absensi)
               <tr>
                 <td>{{ $absensi->id }}</td>
                 <td>{{ $absensi->id_siswa }}</td>
