@@ -13,7 +13,7 @@
     }
     .sidebar {
       height: 100vh;
-      background-color: #8DD8FF;
+      background-color: #BEADFA;
       box-shadow: 2px 0 10px rgba(0,0,0,0.1);
       padding: 20px;
       position: fixed;
@@ -74,7 +74,7 @@
     }
 
     header.navbar {
-      background-color: #96EFFF;
+      background-color: #BEADFA;
       position: fixed;
       top: 0;
       left: 240px;
@@ -189,7 +189,7 @@
   <!-- Header -->
   <header class="navbar shadow-sm px-4" id="header">
     <div class="container-fluid d-flex justify-content-between align-items-center h-100">
-      <h5 class="fw-bold mb-0 text-dark">Dashboard</h5>
+      <h5 class="fw-bold mb-0 text-light">Dashboard</h5>
   
       <div class="d-flex align-items-center">
         <span class="text-muted me-3" id="live-clock"></span>
@@ -222,21 +222,30 @@
   </header>
 
   <!-- Dashboard Content -->
-  <div class="row">
-    <div class="col-md-6 mb-3">
-      <div class="card card-custom card-orange p-3 text-center">
-        <div class="row align-items-center">
-          <div class="col-8 text-start">
-            <h4>Selamat Datang, I'am Admin</h4>
-            <p>Terus pantau kegiatan penerimaan mahasiswa baru dan absensi siswa PKL</p>
-          </div>
-          <div class="col-4 text-end">
-            <img src="{{ asset('img/absen.png') }}" alt="Welcome Image" class="img-fluid" style="max-height:100px;">
-          </div> 
+  <div class="row mb-3">
+  <!-- Card Selamat Datang -->
+  <div class="col-md-6">
+    <div class="card card-custom card-orange p-3 text-center">
+      <div class="row align-items-center">
+        <div class="col-8 text-start">
+          <h4>Selamat Datang, I'am Admin</h4>
+          <p>Terus pantau kegiatan penerimaan mahasiswa baru dan absensi siswa PKL</p>
         </div>
+        <div class="col-4 text-end">
+          <img src="{{ asset('img/absen.png') }}" alt="Welcome Image" class="img-fluid" style="max-height:100px;">
+        </div> 
       </div>
     </div>
   </div>
+
+  <!-- Card Grafik Kehadiran -->
+  <div class="col-md-6">
+    <div class="card card-custom p-3">
+      <h5 class="fw-bold mb-3">Presentase Kehadiran Siswa per Bulan</h5>
+      <canvas id="attendanceChart" height="150"></canvas>
+    </div>
+  </div>
+</div>
 
   <!-- Cards -->
   <div class="container mt-4">
@@ -365,6 +374,53 @@
 
   setInterval(updateClock, 1000);
   updateClock();
+</script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  const ctx = document.getElementById('attendanceChart').getContext('2d');
+
+  const attendanceChart = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
+      datasets: [
+        {
+          label: 'Hadir (%)',
+          data: [80, 85, 90, 88, 92, 87],
+          backgroundColor: 'rgba(40, 167, 69, 0.8)',
+        },
+        {
+          label: 'Terlambat (%)',
+          data: [20, 15, 10, 12, 8, 13],
+          backgroundColor: 'rgba(220, 53, 69, 0.8)',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      plugins: {
+        legend: { position: 'top' },
+        tooltip: {
+          callbacks: {
+            label: function(context) {
+              return context.dataset.label + ': ' + context.raw + '%';
+            }
+          }
+        }
+      },
+      scales: {
+        y: {
+          beginAtZero: true,
+          max: 100,
+          ticks: {
+            callback: function(value) {
+              return value + '%';
+            }
+          }
+        }
+      }
+    }
+  });
 </script>
 </body>
 </html>
