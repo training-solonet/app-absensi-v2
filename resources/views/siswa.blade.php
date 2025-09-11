@@ -145,7 +145,7 @@
             <a href="#" class="d-flex align-items-center" id="profileDropdown" 
                role="button" data-bs-toggle="dropdown" aria-expanded="false">
               <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
-                   alt="Profile" width="40" height="40" class="rounded-circle border border-2 border-primary">
+                   alt="Profile" width="40" height="40" class="rounded-circle border-2 border-primary">
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
                 <a class="dropdown-item d-flex align-items-center text-danger" href="/login">
@@ -172,7 +172,6 @@
           <tr>
             <th>ID</th>
             <th>Nama</th>
-            <th>NIM</th>
             <th>Sekolah</th> 
           </tr>
         </thead>
@@ -181,7 +180,6 @@
             <tr>
               <td>{{ $siswa->id }}</td>
               <td>{{ $siswa->name }}</td>
-              <td>{{ $siswa->nim }}</td>
               <td>{{ $siswa->schools }}</td> 
             </tr>
           @empty

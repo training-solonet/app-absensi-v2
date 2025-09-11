@@ -212,7 +212,6 @@
     <div class="col-md-6">
       <div class="card card-custom p-3">
         <h5 class="fw-bold mb-3">Statistics Absen</h5>
-        <p class="text-muted">Data realtime dari absen</p>
         <div class="row text-center">
           <div class="col-md-4">
             <canvas id="izinChart" width="120" height="120"></canvas>
