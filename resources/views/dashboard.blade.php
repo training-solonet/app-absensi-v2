@@ -173,12 +173,12 @@
       <h5 class="fw-bold mb-0 text-light">Dashboard</h5>
   
       <div class="d-flex align-items-center">
-        <span class="text-muted me-3" id="live-clock"></span>
+        <span class="text-white me-3" id="live-clock"></span>
         <div class="dropdown">
           <a href="#" class="d-flex align-items-center" id="profileDropdown" 
              role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
-                 alt="Profile" width="40" height="40" class="rounded-circle border border-2 border-primary">
+                 alt="Profile" width="40" height="40" class="rounded-circle border-2 border-primary">
           </a>
           <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
               <a class="dropdown-item d-flex align-items-center text-danger" href="/login">
