@@ -13,7 +13,7 @@
     }
     .sidebar {
       height: 100vh;
-      background-color: #BEADFA;
+      background-color: #607EAA;
       box-shadow: 2px 0 10px rgba(0,0,0,0.1);
       padding: 20px;
       position: fixed;
@@ -74,7 +74,7 @@
     }
 
     header.navbar {
-      background-color: #BEADFA;
+      background-color: #607EAA;
       position: fixed;
       top: 0;
       left: 240px;
@@ -181,9 +181,12 @@
                  alt="Profile" width="40" height="40" class="rounded-circle border-2 border-primary">
           </a>
           <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
-              <a class="dropdown-item d-flex align-items-center text-danger" href="/login">
-                <i class="bi bi-box-arrow-right me-2"></i> Logout
-              </a>
+              <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                @csrf
+                <button type="submit" class="dropdown-item d-flex align-items-center text-danger border-0 bg-transparent">
+                  <i class="bi bi-box-arrow-right me-2"></i> Logout
+                </button>
+              </form>
             </li>
           </ul>
         </div>

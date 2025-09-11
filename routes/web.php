@@ -2,8 +2,16 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\AbsensiController;
 
-Route::view('/login', 'login')->name('login.show');
+// Redirect root ke login
+Route::get('/', function () {
+    return redirect('/login');
+});
+
+// Halaman login
+Route::view('/login', 'login')->name('login');
 
 // Proses Login
 Route::post('/proses-login', function (Request $request) {
@@ -11,29 +19,26 @@ Route::post('/proses-login', function (Request $request) {
     $password = $request->input('password');
 
     if ($email === 'admin@gmail.com' && $password === '123456') {
-        return redirect()->route('dashboard');
+        // Set session untuk menandai user sudah login
+        session(['user_logged_in' => true, 'user_email' => $email]);
+        return redirect('/dashboard');
     }
 
     return back()->with('error', 'Email atau Password salah!');
 })->name('prosesLogin');
 
-// Dashboard
-Route::get('/dashboard', function () {
-    return view('dashboard');
-})->name('dashboard');
+// Logout
+Route::post('/logout', function () {
+    session()->flush();
+    return redirect('/login')->with('success', 'Berhasil logout!');
+})->name('logout');
 
-// Data Siswa
-use App\Http\Controllers\SiswaController;
-
-Route::get('/siswa', [SiswaController::class, 'index'])->name('siswa.index');
-Route::post('/siswa', [SiswaController::class, 'store'])->name('siswa.store');
-
-//lapooran absensi
-use App\Http\Controllers\AbsensiController;
-
-Route::get('/absensi', [AbsensiController::class, 'index']);
-
-
-
-
-
+// Routes yang memerlukan login
+Route::middleware(['web', 'ceklogin'])->group(function () {
+    Route::get('/dashboard', function () {
+        return view('dashboard');
+    })->name('dashboard');
+    
+    Route::resource('/siswa', SiswaController::class);
+    Route::get('/absensi', [AbsensiController::class, 'index']);
+});

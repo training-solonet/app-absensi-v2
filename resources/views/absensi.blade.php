@@ -14,7 +14,7 @@
 
     .sidebar {
       height: 100vh;
-      background-color: #8DD8FF;
+      background-color: #607EAA;
       box-shadow: 2px 0 10px rgba(0,0,0,0.1);
       padding: 20px;
       position: fixed;
@@ -90,7 +90,7 @@
     }
 
     header.navbar {
-      background-color: #96EFFF;
+      background-color: #607EAA;
       position: fixed;
       top: 0;
       left: 240px;
@@ -162,9 +162,12 @@
               <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" width="40" height="40" class="rounded-circle border border-2 border-primary">
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
-                <a class="dropdown-item d-flex align-items-center text-danger" href="/login">
-                  <i class="bi bi-box-arrow-right me-2"></i> Logout
-                </a>
+                <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                  @csrf
+                  <button type="submit" class="dropdown-item d-flex align-items-center text-danger border-0 bg-transparent">
+                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                  </button>
+                </form>
               </li>
             </ul>
           </div>
@@ -181,14 +184,6 @@
             <label for="tanggal" class="form-label">Pilih Tanggal</label>
             <input type="date" id="tanggal" class="form-control">
           </div>
-          <div class="col-md-4">
-            <label for="kelas" class="form-label">Pilih Kelas</label>
-            <select id="kelas" class="form-select">
-              <option value="">Semua</option>
-              <option>XI RPL 1</option>
-              <option>XI RPL 2</option>
-            </select>
-          </div>
         </form>
 
         <!-- Tabel -->
@@ -197,8 +192,8 @@
               <table class="table table-striped align-middle">
                 <thead class="table-light">
                   <tr>
-                        <th>ID</th>
-                        <th>ID Siswa</th>
+                        <th>No</th>
+                        <th>Nama</th>
                         <th>Tanggal</th>
                         <th>Waktu Masuk</th>
                         <th>Waktu Keluar</th>
@@ -209,11 +204,11 @@
                   <tbody>
               @forelse($absen as $absensi)
               <tr>
-                <td>{{ $absensi->id }}</td>
-                <td>{{ $absensi->id_siswa }}</td>
-                <td>{{ $absensi->tanggal }}</td>
-                <td>{{ $absensi->waktu_masuk }}</td>
-                <td>{{ $absensi->waktu_keluar }}</td>
+                <td>{{ $loop->iteration }}</td>
+                <td>{{ $absensi->siswa->name }}</td>
+                <td>{{ date('d/m/Y', strtotime($absensi->tanggal)) }}</td>
+                <td>{{ date('H:i:s', strtotime($absensi->waktu_masuk)) }}</td>
+                <td>{{ date('H:i:s', strtotime($absensi->waktu_keluar)) }}</td>
                 <td>{{ $absensi->keterangan }}</td>
                 <td>{{ $absensi->catatan }}</td>
               </tr>
