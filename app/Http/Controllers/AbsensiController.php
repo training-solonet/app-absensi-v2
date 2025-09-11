@@ -1,14 +1,16 @@
 <?php
 
 namespace App\Http\Controllers;
-use App\Models\Absensi;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AbsensiController extends Controller
 {
-      public function index()
+    public function index()
     {
-        $absen = Absen::all();
-
-        return view('absen', compact('absensi'));
+        $absen = DB::connection('absensi_v2')->table('absen')->get();
+        
+        return view('absensi', compact('absen'));
     }
 }
