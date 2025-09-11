@@ -151,9 +151,10 @@
     <!-- Header -->
     <header class="navbar shadow-sm px-4" id="header">
       <div class="container-fluid d-flex justify-content-between align-items-center h-100">
-        <h5 class="fw-bold mb-0 text-dark">Laporan Absensi</h5>
+        <h5 class="fw-bold mb-0 text-light">Laporan Absensi</h5>
+
         <div class="d-flex align-items-center">
-          <span class="text-muted me-3" id="live-clock"></span>
+          <span class="text-white me-3" id="live-clock"></span>
 
           <!-- Dropdown Profil -->
           <div class="dropdown">
@@ -206,7 +207,7 @@
                       </tr>
                     </thead>
                   <tbody>
-              @forelse($absensi as $absen)
+              @forelse($absen as $absensi)
               <tr>
                 <td>{{ $absensi->id }}</td>
                 <td>{{ $absensi->id_siswa }}</td>
