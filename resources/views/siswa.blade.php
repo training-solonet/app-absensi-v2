@@ -5,6 +5,7 @@
   <title>Data Siswa</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.css" rel="stylesheet">
 
   <style>
     body {
@@ -13,7 +14,7 @@
     }
     .sidebar {
       height: 100vh;
-      background-color: #8DD8FF;
+      background-color: #607EAA;
       box-shadow: 2px 0 10px rgba(0,0,0,0.1);
       padding: 20px;
       position: fixed;
@@ -79,7 +80,7 @@
       margin-left: 80px !important;
     }
     header.navbar {
-      background-color: #96EFFF;
+      background-color: #607EAA;
       position: fixed;
       top: 0;
       left: 240px;
@@ -148,9 +149,12 @@
                    alt="Profile" width="40" height="40" class="rounded-circle border-2 border-primary">
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
-                <a class="dropdown-item d-flex align-items-center text-danger" href="/login">
-                  <i class="bi bi-box-arrow-right me-2"></i> Logout
-                </a>
+                <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                  @csrf
+                  <button type="submit" class="dropdown-item d-flex align-items-center text-danger border-0 bg-transparent">
+                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                  </button>
+                </form>
               </li>
             </ul>
           </div>
@@ -189,8 +193,14 @@
     </div>
   </div>
 
+  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+  <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
+
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+  $(document).ready(function() {
+    $('#siswaTable').DataTable();
+  });
   function setTheme(sidebarColor, headerColor) {
     document.getElementById("sidebar").style.backgroundColor = sidebarColor;
     document.getElementById("header").style.backgroundColor = headerColor;
