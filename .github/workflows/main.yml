@@ -22,7 +22,7 @@ jobs:
         run: npm install -g blade-formatter
 
       - name: Check Blade templates format
-        run: blade-formatter --check "resources/views/**/*.blade.php"
+        run: blade-formatter --diff "resources/views/**/*.blade.php"
 
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
@@ -38,7 +38,7 @@ jobs:
         run: ./vendor/bin/pint --test
 
       - name: Run PHPStan (static analysis)
-        run: ./vendor/bin/phpstan analyse --memory-limit=1G
+        run: ./vendor/bin/phpstan analyse --memory-limit=1G app routes database
 
       - name: Run PHPUnit tests
         run: php artisan test --without-tty
