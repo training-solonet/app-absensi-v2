@@ -7,3 +7,6 @@ parameters:
         - routes
         - database
     level: 5
+    ignoreErrors:
+        - '#Relation .+ is not found in App\\Models\\.*#'
+
