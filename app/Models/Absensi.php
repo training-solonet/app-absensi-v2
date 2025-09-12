@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use App\Models\Siswa;
+use Illuminate\Database\Eloquent\Model;
 
 class Absensi extends Model
 {
