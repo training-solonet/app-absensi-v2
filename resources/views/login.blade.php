@@ -13,6 +13,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
+      flex-direction: column; 
       background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
       font-family: 'Poppins', sans-serif;
       overflow: hidden;
@@ -94,6 +95,32 @@
       color: #fff;
       text-decoration: underline;
     }
+    .icons-wrapper {
+      position: relative;
+      z-index: 5;
+    }
+    .social-icons a {
+      color: #fff;
+      font-size: 1.5rem;
+      margin: 0 .5rem;
+      text-decoration: none;
+    }
+    .social-icons a:hover {
+      text-decoration: none;
+    }
+
+    .logo-wrapper {
+      position: relative;
+      z-index: 5;
+      line-height: 0;
+      margin-bottom: -30px; 
+    }
+    .logo-img {
+      width: 300px;
+      height: 260px; 
+      display: block;
+      object-fit: contain;  
+    }
   </style>
 </head>
 <body>
@@ -102,10 +129,13 @@
   <div class="bubble"></div>
   <div class="bubble"></div>
 
+  <div class="logo-wrapper text-center">
+    <img src="{{ asset('img/connectis.png') }}" alt="Logo" class="logo-img">
+  </div>
+
   <!-- Login Card -->
   <div class="login-card">
     <h3>Login</h3>
-    
     @if(session('error'))
       <div class="alert alert-danger alert-dismissible fade show" role="alert">
         {{ session('error') }}
@@ -130,12 +160,15 @@
       </div>
       <button type="submit" class="btn btn-custom">Login</button>
     </form>
+    <div class="extra-links">
+      <a href="#">Forgot your password?</a>
+    </div>
   </div>
 
-  <div class="text-center mt-4">
+  <div class="icons-wrapper text-center mt-4">
         <div class="social-icons">
           <!-- Facebook -->
-          <a href="https://www.facebook.com/solonetjalabuana" target="_blank">
+          <a href="https://www.facebook.com/solonetjalabuana">
             <i class="bi bi-facebook"></i>
           </a>
           <!-- Instagram -->
