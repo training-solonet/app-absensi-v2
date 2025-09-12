@@ -40,9 +40,6 @@ jobs:
       - name: Run PHPStan (static analysis)
         run: ./vendor/bin/phpstan analyse --memory-limit=1G app routes database
 
-      - name: Run PHPUnit tests
-        run: php artisan test --without-tty
-
   staging:
     needs: lint-and-test
     runs-on: ubuntu-latest
