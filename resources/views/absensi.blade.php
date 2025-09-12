@@ -38,10 +38,14 @@
 
     .sidebar .nav-link {
       font-weight: 500;
-      color: #333;
+      color: #fff; 
       margin-bottom: 10px;
       display: flex;
       align-items: center;
+    }
+
+    .sidebar .nav-link:hover { 
+      color: #fff; 
     }
 
     .sidebar .nav-link i {
@@ -159,9 +163,15 @@
           <!-- Dropdown Profil -->
           <div class="dropdown">
             <a href="#" class="d-flex align-items-center" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" width="40" height="40" class="rounded-circle border border-2 border-primary">
+              <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" width="40" height="40" class="rounded-circle border-2 border-primary">
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+              <li>
+                <a class="dropdown-item d-flex align-items-center" href="{{ route('profile') }}">
+                  <i class="bi bi-person-circle me-2"></i> Profile
+                </a>
+              </li>
+              <li>
                 <form action="{{ route('logout') }}" method="POST" class="d-inline">
                   @csrf
                   <button type="submit" class="dropdown-item d-flex align-items-center text-danger border-0 bg-transparent">
