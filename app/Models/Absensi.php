@@ -4,10 +4,6 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-/**
- * @property-read Siswa $siswa
-*/
-
 class Absensi extends Model
 {
     // Tentukan koneksi database yang digunakan
