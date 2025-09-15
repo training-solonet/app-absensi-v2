@@ -4,6 +4,7 @@ use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\SiswaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UIDController;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -35,7 +36,7 @@ Route::post('/logout', function () {
     return redirect('/login')->with('success', 'Berhasil logout!');
 })->name('logout');
 
-// Routes yang memerlukan login
+// Routes yang memerlukan logi
 Route::middleware(['web', 'ceklogin'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
@@ -47,3 +48,6 @@ Route::middleware(['web', 'ceklogin'])->group(function () {
     Route::resource('/siswa', SiswaController::class);
     Route::get('/absensi', [AbsensiController::class, 'index']);
 });
+
+Route::get('/data-uid', [UIDController::class, 'index'])->name('data-uid');
+

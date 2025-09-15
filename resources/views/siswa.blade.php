@@ -14,7 +14,7 @@
     }
     .sidebar {
       height: 100vh;
-      background-color: #81DAE3;
+      background-color: #1679AB;
       box-shadow: 2px 0 10px rgba(0,0,0,0.1);
       padding: 20px;
       position: fixed;
@@ -51,7 +51,7 @@
       justify-content: center;
     }
     .sidebar .nav-link.active {
-      background: #0D7C66;
+      background: #205781;
       color: #fff;
       border-radius: 8px;
       padding: 10px;
@@ -83,7 +83,7 @@
       margin-left: 80px !important;
     }
     header.navbar {
-      background-color:#81DAE3;
+      background-color:#1679AB;
       position: fixed;
       top: 0;
       left: 240px;
@@ -125,6 +125,10 @@
       <a class="nav-link {{ request()->is('absensi') ? 'active' : '' }}" href="{{ url('/absensi') }}">
         <i class="bi bi-clipboard-check"></i> <span>Laporan Absensi</span>
       </a>
+      <a href="{{ route('data-uid') }}" class="nav-link">
+        <i class="bi bi-credit-card-2-front"></i>
+        <span>Data UID</span>
+    </a>
     </nav>  
 
     <!-- Tombol Panah -->
@@ -171,12 +175,6 @@
       </div>
     </header>
 
-    <!-- Tabel Data Siswa -->
-    <div class="mt-4">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h4 class="mb-0">Daftar Siswa</h4>
-      </div>
-
       <table class="table table-bordered table-striped" id="siswaTable">
         <thead style="background-color: #8DD8FF;">
           <tr>
@@ -201,7 +199,6 @@
 
   <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
   <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
   $(document).ready(function() {

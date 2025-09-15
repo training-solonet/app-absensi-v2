@@ -14,7 +14,6 @@ class CekLogin
             // Kalau belum login, redirect ke halaman login
             return redirect('/login')->with('error', 'Silakan login dulu!');
         }
-
         // Kalau sudah login, lanjutkan request
         return $next($request);
     }
