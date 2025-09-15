@@ -13,7 +13,7 @@
     }
     .sidebar {
       height: 100vh;
-      background-color: #607EAA;
+      background-color: #81DAE3;
       box-shadow: 2px 0 10px rgba(0,0,0,0.1);
       padding: 20px;
       position: fixed;
@@ -34,7 +34,7 @@
     }
     .sidebar .nav-link {
       font-weight: 500;
-      color: #fff; /* default putih sebelum diklik */
+      color: #fff; 
       margin-bottom: 10px;
       display: flex;
       align-items: center;
@@ -77,7 +77,7 @@
     }
 
     header.navbar {
-      background-color: #607EAA;
+      background-color: #81DAE3;
       position: fixed;
       top: 0;
       left: 240px;
@@ -90,8 +90,8 @@
       left: 70px;
     }
     .sidebar .nav-link.active {
-      background: #687EFF;
-      color: #fff;
+      background: #0D7C66;
+      color: #fff;    
       border-radius: 8px;
       padding: 10px;
     }

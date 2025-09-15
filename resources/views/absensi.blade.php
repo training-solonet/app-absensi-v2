@@ -5,6 +5,7 @@
   <title>Laporan Absensi</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.css" rel="stylesheet">
 
   <style>
     body {
@@ -14,7 +15,7 @@
 
     .sidebar {
       height: 100vh;
-      background-color: #607EAA;
+      background-color: #81DAE3;
       box-shadow: 2px 0 10px rgba(0,0,0,0.1);
       padding: 20px;
       position: fixed;
@@ -58,7 +59,7 @@
     }
 
     .sidebar .nav-link.active {
-      background: #687EFF;
+      background: #0D7C66;
       color: #fff;
       border-radius: 8px;
       padding: 10px;
@@ -94,7 +95,7 @@
     }
 
     header.navbar {
-      background-color: #607EAA;
+      background-color: #81DAE3;
       position: fixed;
       top: 0;
       left: 240px;
@@ -234,6 +235,10 @@
     </div>
   </div>
 
+
+  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+  <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
+  
   <!-- JS -->
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
