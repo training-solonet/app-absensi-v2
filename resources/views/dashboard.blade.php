@@ -7,7 +7,6 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
 
-<<<<<<< HEAD
   <style>
     body {
       font-family: 'Poppins', sans-serif;
@@ -15,7 +14,7 @@
     }
     .sidebar {
       height: 100vh;
-      background-color: #81DAE3;
+      background-color: #1679AB;
       box-shadow: 2px 0 10px rgba(0,0,0,0.1);
       padding: 20px;
       position: fixed;
@@ -79,7 +78,7 @@
     }
 
     header.navbar {
-      background-color: #81DAE3;
+      background-color: #1679AB;
       position: fixed;
       top: 0;
       left: 240px;
@@ -92,7 +91,7 @@
       left: 70px;
     }
     .sidebar .nav-link.active {
-      background: #0D7C66;
+      background: #205781;
       color: #fff;    
       border-radius: 8px;
       padding: 10px;
@@ -162,6 +161,12 @@
     <a class="nav-link" href="{{ url('/absensi') }}">
       <i class="bi bi-clipboard-check"></i> <span>Laporan Absensi</span>
     </a>
+    <li class="nav-item">
+    <a href="{{ route('data-uid') }}" class="nav-link">
+        <i class="bi bi-credit-card-2-front"></i>
+        <span>Data UID</span>
+    </a>
+</li>
   </nav>  
 
   <button class="toggle-btn" id="toggleBtn">
@@ -291,9 +296,7 @@
         <table class="table table-striped align-middle">
           <thead class="table-light">
             <tr>
-              <th>No</th>
               <th>Nama</th>
-              <th>Jam</th>
               <th>Keterangan</th>
             </tr>
           </thead>

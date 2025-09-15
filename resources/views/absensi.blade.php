@@ -6,6 +6,7 @@
   <title>Laporan Absensi</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+  <link href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.css" rel="stylesheet">
 
     <style>
         body {
@@ -15,7 +16,7 @@
 
     .sidebar {
       height: 100vh;
-      background-color: #607EAA;
+      background-color: #1679AB;
       box-shadow: 2px 0 10px rgba(0,0,0,0.1);
       padding: 20px;
       position: fixed;
@@ -59,12 +60,11 @@
         }
 
     .sidebar .nav-link.active {
-      background: #687EFF;
+      background: #205781;
       color: #fff;
       border-radius: 8px;
       padding: 10px;
     }
-
         .toggle-btn {
             position: absolute;
             top: 50%;
@@ -82,20 +82,18 @@
             align-items: center;
             z-index: 1100;
         }
-
         .content {
             margin-left: 260px;
             padding: 20px;
             padding-top: 80px;
             transition: all 0.3s ease;
         }
-
         .content.collapsed {
             margin-left: 80px !important;
         }
 
     header.navbar {
-      background-color: #607EAA;
+      background-color: #1679AB;
       position: fixed;
       top: 0;
       left: 240px;
@@ -104,11 +102,9 @@
       z-index: 900;
       transition: all 0.3s ease;
     }
-
-        header.navbar.collapsed {
+    header.navbar.collapsed {
             left: 70px;
         }
-
         .card-custom {
             border-radius: 12px;
             border: none;
@@ -144,6 +140,10 @@
             </a>
             <a class="nav-link {{ request()->is('absensi') ? 'active' : '' }}" href="{{ url('/absensi') }}">
                 <i class="bi bi-clipboard-check"></i> <span>Laporan Absensi</span>
+            </a>
+            <a href="{{ route('data-uid') }}" class="nav-link">
+                <i class="bi bi-credit-card-2-front"></i>
+                <span>Data UID</span>
             </a>
         </nav>
 
@@ -203,10 +203,10 @@
                 </form>
 
         <!-- Tabel -->
-        <h5 class="fw-bold mb-3">Data Absensi</h5>
+        <h5 class="fw-bold mb-3"></h5>
             <div class="table-responsive">
-              <table class="table table-striped align-middle">
-                <thead class="table-light">
+              <table class="table table-bordered table-striped" id="absensiTable">
+                <thead style="background-color: #8DD8FF;">
                   <tr>
                         <th>No</th>
                         <th>Nama</th>
@@ -241,8 +241,14 @@
   </div>
 
   <!-- JS -->
+  <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
+  <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
+    $(document).ready(function() {
+      $('#absensiTable').DataTable();
+    });
+
     function setTheme(sidebarColor, headerColor) {
       document.getElementById("sidebar").style.backgroundColor = sidebarColor;
       document.getElementById("header").style.backgroundColor = headerColor;
