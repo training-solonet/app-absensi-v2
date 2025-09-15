@@ -8,12 +8,12 @@ return new class extends Migration
 {
     public function up(): void
     {
-       Schema::create('siswa', function (Blueprint $table) {
-    $table->id();
-    $table->string('name', 100);
-    $table->string('id_card', 50)->unique();
-    $table->timestamps();
-    });
+        Schema::create('siswa', function (Blueprint $table) {
+            $table->id();
+            $table->string('name', 100);
+            $table->string('id_card', 50)->unique();
+            $table->timestamps();
+        });
     }
 
     public function down(): void

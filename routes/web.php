@@ -1,10 +1,9 @@
 <?php
 
+use App\Http\Controllers\AbsensiController;
+use App\Http\Controllers\SiswaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\SiswaController;
-use App\Http\Controllers\AbsensiController;
-use App\Http\Controllers\ProfileController;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -22,6 +21,7 @@ Route::post('/proses-login', function (Request $request) {
     if ($email === 'admin@gmail.com' && $password === '123456') {
         // Set session untuk menandai user sudah login
         session(['user_logged_in' => true, 'user_email' => $email]);
+
         return redirect('/dashboard');
     }
 
@@ -31,6 +31,7 @@ Route::post('/proses-login', function (Request $request) {
 // Logout
 Route::post('/logout', function () {
     session()->flush();
+
     return redirect('/login')->with('success', 'Berhasil logout!');
 })->name('logout');
 
@@ -39,7 +40,7 @@ Route::middleware(['web', 'ceklogin'])->group(function () {
     Route::get('/dashboard', function () {
         return view('dashboard');
     })->name('dashboard');
-    
+
     // Halaman profil sederhana
     Route::view('/profile', 'profile')->name('profile');
 
