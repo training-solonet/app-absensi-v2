@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UIDController;
 use App\Models\Absensi;
+use App\Models\Siswa;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -41,12 +42,44 @@ Route::post('/logout', function () {
 Route::middleware(['web', 'ceklogin'])->group(function () {
     Route::get('/dashboard', function () {
         $terlambat = Absensi::with('siswa')
-            ->where('keterangan', 'Terlambat')
+            ->whereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat'])
+            ->whereDate('tanggal', now())
             ->orderBy('id', 'desc')
             ->limit(10)
             ->get();
 
-        return view('dashboard', compact('terlambat'));
+        // Summary counters
+        $totalSiswa = Siswa::count();
+        $hadirHariIni = Absensi::whereDate('tanggal', now())
+            ->where(function($q){
+                $q->whereRaw('LOWER(TRIM(keterangan)) = ?', ['hadir'])
+                  ->orWhereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat']);
+            })
+            ->distinct('id_siswa')
+            ->count('id_siswa');
+        $belumAtauTidakHadir = max($totalSiswa - $hadirHariIni, 0);
+
+        // Realtime stats for donuts (percent of total siswa)
+        $izinHariIni = Absensi::whereDate('tanggal', now())
+            ->whereRaw('LOWER(TRIM(keterangan)) = ?', ['izin'])
+            ->distinct('id_siswa')
+            ->count('id_siswa');
+        $terlambatOnlyHariIni = Absensi::whereDate('tanggal', now())
+            ->whereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat'])
+            ->distinct('id_siswa')
+            ->count('id_siswa');
+        $hadirTermasukTerlambatHariIni = $hadirHariIni; // already includes terlambat
+
+        $denom = max($totalSiswa, 1);
+        $izinPct = round($izinHariIni / $denom * 100);
+        $terlambatPct = round($terlambatOnlyHariIni / $denom * 100);
+        $hadirPct = round($hadirTermasukTerlambatHariIni / $denom * 100);
+
+        return view('dashboard', compact(
+            'terlambat',
+            'totalSiswa', 'hadirHariIni', 'belumAtauTidakHadir',
+            'izinPct', 'terlambatPct', 'hadirPct'
+        ));
     })->name('dashboard');
 
     // Halaman profil sederhana
@@ -57,4 +90,3 @@ Route::middleware(['web', 'ceklogin'])->group(function () {
 });
 
 Route::get('/data-uid', [UIDController::class, 'index'])->name('data-uid');
-
