@@ -203,7 +203,7 @@
                 </form>
 
         <!-- Tabel -->
-        <h5 class="fw-bold mb-3"></h5>
+        <h5 class="fw-bold mb-3">Data Absensi</h5>
             <div class="table-responsive">
               <table class="table table-bordered table-striped" id="absensiTable">
                 <thead style="background-color: #8DD8FF;">

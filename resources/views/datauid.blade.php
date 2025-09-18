@@ -162,7 +162,7 @@
                 @foreach($uids as $u)
                 <tr>
                     <td>{{ $u->uid ?? $u->uid_code ?? '-' }}</td>
-                    <td>{{ $u->siswa->name ?? $u->name ?? '-' }}</td>
+                    <td>{{ $u->siswa->name ?? $u->nama ?? $u->name ?? '-' }}</td>
                 </tr>
                 @endforeach
             </tbody>
