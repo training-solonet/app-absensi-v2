@@ -105,6 +105,14 @@
       background: linear-gradient(135deg, #60B5FF, #ff9f68); 
       color: #fff;
     }
+    .square-box {
+      border-radius: 0 !important;
+      background: #ffffff !important;
+      color: #333 !important;
+      border: 1px solid #e5e7eb !important; 
+      box-shadow: none !important;
+      min-height: 260px; 
+    }
     .summary-card {
       background: #fff;
       border-radius: 10px;
@@ -211,23 +219,7 @@
   </header>
 
   <!-- Dashboard Content -->
-  <div class="row mb-3">
-    <!-- Card Selamat Datang -->
-    <div class="col-md-6">
-      <div class="card card-custom card-orange p-3 text-center">
-        <div class="row align-items-center">
-          <div class="col-8 text-start">
-            <h4>Selamat Datang, I'am Admin</h4>
-            <p>Terus pantau kegiatan penerimaan mahasiswa baru dan absensi siswa PKL</p>
-          </div>
-          <div class="col-4 text-end">
-            <img src="{{ asset('img/absen.png') }}" alt="Welcome Image" class="img-fluid" style="max-height:100px;">
-          </div> 
-        </div>
-      </div>
-    </div>
-
-    <!-- Statistik Absen (Donut Chart) -->
+  <div class="row mb-3"> <!-- Statistik Absen (Donut Chart) -->
     <div class="col-md-6">
       <div class="card card-custom p-3">
         <h5 class="fw-bold mb-3">Statistics Absen</h5>
@@ -370,12 +362,13 @@
         plugins: {
           legend: { display: false },
           tooltip: { enabled: false }
-=======
+        }
+      }
+    });
     <style>
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #f8f9fa;
->>>>>>> f43b43a0f91106ee22064ebb62744ea43e8dd97e
         }
 
         .sidebar {
@@ -592,23 +585,7 @@
         </header>
 
         <!-- Dashboard Content -->
-        <div class="row mb-3">
-            <!-- Card Selamat Datang -->
-            <div class="col-md-6">
-                <div class="card card-custom card-orange p-3 text-center">
-                    <div class="row align-items-center">
-                        <div class="col-8 text-start">
-                            <h4>Selamat Datang, I'am Admin</h4>
-                            <p>Terus pantau kegiatan penerimaan mahasiswa baru dan absensi siswa PKL</p>
-                        </div>
-                        <div class="col-4 text-end">
-                            <img src="{{ asset('img/absen.png') }}" alt="Welcome Image" class="img-fluid"
-                                style="max-height:100px;">
-                        </div>
-                    </div>
-                </div>
-            </div>
-
+        <div class="row mb-3">  
             <!-- Statistik Absen (Donut Chart) -->
             <div class="col-md-6">
                 <div class="card card-custom p-3">
@@ -627,6 +604,32 @@
                             <p class="mt-2">Rata rata Hadir</p>
                         </div>
                     </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Data Keterlambatan -->
+        <div class="card card-custom mt-3 p-3">
+            <div class="card-body">
+                <h5 class="fw-bold mb-3">Data Keterlambatan</h5>
+                <div class="table-responsive">
+                    <table class="table table-striped align-middle">
+                        <thead class="table-light">
+                            <tr>
+                                <th>Nama</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @forelse(($terlambat ?? []) as $row)
+                                <tr>
+                                    <td>{{ $siswa->id_siswa?->name ?? '-' }}</td>
+                                    <td>{{ $absen->keterangan ?? '-' }}</td>
+                                </tr>
+                            @empty         
+                            @endforelse
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
@@ -669,28 +672,6 @@
                 </div>
             </div>
         </div>
-
-        <!-- Data Keterlambatan -->
-        <div class="card card-custom mt-4 p-3">
-            <div class="card-body">
-                <h5 class="fw-bold mb-3">Data Keterlambatan</h5>
-                <div class="table-responsive">
-                    <table class="table table-striped align-middle">
-                        <thead class="table-light">
-                            <tr>
-                                <th>No</th>
-                                <th>Nama</th>
-                                <th>Jam</th>
-                                <th>Keterangan</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                        </tbody>
-                    </table>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <!-- JS -->
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

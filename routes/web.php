@@ -5,6 +5,7 @@ use App\Http\Controllers\SiswaController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UIDController;
+use App\Models\Absensi;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -39,7 +40,13 @@ Route::post('/logout', function () {
 // Routes yang memerlukan logi
 Route::middleware(['web', 'ceklogin'])->group(function () {
     Route::get('/dashboard', function () {
-        return view('dashboard');
+        $terlambat = Absensi::with('siswa')
+            ->where('keterangan', 'Terlambat')
+            ->orderBy('id', 'desc')
+            ->limit(10)
+            ->get();
+
+        return view('dashboard', compact('terlambat'));
     })->name('dashboard');
 
     // Halaman profil sederhana
