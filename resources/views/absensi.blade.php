@@ -3,6 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Laporan Absensi</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
@@ -110,6 +111,38 @@
             border: none;
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
         }
+
+        /* Overlay for mobile when sidebar is open */
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.35);
+            z-index: 950;
+            display: none;
+        }
+        .overlay.show { display: block; }
+
+        /* Mobile responsiveness */
+        @media (max-width: 991.98px) {
+            .content {
+                margin-left: 0;
+                padding-top: 70px;
+            }
+            header.navbar {
+                left: 0;
+            }
+            .toggle-btn { /* hide desktop toggle on small screens */
+                display: none;
+            }
+            .sidebar {
+                width: 80%;
+                max-width: 260px;
+                transform: translateX(-100%);
+            }
+            .sidebar.open {
+                transform: translateX(0);
+            }
+        }
     </style>
 </head>
 
@@ -152,13 +185,20 @@
             <i class="bi bi-chevron-left"></i>
         </button>
     </div>
+    <!-- Overlay for mobile -->
+    <div class="overlay" id="overlay"></div>
 
     <!-- Content -->
     <div class="content" id="content">
         <!-- Header -->
         <header class="navbar shadow-sm px-4" id="header">
             <div class="container-fluid d-flex justify-content-between align-items-center h-100">
-                <h5 class="fw-bold mb-0 text-light">Laporan Absensi</h5>
+                <div class="d-flex align-items-center">
+                    <button class="btn btn-link text-white d-lg-none me-2 p-0" id="mobileMenuBtn" aria-label="Menu">
+                        <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+                    </button>
+                    <h5 class="fw-bold mb-0 text-light">Laporan Absensi</h5>
+                </div>
 
                 <div class="d-flex align-items-center">
                     <span class="text-white me-3" id="live-clock"></span>
@@ -199,6 +239,27 @@
                     <div class="col-md-4">
                         <label for="tanggal" class="form-label">Pilih Tanggal</label>
                         <input type="date" id="tanggal" class="form-control">
+                    </div>
+                    <div class="col-md-4">
+                        <label for="namaSiswa" class="form-label">Pilih nama siswa</label>
+                        <select id="namaSiswa" class="form-select">
+                            <option value="">Open this select menu</option>
+                            @php
+                                // Ambil daftar siswa: gunakan variabel $siswas jika tersedia, jika tidak ambil unik dari $absen
+                                $listSiswa = isset($siswas) && $siswas
+                                    ? collect($siswas)
+                                    : (isset($absen) ? collect($absen)->pluck('siswa')->filter()->unique('id') : collect());
+                            @endphp
+                            @foreach($listSiswa as $siswa)
+                                @php
+                                    $sid = is_object($siswa) ? ($siswa->id ?? $siswa->id_siswa ?? '') : (is_array($siswa) ? ($siswa['id'] ?? '') : '');
+                                    $sname = is_object($siswa) ? ($siswa->name ?? '') : (is_array($siswa) ? ($siswa['name'] ?? '') : (string)$siswa);
+                                @endphp
+                                @if(!empty($sname))
+                                    <option value="{{ $sname }}">{{ $sname }}</option>
+                                @endif
+                            @endforeach
+                        </select>
                     </div>
                 </form>
 
@@ -246,7 +307,25 @@
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     $(document).ready(function() {
-      $('#absensiTable').DataTable();
+      const table = $('#absensiTable').DataTable();
+      // Filter berdasarkan nama siswa (kolom index 1)
+      $('#namaSiswa').on('change', function() {
+        table.column(1).search(this.value).draw();
+      });
+      function formatToDDMMYYYY(value) {
+        if (!value) return '';
+        const [y, m, d] = value.split('-');
+        return `${d}/${m}/${y}`;
+      }
+      $('#tanggal').on('change', function() {
+        const val = this.value;
+        if (!val) {
+          table.column(2).search('').draw();
+          return;
+        }
+        const formatted = formatToDDMMYYYY(val).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        table.column(2).search(`^${formatted}$`, true, false).draw();
+      });
     });
 
     function setTheme(sidebarColor, headerColor) {
@@ -259,6 +338,8 @@
         const header = document.getElementById("header");
         const toggleBtn = document.getElementById("toggleBtn");
         const icon = toggleBtn.querySelector("i");
+        const overlay = document.getElementById("overlay");
+        const mobileMenuBtn = document.getElementById("mobileMenuBtn");
 
         toggleBtn.addEventListener("click", () => {
             sidebar.classList.toggle("collapsed");
@@ -271,6 +352,18 @@
                 icon.classList.replace("bi-chevron-right", "bi-chevron-left");
             }
         });
+
+        // Mobile: open/close sidebar
+        function openSidebarMobile() {
+            sidebar.classList.add('open');
+            overlay.classList.add('show');
+        }
+        function closeSidebarMobile() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+        }
+        if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', openSidebarMobile);
+        if (overlay) overlay.addEventListener('click', closeSidebarMobile);
 
         // Live Clock
         function updateClock() {
