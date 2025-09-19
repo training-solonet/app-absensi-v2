@@ -11,6 +11,5 @@ class SiswaController extends Controller
         $siswas = Siswa::all();
 
         return view('siswa', compact('siswas'));
-
     }
 }

@@ -9,7 +9,7 @@ class CekLogin
 {
     public function handle(Request $request, Closure $next)
     {
-        if (!session()->has('user_logged_in')) {
+        if (! session()->has('user_logged_in')) {
 
             return redirect('/login')->with('error', 'Silakan login dulu!');
         }
