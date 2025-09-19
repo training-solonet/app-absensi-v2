@@ -2,11 +2,11 @@
 
 use App\Http\Controllers\AbsensiController;
 use App\Http\Controllers\SiswaController;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\UIDController;
 use App\Models\Absensi;
 use App\Models\Siswa;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Route;
 
 // Redirect root ke login
 Route::get('/', function () {
@@ -23,6 +23,7 @@ Route::post('/proses-login', function (Request $request) {
 
     if ($email === 'admin@gmail.com' && $password === '123456') {
         session(['user_logged_in' => true, 'user_email' => $email]);
+
         return redirect('/dashboard');
     }
 
@@ -49,8 +50,8 @@ Route::middleware(['web', 'ceklogin'])->group(function () {
         $totalSiswa = Siswa::count();
         $hadirHariIni = Absensi::whereDate('tanggal', now())
             ->where(function ($q) {
-                $q->whereRaw('LOWER(TRIM(keterangan)) = ?', ['hadir'])
-                  ->orWhereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat']);
+                $q->whereRaw('LOWER(TRIM(keterangan)) = ?', ['hadir']);
+                $q->orWhereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat']);
             })
             ->distinct('id_siswa')
             ->count('id_siswa');
