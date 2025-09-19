@@ -22,9 +22,7 @@ Route::post('/proses-login', function (Request $request) {
     $password = $request->input('password');
 
     if ($email === 'admin@gmail.com' && $password === '123456') {
-        // Set session untuk menandai user sudah login
         session(['user_logged_in' => true, 'user_email' => $email]);
-
         return redirect('/dashboard');
     }
 
@@ -38,7 +36,6 @@ Route::post('/logout', function () {
     return redirect('/login')->with('success', 'Berhasil logout!');
 })->name('logout');
 
-// Routes yang memerlukan logi
 Route::middleware(['web', 'ceklogin'])->group(function () {
     Route::get('/dashboard', function () {
         $terlambat = Absensi::with('siswa')
@@ -51,7 +48,7 @@ Route::middleware(['web', 'ceklogin'])->group(function () {
         // Summary counters
         $totalSiswa = Siswa::count();
         $hadirHariIni = Absensi::whereDate('tanggal', now())
-            ->where(function($q){
+            ->where(function ($q) {
                 $q->whereRaw('LOWER(TRIM(keterangan)) = ?', ['hadir'])
                   ->orWhereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat']);
             })
@@ -59,7 +56,6 @@ Route::middleware(['web', 'ceklogin'])->group(function () {
             ->count('id_siswa');
         $belumAtauTidakHadir = max($totalSiswa - $hadirHariIni, 0);
 
-        // Realtime stats for donuts (percent of total siswa)
         $izinHariIni = Absensi::whereDate('tanggal', now())
             ->whereRaw('LOWER(TRIM(keterangan)) = ?', ['izin'])
             ->distinct('id_siswa')
@@ -82,7 +78,6 @@ Route::middleware(['web', 'ceklogin'])->group(function () {
         ));
     })->name('dashboard');
 
-    // Halaman profil sederhana
     Route::view('/profile', 'profile')->name('profile');
 
     Route::resource('/siswa', SiswaController::class);

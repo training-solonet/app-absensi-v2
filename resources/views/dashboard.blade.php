@@ -358,7 +358,7 @@
     sidebar.classList.toggle("collapsed");
     content.classList.toggle("collapsed");
     header.classList.toggle("collapsed");
-
+    
     if (sidebar.classList.contains("collapsed")) {
       icon.classList.replace("bi-chevron-left", "bi-chevron-right");
     } else {
@@ -376,8 +376,6 @@
   }
   if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', openSidebarMobile);
   if (overlay) overlay.addEventListener('click', closeSidebarMobile);
-
-  // Live Clock
   function updateClock() {
     const now = new Date();
     const tanggal = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
@@ -386,13 +384,11 @@
   }
   setInterval(updateClock, 1000);
   updateClock();
-
-  // Register a plugin to draw text in the donut center
   Chart.register({
     id: 'centerText',
     afterDraw(chart, args, pluginOptions) {
       const {ctx, chartArea} = chart;
-      if (!chartArea) return; // Chart not ready
+      if (!chartArea) return;
       const text = pluginOptions?.text || '';
       ctx.save();
       const centerX = (chartArea.left + chartArea.right) / 2;
@@ -428,17 +424,12 @@
       }
     });
   }
-
-  // Use realtime percentages from backend
   const izinPct = {{ $izinPct ?? 0 }};
   const terlambatPct = {{ $terlambatPct ?? 0 }};
   const hadirPct = {{ $hadirPct ?? 0 }};
-
-  // izin: orange, terlambat: red, hadir: green
   buatChart('izinChart', izinPct, '#f39c12');
   buatChart('terlambatChart', terlambatPct, '#e74c3c');
   buatChart('hadirChart', hadirPct, '#27ae60');
 </script>
 </body>
-
 </html>
