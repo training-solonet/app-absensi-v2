@@ -8,7 +8,7 @@ class Uid extends Model
 {
     protected $connection = 'absensi_v2';
 
-    protected $table = 'uid'; 
+    protected $table = 'uid';
 
     protected $fillable = ['uid', 'name'];
 
