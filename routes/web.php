@@ -62,7 +62,7 @@ Route::middleware(['web', 'ceklogin'])->group(function () {
             ->whereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat'])
             ->distinct('id_siswa')
             ->count('id_siswa');
-        $hadirTermasukTerlambatHariIni = $hadirHariIni; 
+        $hadirTermasukTerlambatHariIni = $hadirHariIni;
 
         $denom = max($totalSiswa, 1);
         $izinPct = round($izinHariIni / $denom * 100);
