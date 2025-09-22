@@ -3,15 +3,36 @@
 namespace App\Http\Controllers;
 
 use App\Models\Uid;
+use Illuminate\Http\Request;
 
 class UIDController extends Controller
 {
     public function index()
     {
-        // Load UID records and eager-load only the fields needed from Siswa
-        // so we can show the student's name instead of an ID in the table
+        
         $uids = Uid::with(['siswa:id,name'])->get();
 
         return view('datauid', compact('uids'));
+    }
+
+    public function updateName(Request $request)
+    {
+        $validated = $request->validate([
+            'uid_id' => 'required|integer|exists:uid,id',
+            'name' => 'required|string|min:2|max:255',
+        ]);
+
+        $uid = Uid::find($validated['uid_id']);
+        $uid->name = $validated['name'];
+        $uid->save();
+
+        return response()->json([
+            'success' => true,
+            'uid' => [
+                'id' => $uid->id,
+                'uid' => $uid->uid,
+                'name' => $uid->name,
+            ],
+        ]);
     }
 }
