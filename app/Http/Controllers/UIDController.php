@@ -22,6 +22,7 @@ class UIDController extends Controller
         ]);
 
         // Ensure we get a single Uid model instance (not a collection) and not null
+        /** @var Uid $uid */
         $uid = Uid::query()->findOrFail($validated['uid_id']);
         $uid->name = $validated['name'];
         $uid->save();
