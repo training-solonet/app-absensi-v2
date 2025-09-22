@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Model;
  * @property int $id
  * @property string $uid
  * @property string|null $name
- *
  * @property-read Siswa|null $siswa
  */
 class Uid extends Model
