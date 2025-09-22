@@ -68,7 +68,7 @@
       transform: translateY(-50%);
       width: 4px;
       height: 24px;
-      background: #F4D03F; /* yellow accent */
+      background: #F4D03F; 
       border-radius: 2px;
     }
     .toggle-btn {
