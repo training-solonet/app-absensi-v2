@@ -8,15 +8,12 @@ use App\Models\Siswa;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// Redirect root ke login
 Route::get('/', function () {
     return redirect('/login');
 });
 
-// Halaman login
 Route::view('/login', 'login')->name('login');
 
-// Proses Login
 Route::post('/proses-login', function (Request $request) {
     $email = $request->input('email');
     $password = $request->input('password');
@@ -24,7 +21,7 @@ Route::post('/proses-login', function (Request $request) {
     if ($email === 'admin@gmail.com' && $password === '123456') {
         session(['user_logged_in' => true, 'user_email' => $email]);
 
-        return redirect('/dashboard');
+        return redirect('/profile');
     }
 
     return back()->with('error', 'Email atau Password salah!');
@@ -65,7 +62,7 @@ Route::middleware(['web', 'ceklogin'])->group(function () {
             ->whereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat'])
             ->distinct('id_siswa')
             ->count('id_siswa');
-        $hadirTermasukTerlambatHariIni = $hadirHariIni; // already includes terlambat
+        $hadirTermasukTerlambatHariIni = $hadirHariIni;
 
         $denom = max($totalSiswa, 1);
         $izinPct = round($izinHariIni / $denom * 100);
@@ -86,3 +83,6 @@ Route::middleware(['web', 'ceklogin'])->group(function () {
 });
 
 Route::get('/data-uid', [UIDController::class, 'index'])->name('data-uid');
+
+// AJAX: update nama UID
+Route::post('/uid/update-name', [UIDController::class, 'updateName'])->name('uid.update-name');
