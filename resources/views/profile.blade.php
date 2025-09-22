@@ -89,98 +89,215 @@
             color: #0f172a;
             font-weight: 600;
         }
+
+        .sidebar {
+            height: 100vh;
+            background-color: #3F63E0;
+            box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+            padding: 20px;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 240px;
+            transition: all 0.3s ease;
+            z-index: 1000;
+        }
+        .sidebar.collapsed { width: 70px !important; overflow: hidden; }
+        .sidebar.collapsed .nav-link span,
+        .sidebar.collapsed .badge,
+        .sidebar.collapsed .text-center img[alt="Connectis Logo"] { display: none !important;}
+        .sidebar .nav-link { font-weight: 600; color: #EAF2FF; margin: 4px 8px 10px 8px; display: flex; align-items: center; gap: 10px; border-radius: 12px; padding: 10px 12px; position: relative; }
+        .sidebar .nav-link:hover { background: rgba(255,255,255,0.12); color: #fff; }
+        .sidebar .nav-link i { font-size: 18px; color: inherit; }
+        .sidebar .nav-link.active { background: rgba(255,255,255,0.18); color: #FFFFFF; }
+        .sidebar .nav-link.active::before { content: ''; position: absolute; left: -8px; top: 50%; transform: translateY(-50%); width: 4px; height: 24px; background: #F4D03F; border-radius: 2px; }
+        .toggle-btn { position: absolute; top: 50%; right: -15px; transform: translateY(-50%); background: #fff; border: none; border-radius: 50%; width: 30px; height: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer; display: flex; justify-content: center; align-items: center; z-index: 1100; }
+        .content { margin-left: 260px; padding: 20px; padding-top: 80px; transition: all 0.3s ease; }
+        .content.collapsed { margin-left: 80px !important; }
+        header.navbar { background-color:#3F63E0; position: fixed; top: 0; left: 240px; right: 0; height: 60px; z-index: 900; transition: all 0.3s ease; }
+        header.navbar.collapsed { left: 70px; }
+        @media (max-width: 991.98px) {
+            .content { margin-left: 0; padding-top: 70px; }
+            header.navbar { left: 0; }
+            .toggle-btn { display: none; }
+            .sidebar { width: 80%; max-width: 260px; transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
+        }
     </style>
 </head>
 
 <body>
-    <div class="container py-3">
-        <h4 class="page-title">My Profile</h4>
-
-        <!-- Summary -->
-        <div class="card-soft summary card-section">
-            <div class="d-flex align-items-center gap-3">
-                <img class="avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Avatar">
-                <div class="flex-grow-1">
-                    <div class="name">Administrator</div>
-                    <div class="meta">Admin • Solo, Indonesia</div>
-                    <div class="meta">{{ session('user_email', 'admin@gmail.com') }}</div>
-                </div>
+    <!-- Sidebar -->
+    <div class="sidebar p-3" id="sidebar">
+        <div class="text-center mb-4">
+            <img src="{{ asset('img/logo.png')}}" alt="Connectis Logo" width="120">
+        </div>
+        <div class="d-flex flex-column align-items-center text-center mb-4">
+            <a href="{{ route('profile') }}" class="text-decoration-none">
+              <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Admin" width="60" class="mb-2 rounded-circle">
+            </a>
+            <div>
+              <span class="badge bg-white text-dark">Administrator</span>
             </div>
         </div>
+        <nav class="nav flex-column">   
+            <a class="nav-link" href="/dashboard">
+              <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
+            </a>
+            <a class="nav-link" href="{{ route('siswa.index') }}">
+              <i class="bi bi-people-fill"></i> <span>Data Siswa</span>
+            </a>
+            <a class="nav-link" href="{{ url('/absensi') }}">
+              <i class="bi bi-clipboard-check"></i> <span>Laporan Absensi</span>
+            </a>
+            <a class="nav-link" href="{{ route('data-uid') }}">
+              <i class="bi bi-credit-card-2-front"></i> <span>Data UID</span>
+            </a>
+        </nav>  
+        <button class="toggle-btn" id="toggleBtn">
+          <i class="bi bi-chevron-left"></i>
+        </button>
+    </div>
 
-        <!-- Personal Information -->
-        <div class="card-soft card-section">
-            <div class="section-header">
-                <h6 class="section-title mb-0">Personal Information</h6>
-                <button class="edit-btn"><i class="bi bi-pencil-square"></i> Edit</button>
-            </div>
-            <div class="info-grid">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <div class="info-label">First Name</div>
-                        <div class="info-value">Admin</div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="info-label">Last Name</div>
-                        <div class="info-value">User</div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="info-label">Date of Birth</div>
-                        <div class="info-value">01-01-1990</div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="info-label">Email Address</div>
-                        <div class="info-value">{{ session('user_email', 'admin@gmail.com') }}</div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="info-label">Phone Number</div>
-                        <div class="info-value">(+62) 821-0000-0000</div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="info-label">User Role</div>
-                        <div class="info-value">Admin</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Address -->
-        <div class="card-soft card-section">
-            <div class="section-header">
-                <h6 class="section-title mb-0">Address</h6>
-                <button class="edit-btn"><i class="bi bi-pencil"></i> Edit</button>
-            </div>
-            <div class="info-grid">
-                <div class="row g-3">
-                    <div class="col-md-4">
-                        <div class="info-label">Country</div>
-                        <div class="info-value">Indonesia</div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="info-label">City</div>
-                        <div class="info-value">Solo</div>
-                    </div>
-                    <div class="col-md-4">
-                        <div class="info-label">Postal Code</div>
-                        <div class="info-value">57100</div>
-                    </div>
-                </div>
-                <div class="d-flex justify-content-between mt-3">
-                    <a href="{{ route('dashboard') }}" class="btn btn-outline-secondary">
-                        <i class="bi bi-arrow-left"></i> Kembali ke Dashboard
-                    </a>
-                    <form action="{{ route('logout') }}" method="POST" class="d-inline">
+    <!-- Content -->
+    <div class="content" id="content">
+        <!-- Header -->
+        <header class="navbar shadow-sm px-4" id="header">
+            <div class="container-fluid d-flex justify-content-between align-items-center h-100">
+              <div class="d-flex align-items-center">
+                <button class="btn btn-link text-white d-lg-none me-2 p-0" id="mobileMenuBtn" aria-label="Menu">
+                  <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+                </button>
+                <h5 class="fw-bold mb-0 text-light">Profil</h5>
+              </div>
+              <div class="d-flex align-items-center">
+                <span class="text-white me-3" id="live-clock"></span>
+                <div class="dropdown">
+                  <a href="#" class="d-flex align-items-center" id="profileDropdown" 
+                     role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                  <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
+                       alt="Profile" width="40" height="40" class="rounded-circle border-2 border-primary">
+                  </a>
+                  <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+                    <li>
+                      <form action="{{ route('logout') }}" method="POST" class="d-inline">
                         @csrf
-                        <button type="submit" class="btn btn-outline-danger">
-                            <i class="bi bi-box-arrow-right"></i> Logout
+                        <button type="submit" class="dropdown-item d-flex align-items-center text-danger border-0 bg-transparent">
+                          <i class="bi bi-box-arrow-right me-2"></i> Logout
                         </button>
-                    </form>
+                      </form>
+                    </li>
+                  </ul>
                 </div>
+              </div>
+            </div>
+        </header>
+
+        <!-- Profile Content -->    
+            <div class="card-soft summary card-section">
+                <div class="d-flex align-items-center gap-3">
+                    <img class="avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Avatar">
+                    <div class="flex-grow-1">
+                        <div class="name">Administrator</div>
+                        <div class="meta">Admin • Solo, Indonesia</div>
+                        <div class="meta">{{ session('user_email', 'admin@gmail.com') }}</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Personal Information -->
+            <div class="card-soft card-section">
+                <div class="section-header">
+                    <h6 class="section-title mb-0">Personal Information</h6>
+                    <button class="edit-btn"><i class="bi bi-pencil-square"></i> Edit</button>
+                </div>
+                <div class="info-grid">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="info-label">First Name</div>
+                            <div class="info-value">Admin</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-label">Last Name</div>
+                            <div class="info-value">User</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-label">Date of Birth</div>
+                            <div class="info-value">01-01-1990</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-label">Email Address</div>
+                            <div class="info-value">{{ session('user_email', 'admin@gmail.com') }}</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-label">Phone Number</div>
+                            <div class="info-value">(+62) 821-0000-0000</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-label">User Role</div>
+                            <div class="info-value">Admin</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Address -->
+            <div class="card-soft card-section">
+                <div class="section-header">
+                    <h6 class="section-title mb-0">Address</h6>
+                    <button class="edit-btn"><i class="bi bi-pencil"></i> Edit</button>
+                </div>
+                <div class="info-grid">
+                    <div class="row g-3">
+                        <div class="col-md-4">
+                            <div class="info-label">Country</div>
+                            <div class="info-value">Indonesia</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-label">City</div>
+                            <div class="info-value">Solo</div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="info-label">Postal Code</div>
+                            <div class="info-value">57100</div>
+                        </div>
+                    </div>
             </div>
         </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
+    <script>
+      const sidebar = document.getElementById("sidebar");
+      const content = document.getElementById("content");
+      const header = document.getElementById("header");
+      const toggleBtn = document.getElementById("toggleBtn");
+      const icon = toggleBtn ? toggleBtn.querySelector("i") : null;
+      const mobileMenuBtn = document.getElementById("mobileMenuBtn");
 
+      if (toggleBtn) {
+        toggleBtn.addEventListener("click", () => {
+          sidebar.classList.toggle("collapsed");
+          content.classList.toggle("collapsed");
+          header.classList.toggle("collapsed");
+          if (icon) {
+            if (sidebar.classList.contains("collapsed")) {
+              icon.classList.replace("bi-chevron-left", "bi-chevron-right");
+            } else {
+              icon.classList.replace("bi-chevron-right", "bi-chevron-left");
+            }
+          }
+        });
+      }
+
+      function updateClock() {
+        const now = new Date();
+        const tanggal = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+        const jam = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+        const el = document.getElementById('live-clock');
+        if (el) el.textContent = `${tanggal} | ${jam}`;
+      }
+      setInterval(updateClock, 1000); updateClock();
+    </script>
+</body>
 </html>
