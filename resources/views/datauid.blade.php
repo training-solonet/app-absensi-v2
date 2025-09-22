@@ -3,6 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <title>Data UID</title>
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
     <link href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.css" rel="stylesheet">
@@ -14,7 +15,7 @@
         }
         .sidebar {
             height: 100vh;
-            background-color: #1679AB;
+            background-color: #3F63E0; /* match reference */
             box-shadow: 2px 0 10px rgba(0,0,0,0.1);
             padding: 20px;
             position: fixed;
@@ -33,23 +34,15 @@
             display: none !important;
         }
         .sidebar .nav-link { 
-            font-weight: 500; color: #fff; margin-bottom: 10px; display: flex; align-items: center; 
+            font-weight: 600; color: #EAF2FF; margin: 4px 8px 10px 8px; display: flex; align-items: center; gap: 10px; border-radius: 12px; padding: 10px 12px; position: relative; 
         }
-        .sidebar .nav-link:hover { 
-            color: #fff; 
-        }
-        .sidebar .nav-link i { 
-            font-size: 18px; margin-right: 8px; 
-        }
+        .sidebar .nav-link:hover { background: rgba(255,255,255,0.12); color: #fff; }
+        .sidebar .nav-link i { font-size: 18px; color: inherit; }
         .sidebar.collapsed .nav-link { 
             justify-content: center; 
         }
-        .sidebar .nav-link.active { 
-            background: #205781; 
-            color: #fff; 
-            border-radius: 8px; 
-            padding: 10px;
-         }
+        .sidebar .nav-link.active { background: rgba(255,255,255,0.18); color: #FFFFFF; }
+        .sidebar .nav-link.active::before { content: ''; position: absolute; left: -8px; top: 50%; transform: translateY(-50%); width: 4px; height: 24px; background: #F4D03F; border-radius: 2px; }
         .toggle-btn { 
             position: absolute; top: 50%; right: -15px; transform: translateY(-50%); background: #fff; border: none; border-radius: 50%; width: 30px; height: 30px; box-shadow: 0 2px 5px rgba(0,0,0,0.2); cursor: pointer; display: flex; justify-content: center; align-items: center; z-index: 1100;
          }
@@ -63,7 +56,7 @@
             margin-left: 80px !important; 
         }
         header.navbar { 
-            background-color:#1679AB; 
+            background-color:#3F63E0; 
             position: fixed; 
             top: 0; 
             left: 240px; 
@@ -85,7 +78,9 @@
 
         <!-- Profil Admin -->
         <div class="d-flex flex-column align-items-center text-center mb-4">
-            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Admin" width="60" class="mb-2 rounded-circle">
+            <a href="{{ route('profile') }}" class="text-decoration-none">
+                <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Admin" width="60" class="mb-2 rounded-circle">
+            </a>
             <div>
                 <span class="badge bg-white text-dark">Administrator</span>
             </div>
@@ -133,11 +128,6 @@
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
                           <li>
-                            <a class="dropdown-item d-flex align-items-center" href="{{ route('profile') }}">
-                              <i class="bi bi-person-circle me-2"></i> Profile
-                            </a>
-                          </li>
-                          <li>
                             <form action="{{ route('logout') }}" method="POST" class="d-inline">
                               @csrf
                               <button type="submit" class="dropdown-item d-flex align-items-center text-danger border-0 bg-transparent">
@@ -156,17 +146,63 @@
                 <tr>
                     <th>UID</th>
                     <th>Nama</th>
+                    <th style="width: 150px;">Aksi</th>
                 </tr>
             </thead>
             <tbody>
                 @foreach($uids as $u)
-                <tr>
-                    <td>{{ $u->uid ?? $u->uid_code ?? '-' }}</td>
-                    <td>{{ $u->siswa->name ?? $u->nama ?? $u->name ?? '-' }}</td>
+                <tr data-row-id="{{ $u->id }}">
+                    <td class="cell-uid">{{ $u->uid ?? $u->uid_code ?? '-' }}</td>
+                    <td class="cell-nama">{{ $u->siswa->name ?? $u->nama ?? $u->name ?? '-' }}</td>
+                    <td>
+                        <button 
+                            type="button" 
+                            class="btn btn-sm btn-outline-primary btn-edit-uid" 
+                            data-bs-toggle="modal" 
+                            data-bs-target="#editUidModal"
+                            data-id="{{ $u->id }}"
+                            data-uid="{{ $u->uid ?? $u->uid_code ?? '' }}"
+                            data-nama="{{ $u->siswa->name ?? $u->nama ?? $u->name ?? '' }}"
+                        >
+                            <i class="bi bi-pencil-square"></i> Edit
+                        </button>
+                    </td>
                 </tr>
                 @endforeach
             </tbody>
         </table>
+    </div>
+
+    <!-- Modal Edit UID -->
+    <div class="modal fade" id="editUidModal" tabindex="-1" aria-labelledby="editUidModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title" id="editUidModalLabel">Tambah/Update Nama UID</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <form id="formEditUid">
+            @csrf
+            <div class="modal-body">
+              <input type="hidden" id="uid_id" name="uid_id" value="">
+              <div class="mb-3">
+                <label class="form-label">UID</label>
+                <input type="text" class="form-control" id="uid_value" name="uid_value" readonly>
+              </div>
+              <div class="mb-3">
+                <label for="nama" class="form-label">Nama Siswa</label>
+                <input type="text" class="form-control" id="nama" name="name" placeholder="Masukkan nama siswa" required>
+              </div>
+              <div class="alert alert-danger d-none" id="uidError"></div>
+              <div class="alert alert-success d-none" id="uidSuccess"></div>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+              <button type="submit" class="btn btn-primary">Simpan</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
 
     {{-- Script --}}
@@ -175,6 +211,56 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
       $(document).ready(function() {
+        const table = $('#uidTable').DataTable();
+
+        $('#uidTable').on('click', '.btn-edit-uid', function () {
+          const btn = $(this);
+          const id = btn.data('id');
+          const uid = btn.data('uid');
+          const nama = btn.data('nama');
+
+          $('#uid_id').val(id);
+          $('#uid_value').val(uid);
+          $('#nama').val(nama);
+          $('#uidError').addClass('d-none').text('');
+          $('#uidSuccess').addClass('d-none').text('');
+        });
+
+        $('#formEditUid').on('submit', function (e) {
+          e.preventDefault();
+
+          const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+          const formData = new FormData(this);
+
+          fetch("{{ route('uid.update-name') }}", {
+            method: 'POST',
+            headers: { 'X-CSRF-TOKEN': token },
+            body: formData
+          })
+          .then(async (res) => {
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || data.success !== true) {
+              throw new Error(data.message || 'Gagal menyimpan data');
+            }
+            return data;
+          })
+          .then((data) => {
+            // Update row on the fly
+            const row = $("tr[data-row-id='" + data.uid.id + "']");
+            row.find('.cell-nama').text(data.uid.name ?? '-');
+
+            $('#uidSuccess').removeClass('d-none').text('Berhasil disimpan');
+            setTimeout(() => {
+              const modalEl = document.getElementById('editUidModal');
+              const modal = bootstrap.Modal.getInstance(modalEl);
+              modal.hide();
+            }, 800);
+          })
+          .catch((err) => {
+            $('#uidError').removeClass('d-none').text(err.message);
+          });
+        });
+
         $('#uidTable').DataTable();
       });
 

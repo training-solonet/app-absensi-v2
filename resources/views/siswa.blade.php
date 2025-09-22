@@ -14,7 +14,7 @@
     }
     .sidebar {
       height: 100vh;
-      background-color: #1679AB;
+      background-color: #3F63E0; /* match reference */
       box-shadow: 2px 0 10px rgba(0,0,0,0.1);
       padding: 20px;
       position: fixed;
@@ -34,28 +34,23 @@
       display: none !important;
     }
     .sidebar .nav-link {
-      font-weight: 500;
-      color: #fff;
-      margin-bottom: 10px;
+      font-weight: 600;
+      color: #EAF2FF;
+      margin: 4px 8px 10px 8px;
       display: flex;
       align-items: center;
+      gap: 10px;
+      border-radius: 12px;
+      padding: 10px 12px;
+      position: relative;
     }
-    .sidebar .nav-link:hover {
-      color: #fff;
-    }
-    .sidebar .nav-link i {
-      font-size: 18px;
-      margin-right: 8px;
-    }
+    .sidebar .nav-link:hover { background: rgba(255,255,255,0.12); color: #fff; }
+    .sidebar .nav-link i { font-size: 18px; color: inherit; }
     .sidebar.collapsed .nav-link {
       justify-content: center;
     }
-    .sidebar .nav-link.active {
-      background: #205781;
-      color: #fff;
-      border-radius: 8px;
-      padding: 10px;
-    }
+    .sidebar .nav-link.active { background: rgba(255,255,255,0.18); color: #FFFFFF; }
+    .sidebar .nav-link.active::before { content: ''; position: absolute; left: -8px; top: 50%; transform: translateY(-50%); width: 4px; height: 24px; background: #F4D03F; border-radius: 2px; }
     .toggle-btn {
       position: absolute;
       top: 50%;
@@ -83,7 +78,7 @@
       margin-left: 80px !important;
     }
     header.navbar {
-      background-color:#1679AB;
+      background-color:#3F63E0;
       position: fixed;
       top: 0;
       left: 240px;
@@ -108,7 +103,9 @@
 
     <!-- Profil Admin -->
     <div class="d-flex flex-column align-items-center text-center mb-4">
-      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Admin" width="60" class="mb-2 rounded-circle">
+      <a href="{{ route('profile') }}" class="text-decoration-none">
+        <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Admin" width="60" class="mb-2 rounded-circle">
+      </a>
       <div>
         <span class="badge bg-white text-dark">Administrator</span>
       </div>
@@ -156,11 +153,6 @@
                    alt="Profile" width="40" height="40" class="rounded-circle border-2 border-primary">
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
-              <li>
-                <a class="dropdown-item d-flex align-items-center" href="{{ route('profile') }}">
-                  <i class="bi bi-person-circle me-2"></i> Profile
-                </a>
-              </li>
               <li>
                 <form action="{{ route('logout') }}" method="POST" class="d-inline">
                   @csrf
@@ -255,4 +247,3 @@
 </script>
 </body>
 </html>
-

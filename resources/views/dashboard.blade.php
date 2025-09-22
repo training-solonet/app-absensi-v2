@@ -15,7 +15,7 @@
     }
     .sidebar {
       height: 100vh;
-      background-color: #1679AB;
+      background-color: #3F63E0; /* blue base like reference */
       box-shadow: 2px 0 10px rgba(0,0,0,0.1);
       padding: 20px;
       position: fixed;
@@ -35,21 +35,41 @@
       display: none !important;
     }
     .sidebar .nav-link {
-      font-weight: 500;
-      color: #fff; 
-      margin-bottom: 10px;
+      font-weight: 600;
+      color: #EAF2FF;
+      margin: 4px 8px 10px 8px;
       display: flex;
       align-items: center;
-    }
-    .sidebar .nav-link:hover { 
-      color: #fff; 
+      gap: 10px;
+      border-radius: 12px;
+      padding: 10px 12px;
+      position: relative;
     }
     .sidebar .nav-link i {
       font-size: 18px;
-      margin-right: 8px;
+      color: inherit;
+    }
+    .sidebar .nav-link:hover { 
+      background: rgba(255,255,255,0.12);
+      color: #FFFFFF;
     }
     .sidebar.collapsed .nav-link {
       justify-content: center;
+    }
+    .sidebar .nav-link.active {
+      background: rgba(255,255,255,0.18);
+      color: #FFFFFF;
+    }
+    .sidebar .nav-link.active::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 24px;
+      background: #F4D03F; /* yellow accent */
+      border-radius: 2px;
     }
     .toggle-btn {
       position: absolute;
@@ -79,7 +99,7 @@
     }
 
     header.navbar {
-      background-color: #1679AB;
+      background-color: #3F63E0;
       position: fixed;
       top: 0;
       left: 240px;
@@ -90,12 +110,6 @@
     }
     header.navbar.collapsed {
       left: 70px;
-    }
-    .sidebar .nav-link.active {
-      background: #205781;
-      color: #fff;    
-      border-radius: 8px;
-      padding: 10px;
     }
     .card-custom {
       border-radius: 15px;
@@ -166,8 +180,10 @@
   </div>
 
   <div class="d-flex flex-column align-items-center text-center mb-4">
-    <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
-         alt="Admin" width="60" class="mb-2 rounded-circle">
+    <a href="{{ route('profile') }}" class="text-decoration-none">
+      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
+           alt="Admin" width="60" class="mb-2 rounded-circle">
+    </a>
     <div>
       <span class="badge bg-white text-dark">Administrator</span>
     </div>
@@ -221,11 +237,6 @@
           </a>
           <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
             <li>
-              <a class="dropdown-item d-flex align-items-center" href="{{ route('profile') }}">
-                <i class="bi bi-person-circle me-2"></i> Profile
-              </a>
-            </li>
-            <li>
               <form action="{{ route('logout') }}" method="POST" class="d-inline">
                 @csrf
                 <button type="submit" class="dropdown-item d-flex align-items-center text-danger border-0 bg-transparent">
@@ -240,29 +251,6 @@
   </header>
 
   <!-- Dashboard Content -->
-  <div class="row mb-3"> 
-    <div class="col-md-6">
-      <div class="card card-custom p-3">
-        <h5 class="fw-bold mb-3">Statistics Absen</h5>
-        <div class="row text-center">
-          <div class="col-md-4">
-            <canvas id="izinChart" width="120" height="120"></canvas>
-            <p class="mt-2 mb-0">Rata-rata izin</p>
-          </div>
-          <div class="col-md-4">
-            <canvas id="terlambatChart" width="120" height="120"></canvas>
-            <p class="mt-2 mb-0">Rata-rata terlambat</p>
-          </div>
-          <div class="col-md-4">
-            <canvas id="hadirChart" width="120" height="120"></canvas>
-            <p class="mt-2 mb-0">Rata-rata masuk</p>
-          </div>
-        </div>  
-      </div>
-    </div>
-  </div>
-
-  <!-- Cards -->
   <div class="container mt-4">
     <div class="row">
       <div class="col-md-4 mb-3">
@@ -297,6 +285,28 @@
             <i class="bi bi-geo-alt"></i>
           </div>
         </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row mb-3"> 
+    <div class="col-md-6">
+      <div class="card card-custom p-3">
+        <h5 class="fw-bold mb-3">Statistics Absen</h5>
+        <div class="row text-center">
+          <div class="col-md-4">
+            <canvas id="izinChart" width="120" height="120"></canvas>
+            <p class="mt-2 mb-0">Rata-rata izin</p>
+          </div>
+          <div class="col-md-4">
+            <canvas id="terlambatChart" width="120" height="120"></canvas>
+            <p class="mt-2 mb-0">Rata-rata terlambat</p>
+          </div>
+          <div class="col-md-4">
+            <canvas id="hadirChart" width="120" height="120"></canvas>
+            <p class="mt-2 mb-0">Rata-rata masuk</p>
+          </div>
+        </div>  
       </div>
     </div>
   </div>
