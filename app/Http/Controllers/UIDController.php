@@ -21,7 +21,8 @@ class UIDController extends Controller
             'name' => 'required|string|min:2|max:255',
         ]);
 
-        $uid = Uid::find($validated['uid_id']);
+        // Ensure we get a single Uid model instance (not a collection) and not null
+        $uid = Uid::query()->findOrFail($validated['uid_id']);
         $uid->name = $validated['name'];
         $uid->save();
 
