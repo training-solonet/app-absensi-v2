@@ -10,6 +10,7 @@ class UIDController extends Controller
     public function index()
     {
         $uids = Uid::with(['siswa:id,name'])->get();
+
         return view('datauid', compact('uids'));
     }
 
