@@ -3,6 +3,7 @@
 
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
@@ -135,14 +136,24 @@
             position: relative;
             z-index: 5;
             line-height: 0;
-            margin-bottom: -30px;
+            margin-bottom: 28px; 
         }
 
         .logo-img {
-            width: 300px;
-            height: 260px;
+            width: 260px;   
+            height: auto;   
             display: block;
             object-fit: contain;
+        }
+
+        @media (max-width: 576px) {
+            .logo-img { width: 200px; }
+            .logo-wrapper { margin-bottom: 16px; }
+        }
+
+        @media (min-width: 992px) {
+            .logo-img { width: 300px; }
+            .logo-wrapper { margin-bottom: 32px; }
         }
     </style>
 </head>
@@ -153,12 +164,11 @@
     <div class="bubble"></div>
     <div class="bubble"></div>
 
-    <div class="logo-wrapper text-center">
-        <img src="{{ asset('img/connectis.png') }}" alt="Logo" class="logo-img">
-    </div>
-
-    <!-- Login Card -->
-    <div class="login-card">
+    <!-- Logo + Login Card + Icons (semua terpusat berurutan) -->
+    <div class="position-absolute top-50 start-50 translate-middle w-100 d-flex justify-content-center">
+      <div class="d-flex flex-column align-items-center">
+        <img src="{{ asset('img/connectis.png') }}" alt="Logo" class="logo-img mb-3">
+        <div class="login-card">
         <h3>Login</h3>
         @if (session('error'))
             <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -187,10 +197,9 @@
         <div class="extra-links">
             <a href="#">Forgot your password?</a>
         </div>
-    </div>
-
-    <div class="icons-wrapper text-center mt-4">
-        <div class="social-icons">
+        </div>
+        <div class="icons-wrapper text-center mt-4">
+          <div class="social-icons">
             <!-- Facebook -->
             <a href="https://www.facebook.com/solonetjalabuana">
                 <i class="bi bi-facebook"></i>
@@ -204,7 +213,9 @@
                 target="_blank">
                 <i class="bi bi-globe"></i>
             </a>
+          </div>
         </div>
+      </div>
     </div>
 </body>
 </html>
