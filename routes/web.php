@@ -35,7 +35,7 @@ Route::post('/logout', function () {
 })->name('logout');
 
 Route::middleware(['web', 'ceklogin'])->group(function () {
-    Route::get('/dashboard', function () {
+    Route::get('/dashboard', function (Request $request) {
         $terlambat = Absensi::with('siswa')
             ->whereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat'])
             ->whereDate('tanggal', now())
@@ -69,10 +69,32 @@ Route::middleware(['web', 'ceklogin'])->group(function () {
         $terlambatPct = round($terlambatOnlyHariIni / $denom * 100);
         $hadirPct = round($hadirTermasukTerlambatHariIni / $denom * 100);
 
+        // Hitung persentase & jumlah terlambat per bulan (real-time) untuk tahun terpilih
+        $selectedYear = (int) ($request->query('year', now()->year));
+        $terlambatPerBulanPct = [];
+        $terlambatPerBulanCount = [];
+        for ($bulan = 1; $bulan <= 12; $bulan++) {
+            $jumlahTerlambatUnik = Absensi::whereYear('tanggal', $selectedYear)
+                ->whereMonth('tanggal', $bulan)
+                ->whereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat'])
+                ->distinct('id_siswa')
+                ->count('id_siswa');
+
+            $pct = round(($jumlahTerlambatUnik / max($totalSiswa, 1)) * 100, 2);
+            $terlambatPerBulanPct[] = $pct;
+            $terlambatPerBulanCount[] = $jumlahTerlambatUnik;
+        }
+
+        // Opsi tahun untuk dropdown (5 tahun terakhir hingga tahun berjalan)
+        $currentYear = now()->year;
+        $yearOptions = range($currentYear - 4, $currentYear);
+
         return view('dashboard', compact(
             'terlambat',
             'totalSiswa', 'hadirHariIni', 'belumAtauTidakHadir',
-            'izinPct', 'terlambatPct', 'hadirPct'
+            'izinPct', 'terlambatPct', 'hadirPct',
+            'terlambatPerBulanPct', 'terlambatPerBulanCount',
+            'selectedYear', 'yearOptions'
         ));
     })->name('dashboard');
 
