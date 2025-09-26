@@ -15,7 +15,7 @@
     }
     .sidebar {
       height: 100vh;
-      background-color: #3F63E0; /* blue base like reference */
+      background-color: #3F63E0; 
       box-shadow: 2px 0 10px rgba(0,0,0,0.1);
       padding: 20px;
       position: fixed;
@@ -157,11 +157,9 @@
       font-size: 20px;
     }
 
-    /* Overlay for mobile */
     .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 950; display: none; }
     .overlay.show { display: block; }
 
-    /* Mobile responsiveness */
     @media (max-width: 991.98px) {
       .content { margin-left: 0; padding-top: 70px; }
       header.navbar { left: 0; }
@@ -211,10 +209,8 @@
     <i class="bi bi-chevron-left"></i>
   </button>
 </div>
-<!-- Overlay for mobile -->
 <div class="overlay" id="overlay"></div>
 
-<!-- Content -->
 <div class="content" id="content">
 
   <!-- Header -->
@@ -291,7 +287,7 @@
 
   <div class="row mb-3"> 
     <div class="col-md-6">
-      <div class="card card-custom p-3">
+      <div class="card card-custom p-3 h-100">
         <h5 class="fw-bold mb-3">Statistics Absen</h5>
         <div class="row text-center">
           <div class="col-md-4">
@@ -307,6 +303,23 @@
             <p class="mt-2 mb-0">Rata-rata masuk</p>
           </div>
         </div>  
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card card-custom p-3 h-100">
+        <div class="d-flex align-items-center justify-content-between">
+          <h5 class="fw-bold mb-0">Grafik Terlambat per Bulan</h5>
+          <form method="GET" action="{{ route('dashboard') }}" class="d-flex align-items-center gap-2">
+            <select name="year" class="form-select form-select-sm" onchange="this.form.submit()">
+              @foreach(($yearOptions ?? []) as $y)
+                <option value="{{ $y }}" @if(($selectedYear ?? now()->year) == $y) selected @endif>{{ $y }}</option>
+              @endforeach
+            </select>
+          </form>
+        </div>
+        <div class="mt-3">
+          <canvas id="monthlyAttendanceChart" height="150"></canvas>
+        </div>
       </div>
     </div>
   </div>
@@ -440,6 +453,58 @@
   buatChart('izinChart', izinPct, '#f39c12');
   buatChart('terlambatChart', terlambatPct, '#e74c3c');
   buatChart('hadirChart', hadirPct, '#27ae60');
+
+  // Grafik Terlambat per Bulan (bar)
+  const monthlyData = @json($terlambatPerBulanPct ?? array_fill(0, 12, 0));
+  const monthlyCount = @json($terlambatPerBulanCount ?? array_fill(0, 12, 0));
+  const monthLabels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
+  const ctxMonthly = document.getElementById('monthlyAttendanceChart');
+  if (ctxMonthly) {
+    new Chart(ctxMonthly, {
+      type: 'bar',
+      data: {
+        labels: monthLabels,
+        datasets: [
+          {
+            label: 'Terlambat (%)',
+            data: monthlyData,
+            backgroundColor: '#0046FF',
+            borderRadius: 6,
+            maxBarThickness: 24
+          }
+        ]
+      },
+      options: {
+        plugins: {
+          legend: { display: true },
+          tooltip: {
+            callbacks: {
+              label: function(context) {
+                const idx = context.dataIndex;
+                const pct = context.parsed.y ?? context.raw;
+                const count = monthlyCount[idx] ?? 0;
+                return ` ${pct}% (${count} siswa)`;
+              }
+            }
+          }
+        },
+        responsive: true,
+        scales: {
+          y: {
+            beginAtZero: true,
+            max: 100,
+            ticks: {
+              callback: (value) => value + '%'
+            },
+            grid: { drawBorder: false }
+          },
+          x: {
+            grid: { display: false }
+          }
+        }
+      }
+    });
+  }
 </script>
 </body>
 </html>

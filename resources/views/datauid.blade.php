@@ -163,6 +163,7 @@
                             data-id="{{ $u->id }}"
                             data-uid="{{ $u->uid ?? $u->uid_code ?? '' }}"
                             data-nama="{{ $u->siswa->name ?? $u->nama ?? $u->name ?? '' }}"
+                            data-siswa-id="{{ $u->siswa->id ?? '' }}"
                         >
                             <i class="bi bi-pencil-square"></i> Edit
                         </button>
@@ -178,7 +179,7 @@
       <div class="modal-dialog">
         <div class="modal-content">
           <div class="modal-header">
-            <h5 class="modal-title" id="editUidModalLabel">Tambah/Update Nama UID</h5>
+            <h5 class="modal-title" id="editUidModalLabel">Update Nama UID</h5>
             <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
           </div>
           <form id="formEditUid">
@@ -191,7 +192,13 @@
               </div>
               <div class="mb-3">
                 <label for="nama" class="form-label">Nama Siswa</label>
-                <input type="text" class="form-control" id="nama" name="name" placeholder="Masukkan nama siswa" required>
+                <select class="form-select" id="siswa_id" name="siswa_id" required>
+              <option value="">-- Pilih Siswa --</option>
+              @foreach(($siswas ?? []) as $s)
+              <option value="{{ $s->id }}">{{ $s->name }}</option>
+              @endforeach
+              </select>
+
               </div>
               <div class="alert alert-danger d-none" id="uidError"></div>
               <div class="alert alert-success d-none" id="uidSuccess"></div>
@@ -218,9 +225,11 @@
           const id = btn.data('id');
           const uid = btn.data('uid');
           const nama = btn.data('nama');
+          const siswaId = btn.data('siswa-id'); 
 
           $('#uid_id').val(id);
           $('#uid_value').val(uid);
+          $('#siswa_id').val(String(siswaId || ''));
           $('#nama').val(nama);
           $('#uidError').addClass('d-none').text('');
           $('#uidSuccess').addClass('d-none').text('');
@@ -238,28 +247,42 @@
             body: formData
           })
           .then(async (res) => {
-            const data = await res.json().catch(() => ({}));
-            if (!res.ok || data.success !== true) {
-              throw new Error(data.message || 'Gagal menyimpan data');
-            }
-            return data;
-          })
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) {
+            const errors = data && data.errors ? Object.values(data.errors).flat().join('\n') : null;
+            const msg = errors || data.message || 'Gagal menyimpan data';
+            throw new Error(msg);
+          }
+          if (data.success !== true) {
+            throw new Error(data.message || 'Gagal menyimpan data');
+          }
+          return data;
+        })
           .then((data) => {
-            // Update row on the fly
-            const row = $("tr[data-row-id='" + data.uid.id + "']");
-            row.find('.cell-nama').text(data.uid.name ?? '-');
+          const payload = data.uid || data;
+          const row = $("tr[data-row-id='" + payload.id + "']");
+          const displayName = (payload.siswa && payload.siswa.name) || payload.name || '-';
+          row.find('.cell-nama').text(displayName);
+          row.find('.btn-edit-uid')
+            .attr('data-nama', displayName)
+            .attr('data-siswa-id', (payload.siswa && payload.siswa.id) || '');
 
-            $('#uidSuccess').removeClass('d-none').text('Berhasil disimpan');
-            setTimeout(() => {
-              const modalEl = document.getElementById('editUidModal');
-              const modal = bootstrap.Modal.getInstance(modalEl);
-              modal.hide();
-            }, 800);
-          })
-          .catch((err) => {
-            $('#uidError').removeClass('d-none').text(err.message);
-          });
+          // Tampilkan notifikasi berhasil dan bersihkan pesan error
+          $('#uidError').addClass('d-none').text('');
+          $('#uidSuccess').removeClass('d-none').text('Berhasil');
+
+          // Segarkan row DataTable agar sinkron
+          try { table.row(row).invalidate().draw(false); } catch (e) {}
+          setTimeout(() => {
+            const modalEl = document.getElementById('editUidModal');
+            const modal = bootstrap.Modal.getInstance(modalEl);
+            modal.hide();
+          }, 800);
+        })
+        .catch((err) => {
+          $('#uidError').removeClass('d-none').text(err.message);
         });
+      });
 
         $('#uidTable').DataTable();
       });
