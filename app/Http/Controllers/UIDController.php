@@ -29,7 +29,8 @@ class UIDController extends Controller
         $uid = Uid::query()->findOrFail($validated['uid_id']);
         $uid->id_siswa = $validated['siswa_id'];
         // Optional: also mirror the siswa name into uid.name for backward compatibility
-        $siswa = Siswa::query()->select('id', 'name')->find($validated['siswa_id']);
+        /** @var Siswa|null $siswa */
+        $siswa = Siswa::find((int) $validated['siswa_id']);
         if ($siswa) {
             $uid->name = $siswa->name;
         }
