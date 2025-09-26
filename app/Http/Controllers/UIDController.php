@@ -24,11 +24,9 @@ class UIDController extends Controller
             'siswa_id' => 'required|integer|exists:siswa_connectis.view_siswa,id',
         ]);
 
-        // Ensure we get a single Uid model instance (not a collection) and not null
         /** @var Uid $uid */
         $uid = Uid::query()->findOrFail($validated['uid_id']);
         $uid->id_siswa = $validated['siswa_id'];
-        // Optional: also mirror the siswa name into uid.name for backward compatibility
         /** @var Siswa|null $siswa */
         $siswa = Siswa::find((int) $validated['siswa_id']);
         if ($siswa) {

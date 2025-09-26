@@ -160,6 +160,18 @@
     .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 950; display: none; }
     .overlay.show { display: block; }
 
+    /* Responsive chart wrappers */
+    .chart-donut { position: relative; height: 140px; }
+    .chart-bar { position: relative; height: 260px; }
+    @media (max-width: 575.98px) {
+      .chart-donut { height: 120px; }
+      .chart-bar { height: 220px; }
+    }
+    @media (min-width: 992px) {
+      .chart-donut { height: 160px; }
+      .chart-bar { height: 300px; }
+    }
+
     @media (max-width: 991.98px) {
       .content { margin-left: 0; padding-top: 70px; }
       header.navbar { left: 0; }
@@ -291,15 +303,21 @@
         <h5 class="fw-bold mb-3">Statistics Absen</h5>
         <div class="row text-center">
           <div class="col-md-4">
-            <canvas id="izinChart" width="120" height="120"></canvas>
+            <div class="chart-donut">
+              <canvas id="izinChart" class="w-100 h-100"></canvas>
+            </div>
             <p class="mt-2 mb-0">Rata-rata izin</p>
           </div>
           <div class="col-md-4">
-            <canvas id="terlambatChart" width="120" height="120"></canvas>
+            <div class="chart-donut">
+              <canvas id="terlambatChart" class="w-100 h-100"></canvas>
+            </div>
             <p class="mt-2 mb-0">Rata-rata terlambat</p>
           </div>
           <div class="col-md-4">
-            <canvas id="hadirChart" width="120" height="120"></canvas>
+            <div class="chart-donut">
+              <canvas id="hadirChart" class="w-100 h-100"></canvas>
+            </div>
             <p class="mt-2 mb-0">Rata-rata masuk</p>
           </div>
         </div>  
@@ -317,8 +335,8 @@
             </select>
           </form>
         </div>
-        <div class="mt-3">
-          <canvas id="monthlyAttendanceChart" height="150"></canvas>
+        <div class="mt-3 chart-bar">
+          <canvas id="monthlyAttendanceChart" class="w-100 h-100"></canvas>
         </div>
       </div>
     </div>
@@ -438,6 +456,8 @@
         }]
       },
       options: {
+        responsive: true,
+        maintainAspectRatio: false,
         cutout: '75%',
         plugins: { 
           legend: { display: false }, 
@@ -489,6 +509,7 @@
           }
         },
         responsive: true,
+        maintainAspectRatio: false,
         scales: {
           y: {
             beginAtZero: true,
