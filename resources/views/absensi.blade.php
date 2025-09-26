@@ -120,7 +120,6 @@
             box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05);
         }
 
-        /* Overlay for mobile when sidebar is open */
         .overlay {
             position: fixed;
             inset: 0;
@@ -139,7 +138,7 @@
             header.navbar {
                 left: 0;
             }
-            .toggle-btn { /* hide desktop toggle on small screens */
+            .toggle-btn { 
                 display: none;
             }
             .sidebar {
@@ -209,7 +208,6 @@
                     </button>
                     <h5 class="fw-bold mb-0 text-light">Laporan Absensi</h5>
                 </div>
-
                 <div class="d-flex align-items-center">
                     <span class="text-white me-3" id="live-clock"></span>
 
@@ -240,17 +238,15 @@
         <div class="card card-custom mt-4 p-3">
             <div class="card-body">
                 <!-- Filter -->
-                <form class="row g-3 mb-4">
+                <form class="row g-3 mb-4" method="GET" action="{{ url('/absensi') }}">
                     <div class="col-md-4">
                         <label for="tanggal" class="form-label">Pilih Tanggal</label>
-                        <input type="date" id="tanggal" class="form-control">
-                    </div>
+                        <input type="date" id="tanggal" name="tanggal" class="form-control" value="{{ isset($selectedDate) ? $selectedDate->toDateString() : '' }}">                    </div>
                     <div class="col-md-4">
                         <label for="namaSiswa" class="form-label">Pilih nama siswa</label>
                         <select id="namaSiswa" class="form-select">
                             <option value="">Open this select menu</option>
                             @php
-                                // Ambil daftar siswa: gunakan variabel $siswas jika tersedia, jika tidak ambil unik dari $absen
                                 $listSiswa = isset($siswas) && $siswas
                                     ? collect($siswas)
                                     : (isset($absen) ? collect($absen)->pluck('siswa')->filter()->unique('id') : collect());
@@ -260,18 +256,25 @@
                                     $sid = is_object($siswa) ? ($siswa->id ?? $siswa->id_siswa ?? '') : (is_array($siswa) ? ($siswa['id'] ?? '') : '');
                                     $sname = is_object($siswa) ? ($siswa->name ?? '') : (is_array($siswa) ? ($siswa['name'] ?? '') : (string)$siswa);
                                 @endphp
-                                @if(!empty($sname))
-                                    <option value="{{ $sname }}">{{ $sname }}</option>
-                                @endif
-                            @endforeach
-                        </select>
-                    </div>
-                </form>
+                @endphp
+                @if(!empty($sname))
+                    <option value="{{ $sname }}">{{ $sname }}</option>
+                @endif
+                @endforeach
+                </select>
+            </div>
+        </form>
 
+        @php
+            $prevDateDisplay = isset($selectedDate)
+                ? \Carbon\Carbon::parse($selectedDate)->subDay()->translatedFormat('d F Y')
+                : \Carbon\Carbon::yesterday()->translatedFormat('d F Y');
+        @endphp
+        
         <!-- Tabel -->
         <h5 class="fw-bold mb-3">Data Absensi</h5>
-            <div class="table-responsive">
-              <table class="table table-bordered table-striped" id="absensiTable">
+        <div class="table-responsive">
+          <table class="table table-bordered table-striped" id="absensiTable">
                 <thead style="background-color: #8DD8FF;">
                   <tr>
                         <th>No</th>
@@ -317,19 +320,9 @@
       $('#namaSiswa').on('change', function() {
         table.column(1).search(this.value).draw();
       });
-      function formatToDDMMYYYY(value) {
-        if (!value) return '';
-        const [y, m, d] = value.split('-');
-        return `${d}/${m}/${y}`;
-      }
+      // Ketika tanggal berubah, submit form agar data dimuat dari server sesuai tanggal
       $('#tanggal').on('change', function() {
-        const val = this.value;
-        if (!val) {
-          table.column(2).search('').draw();
-          return;
-        }
-        const formatted = formatToDDMMYYYY(val).replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
-        table.column(2).search(`^${formatted}$`, true, false).draw();
+        $(this).closest('form')[0].submit();
       });
     });
 
@@ -391,5 +384,4 @@
         updateClock();
     </script>
 </body>
-
 </html>
