@@ -34,14 +34,14 @@ Route::post('/logout', function () {
     return redirect('/login')->with('success', 'Berhasil logout!');
 })->name('logout');
 
-    Route::middleware(['web', 'ceklogin'])->group(function () {
-        Route::get('/dashboard', function (Request $request) {
-            $terlambat = Absensi::with('siswa')
-                ->whereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat'])
-                ->whereDate('tanggal', now())
-                ->orderBy('id', 'desc')
-                ->limit(10)
-                ->get();
+Route::middleware(['web', 'ceklogin'])->group(function () {
+    Route::get('/dashboard', function (Request $request) {
+        $terlambat = Absensi::with('siswa')
+            ->whereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat'])
+            ->whereDate('tanggal', now())
+            ->orderBy('id', 'desc')
+            ->limit(10)
+            ->get();
 
         // Summary counters
         $totalSiswa = Siswa::count();
@@ -89,14 +89,14 @@ Route::post('/logout', function () {
         $currentYear = now()->year;
         $yearOptions = range($currentYear - 4, $currentYear);
 
-            return view('dashboard', compact(
-                'terlambat',
-                'totalSiswa', 'hadirHariIni', 'belumAtauTidakHadir',
-                'izinPct', 'terlambatPct', 'hadirPct',
-                'terlambatPerBulanPct', 'terlambatPerBulanCount',
-                'selectedYear', 'yearOptions'
-            ));
-        })->name('dashboard');
+        return view('dashboard', compact(
+            'terlambat',
+            'totalSiswa', 'hadirHariIni', 'belumAtauTidakHadir',
+            'izinPct', 'terlambatPct', 'hadirPct',
+            'terlambatPerBulanPct', 'terlambatPerBulanCount',
+            'selectedYear', 'yearOptions'
+        ));
+    })->name('dashboard');
 
     Route::view('/profile', 'profile')->name('profile');
 
