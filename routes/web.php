@@ -105,9 +105,9 @@ Route::middleware(['web', 'ceklogin'])->group(function () {
             ->selectRaw('id_siswa, COUNT(*) as total_hadir')
             ->whereYear('tanggal', $selectedYear)
             ->whereMonth('tanggal', $selectedMonth)
-            ->where(function($query) {
+            ->where(function ($query) {
                 $query->whereRaw('LOWER(TRIM(keterangan)) = ?', ['hadir'])
-                      ->orWhereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat']);
+                    ->orWhereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat']);
             })
             ->groupBy('id_siswa')
             ->orderBy('total_hadir', 'desc')
@@ -117,11 +117,20 @@ Route::middleware(['web', 'ceklogin'])->group(function () {
         $monthOptions = range(1, 12);
 
         return view('dashboard', compact(
-            'terlambat', 'terlambatPerSiswa', 'absensiBulanIni',
-            'totalSiswa', 'hadirHariIni', 'belumAtauTidakHadir',
-            'izinPct', 'terlambatPct', 'hadirPct',
-            'terlambatPerBulanPct', 'terlambatPerBulanCount',
-            'selectedYear', 'selectedMonth', 'monthOptions'
+            'terlambat',
+            'terlambatPerSiswa',
+            'absensiBulanIni',
+            'totalSiswa',
+            'hadirHariIni',
+            'belumAtauTidakHadir',
+            'izinPct',
+            'terlambatPct',
+            'hadirPct',
+            'terlambatPerBulanPct',
+            'terlambatPerBulanCount',
+            'selectedYear',
+            'selectedMonth',
+            'monthOptions'
         ));
     })->name('dashboard');
 
