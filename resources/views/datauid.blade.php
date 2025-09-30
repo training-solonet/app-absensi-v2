@@ -67,6 +67,15 @@
             transition: all 0.3s ease; 
         }
         header.navbar.collapsed { left: 70px; }
+        /* DataTables length control spacing */
+        .dt-container .dt-length label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px; /* space between select and text */
+        }
+        .dt-container .dt-length select {
+            margin-right: 6px; /* fallback spacing */
+        }
     </style>
 </head>
 <body>

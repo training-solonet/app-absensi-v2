@@ -36,6 +36,7 @@ Route::post('/logout', function () {
 
 Route::middleware(['web', 'ceklogin'])->group(function () {
     Route::get('/dashboard', function (Request $request) {
+        // Data terlambat terbaru (hari ini)
         $terlambat = Absensi::with('siswa')
             ->whereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat'])
             ->whereDate('tanggal', now())
@@ -69,8 +70,12 @@ Route::middleware(['web', 'ceklogin'])->group(function () {
         $terlambatPct = round($terlambatOnlyHariIni / $denom * 100);
         $hadirPct = round($hadirTermasukTerlambatHariIni / $denom * 100);
 
-        // Hitung persentase & jumlah terlambat per bulan (real-time) untuk tahun terpilih
-        $selectedYear = (int) ($request->query('year', now()->year));
+        // Tahun berjalan saja
+        $selectedYear = now()->year;
+        // Bulan terpilih (default bulan ini)
+        $selectedMonth = (int) ($request->query('month', now()->month));
+
+        // Hitung persentase & jumlah terlambat per bulan (real-time) untuk tahun berjalan
         $terlambatPerBulanPct = [];
         $terlambatPerBulanCount = [];
         for ($bulan = 1; $bulan <= 12; $bulan++) {
@@ -85,16 +90,38 @@ Route::middleware(['web', 'ceklogin'])->group(function () {
             $terlambatPerBulanCount[] = $jumlahTerlambatUnik;
         }
 
-        // Opsi tahun untuk dropdown (5 tahun terakhir hingga tahun berjalan)
-        $currentYear = now()->year;
-        $yearOptions = range($currentYear - 4, $currentYear);
+        // Data keterlambatan per siswa untuk bulan terpilih (tahun berjalan)
+        $terlambatPerSiswa = Absensi::with('siswa')
+            ->selectRaw('id_siswa, COUNT(*) as total')
+            ->whereYear('tanggal', $selectedYear)
+            ->whereMonth('tanggal', $selectedMonth)
+            ->whereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat'])
+            ->groupBy('id_siswa')
+            ->orderByDesc('total')
+            ->get();
+
+        // Data kehadiran siswa untuk bulan terpilih
+        $absensiBulanIni = \App\Models\Absensi::with('siswa')
+            ->selectRaw('id_siswa, COUNT(*) as total_hadir')
+            ->whereYear('tanggal', $selectedYear)
+            ->whereMonth('tanggal', $selectedMonth)
+            ->where(function($query) {
+                $query->whereRaw('LOWER(TRIM(keterangan)) = ?', ['hadir'])
+                      ->orWhereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat']);
+            })
+            ->groupBy('id_siswa')
+            ->orderBy('total_hadir', 'desc')
+            ->get();
+
+        // Opsi bulan (1..12)
+        $monthOptions = range(1, 12);
 
         return view('dashboard', compact(
-            'terlambat',
+            'terlambat', 'terlambatPerSiswa', 'absensiBulanIni',
             'totalSiswa', 'hadirHariIni', 'belumAtauTidakHadir',
             'izinPct', 'terlambatPct', 'hadirPct',
             'terlambatPerBulanPct', 'terlambatPerBulanCount',
-            'selectedYear', 'yearOptions'
+            'selectedYear', 'selectedMonth', 'monthOptions'
         ));
     })->name('dashboard');
 

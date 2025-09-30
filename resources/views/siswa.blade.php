@@ -91,13 +91,21 @@
     header.navbar.collapsed {
       left: 70px;
     }
+    /* DataTables length control spacing */
+    .dt-container .dt-length label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px; /* space between select and text */
+    }
+    .dt-container .dt-length select {
+      margin-right: 6px; /* fallback spacing */
+    }
   </style>
 </head>
 <body>
 
   <!-- Sidebar -->
   <div class="sidebar p-3" id="sidebar">
-    <!-- Logo -->
     <div class="text-center mb-4">
       <img src="{{ asset('img/logo.png') }}" alt="Logo" width="120">
     </div>

@@ -129,7 +129,6 @@
         }
         .overlay.show { display: block; }
 
-        /* Mobile responsiveness */
         @media (max-width: 991.98px) {
             .content {
                 margin-left: 0;
@@ -149,6 +148,14 @@
             .sidebar.open {
                 transform: translateX(0);
             }
+        }
+        .dt-container .dt-length label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dt-container .dt-length select {
+            margin-right: 6px; 
         }
     </style>
 </head>
@@ -225,13 +232,11 @@
                                     <button type="submit"
                                         class="dropdown-item d-flex align-items-center text-danger border-0 bg-transparent">
                                         <i class="bi bi-box-arrow-right me-2"></i> Logout
-                                    </button>
                                 </form>
                             </li>
                         </ul>
                     </div>
                 </div>
-            </div>
         </header>
 
         <!-- Card Laporan Absensi -->
