@@ -17,7 +17,7 @@
             justify-content: center;
             align-items: center;
             flex-direction: column;
-            background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+            background: linear-gradient(135deg, #3081D0 0%, #6DB9EF 100%);
             font-family: 'Poppins', sans-serif;
             overflow: hidden;
         }

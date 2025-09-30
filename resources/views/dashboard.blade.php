@@ -1,4 +1,16 @@
 <!DOCTYPE html>
+@php
+    $fullMonthNames = [
+        1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
+        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    ];
+    $monthNames = [
+        1 => 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+        'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
+    ];
+    $currentMonth = (int) ($selectedMonth ?? now()->month);
+    $mLabel = $fullMonthNames[$selectedMonth ?? now()->month] ?? ($selectedMonth ?? now()->month);
+@endphp
 <html lang="id">
 
 <head>
@@ -297,52 +309,62 @@
     </div>
   </div>
 
-  <div class="row mb-3"> 
+  <div class="row mb-3">
+    <!-- Statistik Kehadiran Bulan Ini -->
     <div class="col-md-6">
       <div class="card card-custom p-3 h-100">
-        <h5 class="fw-bold mb-3">Statistics Absen</h5>
-        <div class="row text-center">
-          <div class="col-md-4">
-            <div class="chart-donut">
-              <canvas id="izinChart" class="w-100 h-100"></canvas>
-            </div>
-            <p class="mt-2 mb-0">Rata-rata izin</p>
-          </div>
-          <div class="col-md-4">
-            <div class="chart-donut">
-              <canvas id="terlambatChart" class="w-100 h-100"></canvas>
-            </div>
-            <p class="mt-2 mb-0">Rata-rata terlambat</p>
-          </div>
-          <div class="col-md-4">
-            <div class="chart-donut">
-              <canvas id="hadirChart" class="w-100 h-100"></canvas>
-            </div>
-            <p class="mt-2 mb-0">Rata-rata masuk</p>
-          </div>
-        </div>  
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="card card-custom p-3 h-100">
-        <div class="d-flex align-items-center justify-content-between">
-          <h5 class="fw-bold mb-0">Grafik Terlambat per Bulan</h5>
-          <form method="GET" action="{{ route('dashboard') }}" class="d-flex align-items-center gap-2">
-            <select name="year" class="form-select form-select-sm" onchange="this.form.submit()">
-              @foreach(($yearOptions ?? []) as $y)
-                <option value="{{ $y }}" @if(($selectedYear ?? now()->year) == $y) selected @endif>{{ $y }}</option>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="fw-bold mb-0">Jumlah Hadir</h5>
+          <form method="GET" action="{{ route('dashboard') }}" class="d-flex gap-2">
+            <select name="month" class="form-select form-select-sm" onchange="this.form.submit()" style="width: 180px;">
+              @foreach($fullMonthNames as $key => $month)
+                <option value="{{ $key }}" @if(($selectedMonth ?? now()->month) == $key) selected @endif>
+                  {{ $month }}
+                </option>
               @endforeach
             </select>
           </form>
         </div>
-        <div class="mt-3 chart-bar">
-          <canvas id="monthlyAttendanceChart" class="w-100 h-100"></canvas>
+        
+        <div class="mt-2">
+          @forelse(($absensiBulanIni ?? []) as $absen)
+            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-person-circle me-2 text-secondary" style="font-size:1.2rem;"></i>
+                <span>{{ $absen->siswa->name ?? '-' }}</span>
+              </div>
+              <span class="badge bg-primary">{{ $absen->total_hadir ?? 0 }} kali</span>
+            </div>
+          @empty
+            <div class="text-muted">Belum ada data kehadiran untuk bulan ini</div>
+          @endforelse
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card card-custom p-3 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0">Jumlah Terlambat</h5>
+          </form>
+        </div>
+        <div class="mt-2">
+          @forelse(($terlambatPerSiswa ?? []) as $row)
+            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-person-circle me-2 text-secondary" style="font-size:1.2rem;"></i>
+                <span>{{ $row->siswa->name ?? '-' }}</span>
+              </div>
+              <span class="badge bg-danger">{{ $row->total ?? 0 }} kali</span>
+            </div>
+          @empty
+            <div class="text-muted">Belum ada data terlambat pada bulan ini</div>
+          @endforelse
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Data Keterlambatan -->
+  <!-- Data Keterlambatan (terbaru) -->
   <div class="card card-custom mt-4 p-3">
     <div class="card-body">
       <div class="d-flex align-items-center justify-content-between mb-3">
@@ -474,58 +496,6 @@
   buatChart('terlambatChart', terlambatPct, '#e74c3c');
   buatChart('hadirChart', hadirPct, '#27ae60');
 
-  // Grafik Terlambat per Bulan (bar)
-  const monthlyData = @json($terlambatPerBulanPct ?? array_fill(0, 12, 0));
-  const monthlyCount = @json($terlambatPerBulanCount ?? array_fill(0, 12, 0));
-  const monthLabels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-  const ctxMonthly = document.getElementById('monthlyAttendanceChart');
-  if (ctxMonthly) {
-    new Chart(ctxMonthly, {
-      type: 'bar',
-      data: {
-        labels: monthLabels,
-        datasets: [
-          {
-            label: 'Terlambat (%)',
-            data: monthlyData,
-            backgroundColor: '#0046FF',
-            borderRadius: 6,
-            maxBarThickness: 24
-          }
-        ]
-      },
-      options: {
-        plugins: {
-          legend: { display: true },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                const idx = context.dataIndex;
-                const pct = context.parsed.y ?? context.raw;
-                const count = monthlyCount[idx] ?? 0;
-                return ` ${pct}% (${count} siswa)`;
-              }
-            }
-          }
-        },
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 100,
-            ticks: {
-              callback: (value) => value + '%'
-            },
-            grid: { drawBorder: false }
-          },
-          x: {
-            grid: { display: false }
-          }
-        }
-      }
-    });
-  }
 </script>
 </body>
 </html>

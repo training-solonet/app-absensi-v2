@@ -225,49 +225,12 @@
                             <div class="info-value">User</div>
                         </div>
                         <div class="col-md-4">
-                            <div class="info-label">Date of Birth</div>
-                            <div class="info-value">01-01-1990</div>
-                        </div>
-                        <div class="col-md-4">
                             <div class="info-label">Email Address</div>
                             <div class="info-value">{{ session('user_email', 'admin@gmail.com') }}</div>
                         </div>
-                        <div class="col-md-4">
-                            <div class="info-label">Phone Number</div>
-                            <div class="info-value">(+62) 821-0000-0000</div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="info-label">User Role</div>
-                            <div class="info-value">Admin</div>
-                        </div>
+                      </div>
                     </div>
-                </div>
-            </div>
-
-            <!-- Address -->
-            <div class="card-soft card-section">
-                <div class="section-header">
-                    <h6 class="section-title mb-0">Address</h6>
-                    <button class="edit-btn"><i class="bi bi-pencil"></i> Edit</button>
-                </div>
-                <div class="info-grid">
-                    <div class="row g-3">
-                        <div class="col-md-4">
-                            <div class="info-label">Country</div>
-                            <div class="info-value">Indonesia</div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="info-label">City</div>
-                            <div class="info-value">Solo</div>
-                        </div>
-                        <div class="col-md-4">
-                            <div class="info-label">Postal Code</div>
-                            <div class="info-value">57100</div>
-                        </div>
-                    </div>
-            </div>
-        </div>
-    </div>
+                  </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     <script>
