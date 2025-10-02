@@ -263,7 +263,7 @@
                                 @endphp
                 @endphp
                 @if(!empty($sname))
-                    <option value="{{ $sname }}">{{ $sname }}</option>
+                    <option value="{{ $sname }}">{{ ucwords(strtolower($sname)) }}</option>
                 @endif
                 @endforeach
                 </select>
@@ -295,7 +295,7 @@
               @forelse($absen as $absensi)
               <tr>
                 <td>{{ $loop->iteration }}</td>
-                <td>{{ $absensi->siswa->name }}</td>
+                <td>{{ ucwords(strtolower($absensi->siswa->name)) }}</td>
                 <td>{{ date('d/m/Y', strtotime($absensi->tanggal)) }}</td>
                 <td>{{ date('H:i:s', strtotime($absensi->waktu_masuk)) }}</td>
                 <td>{{ date('H:i:s', strtotime($absensi->waktu_keluar)) }}</td>
