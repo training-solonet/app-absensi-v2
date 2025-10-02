@@ -2,14 +2,14 @@
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Schema;
 
 return new class extends Migration
 {
     public function up()
     {
-        if (!Schema::hasTable('users')) {
+        if (! Schema::hasTable('users')) {
             Schema::create('users', function (Blueprint $table) {
                 $table->id();
                 $table->string('name');
@@ -19,9 +19,9 @@ return new class extends Migration
                 $table->rememberToken();
                 $table->timestamps();
             });
-            
+
             // Add this line to grant permissions to the database user
-            DB::statement("GRANT ALL PRIVILEGES ON `" . env('DB_DATABASE') . "`.* TO '" . env('DB_USERNAME') . "'@'%'");
+            DB::statement('GRANT ALL PRIVILEGES ON `'.env('DB_DATABASE')."`.* TO '".env('DB_USERNAME')."'@'%'");
             DB::statement('FLUSH PRIVILEGES');
         }
     }

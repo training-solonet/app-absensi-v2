@@ -5,10 +5,6 @@ use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\UIDController;
 use App\Models\Absensi;
 use App\Models\Siswa;
-use App\Models\User;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Route;
 
 // Muat rute autentikasi
@@ -34,7 +30,7 @@ Route::get('/', function () {
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
-    'verified'
+    'verified',
 ])->group(function () {
     // Dashboard route
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
@@ -53,4 +49,3 @@ Route::middleware([
 // Rute untuk data UID (tidak memerlukan autentikasi)
 Route::get('/data-uid', [UIDController::class, 'index'])->name('data-uid');
 Route::post('/uid/update-name', [UIDController::class, 'updateName'])->name('uid.update-name');
-

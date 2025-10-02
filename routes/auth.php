@@ -21,27 +21,27 @@ use Laravel\Fortify\Http\Controllers\VerifyEmailController;
 Route::middleware('guest')->group(function () {
     // Login
     Route::get('/login', [AuthenticatedSessionController::class, 'create'])
-        ->middleware(['guest:' . config('fortify.guard')])
+        ->middleware(['guest:'.config('fortify.guard')])
         ->name('login');
 
     Route::post('/login', [AuthenticatedSessionController::class, 'store'])
-        ->middleware(['guest:' . config('fortify.guard')]);
+        ->middleware(['guest:'.config('fortify.guard')]);
 
     // Lupa Password
     Route::get('/forgot-password', [PasswordResetLinkController::class, 'create'])
-        ->middleware(['guest:' . config('fortify.guard')])
+        ->middleware(['guest:'.config('fortify.guard')])
         ->name('password.request');
 
     Route::post('/forgot-password', [PasswordResetLinkController::class, 'store'])
-        ->middleware(['guest:' . config('fortify.guard')])
+        ->middleware(['guest:'.config('fortify.guard')])
         ->name('password.email');
 
     Route::get('/reset-password/{token}', [NewPasswordController::class, 'create'])
-        ->middleware(['guest:' . config('fortify.guard')])
+        ->middleware(['guest:'.config('fortify.guard')])
         ->name('password.reset');
 
     Route::post('/reset-password', [NewPasswordController::class, 'store'])
-        ->middleware(['guest:' . config('fortify.guard')])
+        ->middleware(['guest:'.config('fortify.guard')])
         ->name('password.update');
 
     // Verifikasi Email
@@ -55,11 +55,11 @@ Route::middleware('guest')->group(function () {
 
     // Registrasi
     Route::get('/register', [RegisteredUserController::class, 'create'])
-        ->middleware(['guest:' . config('fortify.guard')])
+        ->middleware(['guest:'.config('fortify.guard')])
         ->name('register');
 
     Route::post('/register', [RegisteredUserController::class, 'store'])
-        ->middleware(['guest:' . config('fortify.guard')]);
+        ->middleware(['guest:'.config('fortify.guard')]);
 });
 
 // Rute yang membutuhkan autentikasi
