@@ -325,7 +325,6 @@
             });
         });
 
-        // Add ripple effect to login button
         const loginButton = document.querySelector('.btn-login');
         if (loginButton) {
             loginButton.addEventListener('click', function(e) {
