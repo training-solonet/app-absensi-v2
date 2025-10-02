@@ -129,7 +129,6 @@
         }
         .overlay.show { display: block; }
 
-        /* Mobile responsiveness */
         @media (max-width: 991.98px) {
             .content {
                 margin-left: 0;
@@ -149,6 +148,14 @@
             .sidebar.open {
                 transform: translateX(0);
             }
+        }
+        .dt-container .dt-length label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .dt-container .dt-length select {
+            margin-right: 6px; 
         }
     </style>
 </head>
@@ -225,13 +232,11 @@
                                     <button type="submit"
                                         class="dropdown-item d-flex align-items-center text-danger border-0 bg-transparent">
                                         <i class="bi bi-box-arrow-right me-2"></i> Logout
-                                    </button>
                                 </form>
                             </li>
                         </ul>
                     </div>
                 </div>
-            </div>
         </header>
 
         <!-- Card Laporan Absensi -->
@@ -258,7 +263,7 @@
                                 @endphp
                 @endphp
                 @if(!empty($sname))
-                    <option value="{{ $sname }}">{{ $sname }}</option>
+                    <option value="{{ $sname }}">{{ ucwords(strtolower($sname)) }}</option>
                 @endif
                 @endforeach
                 </select>
@@ -290,7 +295,7 @@
               @forelse($absen as $absensi)
               <tr>
                 <td>{{ $loop->iteration }}</td>
-                <td>{{ $absensi->siswa->name }}</td>
+                <td>{{ ucwords(strtolower($absensi->siswa->name)) }}</td>
                 <td>{{ date('d/m/Y', strtotime($absensi->tanggal)) }}</td>
                 <td>{{ date('H:i:s', strtotime($absensi->waktu_masuk)) }}</td>
                 <td>{{ date('H:i:s', strtotime($absensi->waktu_keluar)) }}</td>
