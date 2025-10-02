@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Absensi;
+use App\Models\Siswa;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
 

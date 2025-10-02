@@ -58,15 +58,6 @@ class UserFactory extends Factory
             return $this->state([]);
         }
 
-        return $this->has(
-            Team::factory()
-                ->state(fn (array $attributes, User $user) => [
-                    'name' => $user->name.'\'s Team',
-                    'user_id' => $user->id,
-                    'personal_team' => true,
-                ])
-                ->when(is_callable($callback), $callback),
-            'ownedTeams'
-        );
+        return $this->state([]); // Simplified for non-team application
     }
 }

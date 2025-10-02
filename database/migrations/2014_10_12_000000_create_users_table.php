@@ -21,8 +21,8 @@ return new class extends Migration
             });
 
             // Add this line to grant permissions to the database user
-            DB::statement('GRANT ALL PRIVILEGES ON `'.env('DB_DATABASE')."`.* TO '".env('DB_USERNAME')."'@'%'");
-            DB::statement('FLUSH PRIVILEGES');
+            // DB::statement('GRANT ALL PRIVILEGES ON `'.env('DB_DATABASE')."`.* TO '".env('DB_USERNAME')."'@'%'");
+            // DB::statement('FLUSH PRIVILEGES');
         }
     }
 
