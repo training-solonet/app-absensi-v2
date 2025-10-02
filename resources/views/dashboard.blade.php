@@ -1,24 +1,13 @@
 <!DOCTYPE html>
-@php
-    $fullMonthNames = [
-        1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-    ];
-    $monthNames = [
-        1 => 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
-        'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'
-    ];
-    $currentMonth = (int) ($selectedMonth ?? now()->month);
-    $mLabel = $fullMonthNames[$selectedMonth ?? now()->month] ?? ($selectedMonth ?? now()->month);
-@endphp
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     body {
@@ -64,7 +53,7 @@
     .sidebar .nav-link:hover { 
       background: rgba(255,255,255,0.12);
       color: #FFFFFF;
-    }
+    }   
     .sidebar.collapsed .nav-link {
       justify-content: center;
     }
@@ -331,7 +320,7 @@
             <div class="list-group-item d-flex justify-content-between align-items-center px-0">
               <div class="d-flex align-items-center">
                 <i class="bi bi-person-circle me-2 text-secondary" style="font-size:1.2rem;"></i>
-                <span>{{ $absen->siswa->name ?? '-' }}</span>
+                <span>{{ ucwords(string:strtolower($absen->siswa->name ?? '-')) }}</span>
               </div>
               <span class="badge bg-primary">{{ $absen->total_hadir ?? 0 }} kali</span>
             </div>
@@ -345,6 +334,7 @@
       <div class="card card-custom p-3 h-100">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h5 class="fw-bold mb-0">Jumlah Terlambat</h5>
+          <form method="GET" action="{{ route('dashboard') }}" class="d-flex gap-2">
           </form>
         </div>
         <div class="mt-2">
@@ -352,8 +342,8 @@
             <div class="list-group-item d-flex justify-content-between align-items-center px-0">
               <div class="d-flex align-items-center">
                 <i class="bi bi-person-circle me-2 text-secondary" style="font-size:1.2rem;"></i>
-                <span>{{ $row->siswa->name ?? '-' }}</span>
-              </div>
+                <span>{{ ucwords(string:strtolower($row->siswa->name ?? '-')) }}</span>
+              </div> 
               <span class="badge bg-danger">{{ $row->total ?? 0 }} kali</span>
             </div>
           @empty
@@ -367,12 +357,14 @@
   <!-- Data Keterlambatan (terbaru) -->
   <div class="card card-custom mt-4 p-3">
     <div class="card-body">
+      @php
+          $terlambat = $terlambat ?? collect();
+      @endphp
       <div class="d-flex align-items-center justify-content-between mb-3">
         <h5 class="fw-bold mb-0">Data Keterlambatan</h5>
-        <span class="badge bg-primary">{{ ($terlambat ?? collect())->count() }} siswa</span>
       </div>
       <div class="row g-3">
-        @forelse(($terlambat ?? []) as $row)
+        @forelse($terlambat as $row)
           @php
             $tgl = \Carbon\Carbon::parse($row->tanggal ?? now());
             $label = $tgl->isToday() ? 'Terlambat Hari Ini' : ($tgl->isYesterday() ? 'Terlambat Kemarin' : $tgl->translatedFormat('d M Y'));
@@ -384,9 +376,9 @@
                   <i class="bi bi-person-circle" style="font-size:2.2rem;"></i>
                 </div>
                 <div>
-                  <h6 class="mb-1 fw-bold text-uppercase text-primary">{{ $row->siswa->name ?? '-' }}</h6>
+                  <h6 class="mb-1 fw-bold text-primary">{{ ucwords(string:strtolower($row->siswa->name ?? '-')) }}</h6>
                   <small class="text-danger">{{ $label }}</small>
-                </div>
+                </div> 
               </div>
             </div>
           </div>

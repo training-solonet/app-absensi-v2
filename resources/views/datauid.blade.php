@@ -164,7 +164,7 @@
                 @foreach($uids as $u)
                 <tr data-row-id="{{ $u->id }}">
                     <td class="cell-uid">{{ $u->uid ?? $u->uid_code ?? '-' }}</td>
-                    <td class="cell-nama">{{ $u->siswa->name ?? $u->nama ?? $u->name ?? '-' }}</td>
+                    <td class="cell-nama">{{ ucwords(strtolower( string: $u->siswa->name ?? $u->nama ?? $u->name ?? '-' )) }}</td>
                     <td>
                         <button 
                             type="button" 

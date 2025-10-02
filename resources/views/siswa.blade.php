@@ -91,14 +91,13 @@
     header.navbar.collapsed {
       left: 70px;
     }
-    /* DataTables length control spacing */
     .dt-container .dt-length label {
       display: inline-flex;
       align-items: center;
-      gap: 8px; /* space between select and text */
+      gap: 8px; 
     }
     .dt-container .dt-length select {
-      margin-right: 6px; /* fallback spacing */
+      margin-right: 6px; 
     }
   </style>
 </head>
@@ -189,8 +188,8 @@
           @forelse($siswas as $siswa)
             <tr>
               <td>{{ $siswa->id }}</td>
-              <td>{{ $siswa->name }}</td>
-              <td>{{ $siswa->schools }}</td> 
+              <td>{{ ucwords(string: strtolower($siswa->name)) }}</td>
+              <td>{{ ucwords(string:strtolower($siswa->schools)) }}</td> 
             </tr>
           @empty
           @endforelse
