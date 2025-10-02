@@ -91,13 +91,20 @@
     header.navbar.collapsed {
       left: 70px;
     }
+    .dt-container .dt-length label {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px; 
+    }
+    .dt-container .dt-length select {
+      margin-right: 6px; 
+    }
   </style>
 </head>
 <body>
 
   <!-- Sidebar -->
   <div class="sidebar p-3" id="sidebar">
-    <!-- Logo -->
     <div class="text-center mb-4">
       <img src="{{ asset('img/logo.png') }}" alt="Logo" width="120">
     </div>
@@ -181,8 +188,8 @@
           @forelse($siswas as $siswa)
             <tr>
               <td>{{ $siswa->id }}</td>
-              <td>{{ $siswa->name }}</td>
-              <td>{{ $siswa->schools }}</td> 
+              <td>{{ ucwords(string: strtolower($siswa->name)) }}</td>
+              <td>{{ ucwords(string:strtolower($siswa->schools)) }}</td> 
             </tr>
           @empty
           @endforelse

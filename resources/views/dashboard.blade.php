@@ -1,12 +1,13 @@
 <!DOCTYPE html>
 <html lang="id">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>Dashboard Admin</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
 
   <style>
     body {
@@ -52,7 +53,7 @@
     .sidebar .nav-link:hover { 
       background: rgba(255,255,255,0.12);
       color: #FFFFFF;
-    }
+    }   
     .sidebar.collapsed .nav-link {
       justify-content: center;
     }
@@ -297,60 +298,73 @@
     </div>
   </div>
 
-  <div class="row mb-3"> 
+  <div class="row mb-3">
+    <!-- Statistik Kehadiran Bulan Ini -->
     <div class="col-md-6">
       <div class="card card-custom p-3 h-100">
-        <h5 class="fw-bold mb-3">Statistics Absen</h5>
-        <div class="row text-center">
-          <div class="col-md-4">
-            <div class="chart-donut">
-              <canvas id="izinChart" class="w-100 h-100"></canvas>
-            </div>
-            <p class="mt-2 mb-0">Rata-rata izin</p>
-          </div>
-          <div class="col-md-4">
-            <div class="chart-donut">
-              <canvas id="terlambatChart" class="w-100 h-100"></canvas>
-            </div>
-            <p class="mt-2 mb-0">Rata-rata terlambat</p>
-          </div>
-          <div class="col-md-4">
-            <div class="chart-donut">
-              <canvas id="hadirChart" class="w-100 h-100"></canvas>
-            </div>
-            <p class="mt-2 mb-0">Rata-rata masuk</p>
-          </div>
-        </div>  
-      </div>
-    </div>
-    <div class="col-md-6">
-      <div class="card card-custom p-3 h-100">
-        <div class="d-flex align-items-center justify-content-between">
-          <h5 class="fw-bold mb-0">Grafik Terlambat per Bulan</h5>
-          <form method="GET" action="{{ route('dashboard') }}" class="d-flex align-items-center gap-2">
-            <select name="year" class="form-select form-select-sm" onchange="this.form.submit()">
-              @foreach(($yearOptions ?? []) as $y)
-                <option value="{{ $y }}" @if(($selectedYear ?? now()->year) == $y) selected @endif>{{ $y }}</option>
+        <div class="d-flex align-items-center justify-content-between mb-3">
+          <h5 class="fw-bold mb-0">Jumlah Hadir</h5>
+          <form method="GET" action="{{ route('dashboard') }}" class="d-flex gap-2">
+            <select name="month" class="form-select form-select-sm" onchange="this.form.submit()" style="width: 180px;">
+              @foreach($fullMonthNames as $key => $month)
+                <option value="{{ $key }}" @if(($selectedMonth ?? now()->month) == $key) selected @endif>
+                  {{ $month }}
+                </option>
               @endforeach
             </select>
           </form>
         </div>
-        <div class="mt-3 chart-bar">
-          <canvas id="monthlyAttendanceChart" class="w-100 h-100"></canvas>
+        
+        <div class="mt-2">
+          @forelse(($absensiBulanIni ?? []) as $absen)
+            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-person-circle me-2 text-secondary" style="font-size:1.2rem;"></i>
+                <span>{{ ucwords(string:strtolower($absen->siswa->name ?? '-')) }}</span>
+              </div>
+              <span class="badge bg-primary">{{ $absen->total_hadir ?? 0 }} kali</span>
+            </div>
+          @empty
+            <div class="text-muted">Belum ada data kehadiran untuk bulan ini</div>
+          @endforelse
+        </div>
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="card card-custom p-3 h-100">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0">Jumlah Terlambat</h5>
+          <form method="GET" action="{{ route('dashboard') }}" class="d-flex gap-2">
+          </form>
+        </div>
+        <div class="mt-2">
+          @forelse(($terlambatPerSiswa ?? []) as $row)
+            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
+              <div class="d-flex align-items-center">
+                <i class="bi bi-person-circle me-2 text-secondary" style="font-size:1.2rem;"></i>
+                <span>{{ ucwords(string:strtolower($row->siswa->name ?? '-')) }}</span>
+              </div> 
+              <span class="badge bg-danger">{{ $row->total ?? 0 }} kali</span>
+            </div>
+          @empty
+            <div class="text-muted">Belum ada data terlambat pada bulan ini</div>
+          @endforelse
         </div>
       </div>
     </div>
   </div>
 
-  <!-- Data Keterlambatan -->
+  <!-- Data Keterlambatan (terbaru) -->
   <div class="card card-custom mt-4 p-3">
     <div class="card-body">
+      @php
+          $terlambat = $terlambat ?? collect();
+      @endphp
       <div class="d-flex align-items-center justify-content-between mb-3">
         <h5 class="fw-bold mb-0">Data Keterlambatan</h5>
-        <span class="badge bg-primary">{{ ($terlambat ?? collect())->count() }} siswa</span>
       </div>
       <div class="row g-3">
-        @forelse(($terlambat ?? []) as $row)
+        @forelse($terlambat as $row)
           @php
             $tgl = \Carbon\Carbon::parse($row->tanggal ?? now());
             $label = $tgl->isToday() ? 'Terlambat Hari Ini' : ($tgl->isYesterday() ? 'Terlambat Kemarin' : $tgl->translatedFormat('d M Y'));
@@ -362,9 +376,9 @@
                   <i class="bi bi-person-circle" style="font-size:2.2rem;"></i>
                 </div>
                 <div>
-                  <h6 class="mb-1 fw-bold text-uppercase text-primary">{{ $row->siswa->name ?? '-' }}</h6>
+                  <h6 class="mb-1 fw-bold text-primary">{{ ucwords(string:strtolower($row->siswa->name ?? '-')) }}</h6>
                   <small class="text-danger">{{ $label }}</small>
-                </div>
+                </div> 
               </div>
             </div>
           </div>
@@ -474,58 +488,6 @@
   buatChart('terlambatChart', terlambatPct, '#e74c3c');
   buatChart('hadirChart', hadirPct, '#27ae60');
 
-  // Grafik Terlambat per Bulan (bar)
-  const monthlyData = @json($terlambatPerBulanPct ?? array_fill(0, 12, 0));
-  const monthlyCount = @json($terlambatPerBulanCount ?? array_fill(0, 12, 0));
-  const monthLabels = ['Jan','Feb','Mar','Apr','Mei','Jun','Jul','Agu','Sep','Okt','Nov','Des'];
-  const ctxMonthly = document.getElementById('monthlyAttendanceChart');
-  if (ctxMonthly) {
-    new Chart(ctxMonthly, {
-      type: 'bar',
-      data: {
-        labels: monthLabels,
-        datasets: [
-          {
-            label: 'Terlambat (%)',
-            data: monthlyData,
-            backgroundColor: '#0046FF',
-            borderRadius: 6,
-            maxBarThickness: 24
-          }
-        ]
-      },
-      options: {
-        plugins: {
-          legend: { display: true },
-          tooltip: {
-            callbacks: {
-              label: function(context) {
-                const idx = context.dataIndex;
-                const pct = context.parsed.y ?? context.raw;
-                const count = monthlyCount[idx] ?? 0;
-                return ` ${pct}% (${count} siswa)`;
-              }
-            }
-          }
-        },
-        responsive: true,
-        maintainAspectRatio: false,
-        scales: {
-          y: {
-            beginAtZero: true,
-            max: 100,
-            ticks: {
-              callback: (value) => value + '%'
-            },
-            grid: { drawBorder: false }
-          },
-          x: {
-            grid: { display: false }
-          }
-        }
-      }
-    });
-  }
 </script>
 </body>
 </html>

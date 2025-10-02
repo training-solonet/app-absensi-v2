@@ -67,6 +67,15 @@
             transition: all 0.3s ease; 
         }
         header.navbar.collapsed { left: 70px; }
+        /* DataTables length control spacing */
+        .dt-container .dt-length label {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px; /* space between select and text */
+        }
+        .dt-container .dt-length select {
+            margin-right: 6px; /* fallback spacing */
+        }
     </style>
 </head>
 <body>
@@ -155,7 +164,7 @@
                 @foreach($uids as $u)
                 <tr data-row-id="{{ $u->id }}">
                     <td class="cell-uid">{{ $u->uid ?? $u->uid_code ?? '-' }}</td>
-                    <td class="cell-nama">{{ $u->siswa->name ?? $u->nama ?? $u->name ?? '-' }}</td>
+                    <td class="cell-nama">{{ ucwords(strtolower( string: $u->siswa->name ?? $u->nama ?? $u->name ?? '-' )) }}</td>
                     <td>
                         <button 
                             type="button" 
