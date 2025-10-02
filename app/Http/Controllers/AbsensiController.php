@@ -13,13 +13,11 @@ class AbsensiController extends Controller
         $dateParam = $request->query('tanggal');
         $selectedDate = $dateParam ? Carbon::parse($dateParam)->startOfDay() : Carbon::today();
 
-        // Data absensi untuk tanggal terpilih
         $absen = Absensi::with('siswa')
             ->whereDate('tanggal', $selectedDate)
             ->orderBy('id', 'desc')
             ->get();
 
-        // Hitung statistik hari sebelumnya dari tanggal yang dipilih
         $prevDate = (clone $selectedDate)->subDay();
 
         $hadirKemarin = Absensi::whereDate('tanggal', $prevDate)
