@@ -25,6 +25,6 @@ $app = Application::configure(basePath: dirname(__DIR__))
 // Register RouteServiceProvider
 $app->withProviders([
     \App\Providers\RouteServiceProvider::class,
-]); 
+]);
 
 return $app->create();

@@ -49,7 +49,7 @@ class AbsensiController extends Controller
         $hadirHariIni = Absensi::whereDate('tanggal', now())
             ->where(function ($q) {
                 $q->whereRaw('LOWER(TRIM(keterangan)) = ?', ['hadir'])
-                  ->orWhereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat']);
+                    ->orWhereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat']);
             })
             ->distinct('id_siswa')
             ->count('id_siswa');
@@ -120,7 +120,7 @@ class AbsensiController extends Controller
             'hadirHariIni',
             'belumAtauTidakHadir',
             'izinPct',
-            'terlambatPct', 
+            'terlambatPct',
             'hadirPct',
             'terlambatPerBulanPct',
             'terlambatPerBulanCount',
