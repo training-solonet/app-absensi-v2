@@ -110,7 +110,7 @@
         }
 
         .logo {
-            width: 250px;
+            width: 200px;
             margin-bottom: 15px;
             filter: drop-shadow(0 2px 4px rgba(0,0,0,0.1));
         }
@@ -227,7 +227,7 @@
     <!-- Login Container -->
     <div class="login-container">
         <div class="login-header">
-            <img src="{{ asset('img/connectis.png') }}" alt="Logo" class="logo">
+            <img src="{{ asset('img/logo.png') }}" alt="Logo" class="logo">
         </div>
 
         <div class="login-body">
