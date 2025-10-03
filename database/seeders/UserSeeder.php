@@ -19,24 +19,24 @@ class UserSeeder extends Seeder
                 'email_verified_at' => now(),
             ]
         );
-        
-        $this->command->info('User created/updated: ' . $admin->email);
+
+        $this->command->info('User created/updated: '.$admin->email);
         $this->command->info('Password: connectis123');
-        
+
         // Akun tambahan untuk testing
         $testUsers = [
             [
                 'name' => 'Manager',
                 'email' => 'manager@connectis.my.id',
-                'password' => 'manager123'
+                'password' => 'manager123',
             ],
             [
                 'name' => 'Staff',
                 'email' => 'staff@connectis.my.id',
-                'password' => 'staff123'
-            ]
+                'password' => 'staff123',
+            ],
         ];
-        
+
         foreach ($testUsers as $user) {
             $newUser = User::updateOrCreate(
                 ['email' => $user['email']],
@@ -46,9 +46,9 @@ class UserSeeder extends Seeder
                     'email_verified_at' => now(),
                 ]
             );
-            
-            $this->command->info('User created/updated: ' . $newUser->email);
-            $this->command->info('Password: ' . $user['password']);
+
+            $this->command->info('User created/updated: '.$newUser->email);
+            $this->command->info('Password: '.$user['password']);
         }
     }
 }
