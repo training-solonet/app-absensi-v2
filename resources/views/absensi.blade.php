@@ -295,7 +295,7 @@
               @forelse($absen as $absensi)
               <tr>
                 <td>{{ $loop->iteration }}</td>
-                <td>{{ ucwords(strtolower($absensi->siswa->name)) }}</td>
+                <td>{{ $absensi->siswa ? ucwords(strtolower($absensi->siswa->name)) : 'Siswa tidak ditemukan' }}</td>
                 <td>{{ date('d/m/Y', strtotime($absensi->tanggal)) }}</td>
                 <td>{{ date('H:i:s', strtotime($absensi->waktu_masuk)) }}</td>
                 <td>{{ date('H:i:s', strtotime($absensi->waktu_keluar)) }}</td>
@@ -321,11 +321,9 @@
   <script>
     $(document).ready(function() {
       const table = $('#absensiTable').DataTable();
-      // Filter berdasarkan nama siswa (kolom index 1)
       $('#namaSiswa').on('change', function() {
         table.column(1).search(this.value).draw();
       });
-      // Ketika tanggal berubah, submit form agar data dimuat dari server sesuai tanggal
       $('#tanggal').on('change', function() {
         $(this).closest('form')[0].submit();
       });
