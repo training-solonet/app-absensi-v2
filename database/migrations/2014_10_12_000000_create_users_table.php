@@ -19,7 +19,7 @@ return new class extends Migration
                 $table->rememberToken();
                 $table->timestamps();
             });
-
+            
             // Add this line to grant permissions to the database user
             // DB::statement('GRANT ALL PRIVILEGES ON `'.env('DB_DATABASE')."`.* TO '".env('DB_USERNAME')."'@'%'");
             // DB::statement('FLUSH PRIVILEGES');
