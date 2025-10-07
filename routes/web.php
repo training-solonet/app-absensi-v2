@@ -6,7 +6,6 @@ use App\Http\Controllers\UIDController;
 use App\Models\Absensi;
 use App\Models\Siswa;
 use Illuminate\Support\Facades\Route;
-use Illuminate\Support\Facades\Hash;
 
 // Muat rute autentikasi
 require __DIR__.'/auth.php';
@@ -50,4 +49,3 @@ Route::middleware([
 // Rute untuk data UID (tidak memerlukan autentikasi)
 Route::get('/data-uid', [UIDController::class, 'index'])->name('data-uid');
 Route::post('/uid/update-name', [UIDController::class, 'updateName'])->name('uid.update-name');
-

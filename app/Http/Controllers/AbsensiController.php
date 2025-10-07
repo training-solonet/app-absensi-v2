@@ -38,7 +38,7 @@ class AbsensiController extends Controller
     public function terlambat()
     {
         $today = now()->toDateString();
-        
+
         // Get late students for today with pagination
         $terlambat = Absensi::with('siswa')
             ->whereDate('tanggal', $today)
@@ -57,10 +57,6 @@ class AbsensiController extends Controller
 
         $totalSiswa = Siswa::count();
         $hadirHariIni = $stats->total_hadir ?? 0;
-                    ->orWhereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat']);
-            })
-            ->distinct('id_siswa')
-            ->count('id_siswa');
         $belumAtauTidakHadir = max($totalSiswa - $hadirHariIni, 0);
 
         $izinHariIni = Absensi::whereDate('tanggal', now())
