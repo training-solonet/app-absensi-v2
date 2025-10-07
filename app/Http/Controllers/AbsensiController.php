@@ -35,7 +35,7 @@ class AbsensiController extends Controller
         return view('absensi', compact('absen', 'selectedDate', 'hadirKemarin', 'terlambatKemarin'));
     }
 
-    public function terlambat()
+    public function terlambat(Request $request)
     {
         $today = now()->toDateString();
 

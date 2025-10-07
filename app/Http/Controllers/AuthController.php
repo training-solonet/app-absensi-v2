@@ -2,14 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use Illuminate\Http\Request;
+use Illuminate\View\View;
+
 class AuthController extends Controller
 {
-    public function login()
+    public function login(): View
     {
-        return view('login');
+        return view('auth.login');
     }
 
-    public function dashboard()
+    public function dashboard(): View
     {
         return view('dashboard');
     }
