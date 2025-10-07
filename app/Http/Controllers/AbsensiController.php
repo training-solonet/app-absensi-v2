@@ -6,6 +6,7 @@ use App\Models\Absensi;
 use App\Models\Siswa;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AbsensiController extends Controller
 {
@@ -34,20 +35,28 @@ class AbsensiController extends Controller
         return view('absensi', compact('absen', 'selectedDate', 'hadirKemarin', 'terlambatKemarin'));
     }
 
-    public function terlambat(Request $request)
+    public function terlambat()
     {
+        $today = now()->toDateString();
+        
+        // Get late students for today with pagination
         $terlambat = Absensi::with('siswa')
-            ->whereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat'])
-            ->whereDate('tanggal', now())
+            ->whereDate('tanggal', $today)
+            ->where('keterangan', 'terlambat')
             ->orderBy('id', 'desc')
-            ->limit(10)
-            ->get();
+            ->paginate(10);
 
-        // Summary counters
+        // Get summary statistics in a single query
+        $stats = DB::table('absensi')
+            ->select(
+                DB::raw('COUNT(DISTINCT id_siswa) as total_hadir')
+            )
+            ->whereDate('tanggal', $today)
+            ->whereIn('keterangan', ['hadir', 'terlambat'])
+            ->first();
+
         $totalSiswa = Siswa::count();
-        $hadirHariIni = Absensi::whereDate('tanggal', now())
-            ->where(function ($q) {
-                $q->whereRaw('LOWER(TRIM(keterangan)) = ?', ['hadir'])
+        $hadirHariIni = $stats->total_hadir ?? 0;
                     ->orWhereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat']);
             })
             ->distinct('id_siswa')
