@@ -2,12 +2,11 @@
 
 namespace Database\Seeders;
 
-use App\Models\User;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\Hash;
 
 class FillUsersTableSeeder extends Seeder
-{public function run(): void
+{
+    public function run(): void
     {
         $users = [
             [
@@ -17,7 +16,7 @@ class FillUsersTableSeeder extends Seeder
                 'email_verified_at' => now(),
             ],
         ];
-    
+
         foreach ($users as $user) {
             \App\Models\User::updateOrCreate(
                 ['email' => $user['email']],
