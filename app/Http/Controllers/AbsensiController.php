@@ -6,6 +6,7 @@ use App\Models\Absensi;
 use App\Models\Siswa;
 use Carbon\Carbon;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class AbsensiController extends Controller
 {
@@ -36,22 +37,26 @@ class AbsensiController extends Controller
 
     public function terlambat(Request $request)
     {
-        $terlambat = Absensi::with('siswa')
-            ->whereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat'])
-            ->whereDate('tanggal', now())
-            ->orderBy('id', 'desc')
-            ->limit(10)
-            ->get();
+        $today = now()->toDateString();
 
-        // Summary counters
+        // Get late students for today with pagination
+        $terlambat = Absensi::with('siswa')
+            ->whereDate('tanggal', $today)
+            ->where('keterangan', 'terlambat')
+            ->orderBy('id', 'desc')
+            ->paginate(10);
+
+        // Get summary statistics in a single query
+        $stats = DB::table('absensi')
+            ->select(
+                DB::raw('COUNT(DISTINCT id_siswa) as total_hadir')
+            )
+            ->whereDate('tanggal', $today)
+            ->whereIn('keterangan', ['hadir', 'terlambat'])
+            ->first();
+
         $totalSiswa = Siswa::count();
-        $hadirHariIni = Absensi::whereDate('tanggal', now())
-            ->where(function ($q) {
-                $q->whereRaw('LOWER(TRIM(keterangan)) = ?', ['hadir'])
-                    ->orWhereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat']);
-            })
-            ->distinct('id_siswa')
-            ->count('id_siswa');
+        $hadirHariIni = $stats->total_hadir ?? 0;
         $belumAtauTidakHadir = max($totalSiswa - $hadirHariIni, 0);
 
         $izinHariIni = Absensi::whereDate('tanggal', now())
