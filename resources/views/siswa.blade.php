@@ -179,7 +179,7 @@
       <table class="table table-bordered table-striped" id="siswaTable">
         <thead style="background-color: #8DD8FF;">
           <tr>
-            <th>ID</th>
+            <th>No</th>
             <th>Nama</th>
             <th>Sekolah</th> 
           </tr>
@@ -187,7 +187,7 @@
         <tbody>
           @forelse($siswas as $siswa)
             <tr>
-              <td>{{ $siswa->id }}</td>
+              <td>{{ $loop->iteration }}</td>
               <td>{{ ucwords(string: strtolower($siswa->name)) }}</td>
               <td>{{ ucwords(string:strtolower($siswa->schools)) }}</td> 
             </tr>

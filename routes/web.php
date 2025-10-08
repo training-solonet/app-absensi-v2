@@ -21,12 +21,10 @@ require __DIR__.'/auth.php';
 |
 */
 
-// Rute untuk tamu (belum login)
 Route::get('/', function () {
     return redirect()->route('login');
 });
 
-// Rute yang membutuhkan autentikasi
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
@@ -38,6 +36,7 @@ Route::middleware([
     // Rute absensi
     Route::get('/absensi', [AbsensiController::class, 'index'])->name('absensi');
     Route::get('/terlambat', [AbsensiController::class, 'terlambat'])->name('absensi.terlambat');
+    Route::put('/absensi/{absensi}', [App\Http\Controllers\AbsensiController::class, 'update'])->name('absensi.update');
 
     // Rute untuk halaman profile
     Route::view('/profile', 'profile')->name('profile');

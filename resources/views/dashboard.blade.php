@@ -287,7 +287,7 @@
       <div class="col-md-4 mb-3">
         <div class="summary-card d-flex justify-content-between align-items-center p-3">
           <div>
-            <h6 class="mb-1">Belum/Tidak Hadir</h6>
+            <h6 class="mb-1">Terlambat/Tidak Hadir</h6>
             <h3 class="mb-0">{{ $belumAtauTidakHadir ?? 0 }}</h3>
           </div>
           <div class="icon-wrapper">
