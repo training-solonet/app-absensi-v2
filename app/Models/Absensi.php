@@ -11,6 +11,20 @@ class Absensi extends Model
 
     protected $table = 'absen';
 
+    /**
+     * The attributes that are mass assignable.
+     *
+     * @var list<string>
+     */
+    protected $fillable = [
+        'id_siswa',
+        'tanggal',
+        'waktu_masuk',
+        'waktu_keluar',
+        'keterangan',
+        'catatan',
+    ];
+
     public function siswa()
     {
         return $this->belongsTo(Siswa::class, 'id_siswa', 'id');

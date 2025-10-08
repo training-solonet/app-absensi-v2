@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Illuminate\Support\Facades\Hash;
 
 class FillUsersTableSeeder extends Seeder
 {
@@ -12,7 +13,7 @@ class FillUsersTableSeeder extends Seeder
             [
                 'name' => 'Admin Connectis',
                 'email' => 'admin@connectis.my.id',
-                'password' => bcrypt('connectis123'),  // Pastikan menggunakan bcrypt
+                'password' => Hash::make('connectis123'),
                 'email_verified_at' => now(),
             ],
         ];
