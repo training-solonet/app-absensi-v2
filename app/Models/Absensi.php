@@ -14,7 +14,7 @@ class Absensi extends Model
     /**
      * The attributes that are mass assignable.
      *
-     * @var array<string>
+     * @var list<string>
      */
     protected $fillable = [
         'id_siswa',
