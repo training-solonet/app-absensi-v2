@@ -34,9 +34,11 @@ Route::middleware([
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
     // Rute absensi
-    Route::get('/absensi', [AbsensiController::class, 'index'])->name('absensi');
-    Route::get('/terlambat', [AbsensiController::class, 'terlambat'])->name('absensi.terlambat');
-    Route::match(['put', 'post'], '/absensi/{id}', [AbsensiController::class, 'update'])->name('absensi.update');
+    Route::prefix('absensi')->group(function () {
+        Route::get('/', [AbsensiController::class, 'index'])->name('absensi');
+        Route::get('/terlambat', [AbsensiController::class, 'terlambat'])->name('absensi.terlambat');
+        Route::match(['put', 'post'], '/{id}', [AbsensiController::class, 'update'])->name('absensi.update');
+    });
 
     // Rute untuk halaman profile
     Route::view('/profile', 'profile')->name('profile');
