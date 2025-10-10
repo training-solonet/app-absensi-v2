@@ -34,7 +34,7 @@ Route::middleware([
     Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
     // Rute absensi
-        Route::prefix('absensi')->group(function () {
+    Route::prefix('absensi')->group(function () {
         Route::get('/', [AbsensiController::class, 'index'])->name('absensi');
         Route::get('/terlambat', [AbsensiController::class, 'terlambat'])->name('absensi.terlambat');
         Route::match(['put', 'post'], '/{id}', [AbsensiController::class, 'update'])->name('absensi.update');
