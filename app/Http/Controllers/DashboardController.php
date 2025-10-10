@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Absensi;
 use App\Models\Siswa;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class DashboardController extends Controller
 {
@@ -13,35 +14,58 @@ class DashboardController extends Controller
         $selectedMonth = $request->get('month', date('m'));
         $currentMonth = (int) $selectedMonth;
         $year = date('Y');
+        $today = now()->toDateString();
 
-        // Get all active students
-        $siswaAktif = Siswa::pluck('id');
+        // Get total active students
+        $totalSiswa = Siswa::count();
 
-        // Hitung total siswa aktif
-        $totalSiswa = $siswaAktif->count();
-
-        // Hitung kehadiran hari ini untuk siswa aktif
-        $hadirHariIni = Absensi::whereIn('id_siswa', $siswaAktif)
-            ->whereDate('tanggal', now())
+        // Get today's attendance in a single query
+        $todayStats = DB::connection('absensi_v2')
+            ->table('absen')
+            ->select(DB::raw('COUNT(DISTINCT id_siswa) as total_hadir'))
+            ->whereDate('tanggal', $today)
             ->where('keterangan', 'hadir')
-            ->count();
+            ->first();
 
-        // Hitung yang belum/tidak hadir
+        $hadirHariIni = $todayStats ? ($todayStats->total_hadir ?? 0) : 0;
         $belumAtauTidakHadir = $totalSiswa - $hadirHariIni;
 
-        // Data absensi bulan ini untuk siswa aktif
-        $absensiBulanIni = Absensi::with('siswa')
-            ->selectRaw('id_siswa, COUNT(*) as total_hadir')
-            ->whereIn('id_siswa', $siswaAktif)
+        // Get student list from siswa_connectis database
+        $siswaList = DB::connection('siswa_connectis')
+            ->table('view_siswa')
+            ->select('id', 'name as nama_siswa')
+            ->get()
+            ->keyBy('id');
+
+        // Get attendance data from absensi_v2 database
+        $absensiData = DB::connection('absensi_v2')
+            ->table('absen')
+            ->select(
+                'id_siswa',
+                DB::raw('COUNT(CASE WHEN keterangan = "hadir" THEN 1 END) as total_hadir')
+            )
             ->whereMonth('tanggal', $currentMonth)
-            ->where('keterangan', 'hadir')
+            ->whereYear('tanggal', $year)
             ->groupBy('id_siswa')
             ->orderBy('total_hadir', 'desc')
             ->get();
 
-        // Data terlambat (untuk card bawah) - difilter berdasarkan bulan yang dipilih
-        $terlambat = Absensi::with('siswa')
-            ->whereIn('id_siswa', $siswaAktif)
+        // Combine the data and filter out invalid entries
+        $absensiBulanIni = $absensiData->map(function ($item) use ($siswaList) {
+            $siswa = $siswaList[$item->id_siswa] ?? null;
+
+            return (object) [
+                'id_siswa' => $item->id_siswa,
+                'nama_siswa' => $siswa->nama_siswa ?? null,
+                'total_hadir' => $item->total_hadir,
+            ];
+        })->filter(function ($item) {
+            // Only include students with a name and at least 1 attendance
+            return ! empty($item->nama_siswa) && $item->total_hadir > 0;
+        });
+
+        // Get late arrivals for the month
+        $terlambat = Absensi::with(['siswa'])
             ->where('keterangan', 'terlambat')
             ->whereMonth('tanggal', $currentMonth)
             ->whereYear('tanggal', $year)
@@ -49,10 +73,9 @@ class DashboardController extends Controller
             ->take(6)
             ->get();
 
-        // Data terlambat per siswa untuk bulan yang dipilih
+        // Get late arrivals per student for the selected month in a single query
         $terlambatPerSiswa = Absensi::with('siswa')
-            ->selectRaw('id_siswa, COUNT(*) as total')
-            ->whereIn('id_siswa', $siswaAktif)
+            ->select('id_siswa', DB::raw('COUNT(*) as total'))
             ->whereMonth('tanggal', $currentMonth)
             ->whereYear('tanggal', $year)
             ->where('keterangan', 'terlambat')
@@ -60,39 +83,45 @@ class DashboardController extends Controller
             ->orderBy('total', 'desc')
             ->get();
 
-        // Total keterlambatan bulan ini
+        // Calculate total late arrivals for the month
         $totalTerlambat = $terlambatPerSiswa->sum('total');
+        $totalTerlambatBulanIni = $totalTerlambat;
 
-        // Total terlambat bulan ini
-        $totalTerlambatBulanIni = $terlambatPerSiswa->sum('total');
+        // Get monthly statistics in a single query
+        $monthlyStats = Absensi::select(
+            DB::raw('MONTH(tanggal) as month'),
+            DB::raw('SUM(CASE WHEN keterangan = "hadir" THEN 1 ELSE 0 END) as hadir'),
+            DB::raw('SUM(CASE WHEN keterangan = "terlambat" THEN 1 ELSE 0 END) as terlambat')
+        )
+            ->whereYear('tanggal', $year)
+            ->groupBy(DB::raw('MONTH(tanggal)'))
+            ->get()
+            ->keyBy('month');
 
-        // Data statistik kehadiran per bulan untuk grafik
+        // Prepare monthly statistics for the chart
         $statistikBulanan = [];
+        $monthNames = [
+            1 => 'Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun',
+            'Jul', 'Ags', 'Sep', 'Okt', 'Nov', 'Des',
+        ];
+
         for ($i = 1; $i <= 12; $i++) {
-            $hadir = Absensi::whereIn('id_siswa', $siswaAktif)
-                ->whereMonth('tanggal', $i)
-                ->whereYear('tanggal', $year)
-                ->where('keterangan', 'hadir')
-                ->count();
-
-            $terlambatCount = Absensi::whereIn('id_siswa', $siswaAktif)
-                ->whereMonth('tanggal', $i)
-                ->whereYear('tanggal', $year)
-                ->where('keterangan', 'terlambat')
-                ->count();
-
+            $monthData = $monthlyStats->get($i, (object) ['hadir' => 0, 'terlambat' => 0]);
             $statistikBulanan[] = [
-                'bulan' => date('M', mktime(0, 0, 0, $i, 10)),
-                'hadir' => $hadir,
-                'terlambat' => $terlambatCount,
+                'bulan' => $monthNames[$i],
+                'hadir' => (int) $monthData->hadir,
+                'terlambat' => (int) $monthData->terlambat,
             ];
         }
 
-        // Bulan-bulan untuk dropdown
+        // Full month names for dropdown
         $fullMonthNames = [
             1 => 'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
             'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember',
         ];
+
+        // The $absensiBulanIni is already prepared above with student names and attendance counts
+        // No need to overwrite it here
 
         return view('dashboard', compact(
             'totalSiswa',
@@ -104,7 +133,9 @@ class DashboardController extends Controller
             'fullMonthNames',
             'selectedMonth',
             'statistikBulanan',
-            'year'
+            'year',
+            'totalTerlambat',
+            'totalTerlambatBulanIni'
         ));
     }
 }
