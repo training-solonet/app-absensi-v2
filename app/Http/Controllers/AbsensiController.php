@@ -33,12 +33,13 @@ class AbsensiController extends Controller
         return view('absensi', compact('absen', 'selectedDate', 'hadirKemarin', 'terlambatKemarin'));
     }
 
-    public function update(Request $request, Absensi $absensi)
+    public function update(Request $request, $id)
     {
         $validated = $request->validate([
             'keterangan' => 'required|in:Izin,Sakit',
         ]);
 
+        $absensi = Absensi::findOrFail($id);
         $absensi->update([
             'keterangan' => $validated['keterangan'],
             'updated_at' => now(),
