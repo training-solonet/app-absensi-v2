@@ -239,7 +239,7 @@
       <div class="d-flex align-items-center">
         <span class="text-white me-3" id="live-clock"></span>
         <div class="dropdown">
-          <a href="#" class="d-flex align-items-center" id="profileDropdown" 
+          <a href="#" class="d-flex align-items-center" id="prof ileDropdown" 
              role="button" data-bs-toggle="dropdown" aria-expanded="false">
             <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
                  alt="Profile" width="40" height="40" class="rounded-circle border-2 border-primary">
@@ -308,24 +308,33 @@
             <select name="month" class="form-select form-select-sm" onchange="this.form.submit()" style="width: 180px;">
               @foreach($fullMonthNames as $key => $month)
                 <option value="{{ $key }}" @if(($selectedMonth ?? now()->month) == $key) selected @endif>
-                  {{ $month }}
+                  {{ $month }} 
                 </option>
               @endforeach
             </select>
           </form>
         </div>
         
-        <div class="mt-2">
-          @forelse(($absensiBulanIni ?? []) as $absen)
-            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-              <div class="d-flex align-items-center">
-                <i class="bi bi-person-circle me-2 text-secondary" style="font-size:1.2rem;"></i>
-                <span>{{ ucwords(string:strtolower($absen->siswa->name ?? '-')) }}</span>
+        <div class="mt-2" style="max-height: 300px; overflow-y: auto;">
+          @forelse($absensiBulanIni ?? [] as $absen)
+            @php
+                $namaSiswa = $absen->nama_siswa ?? 'Siswa #' . ($absen->id ?? '?');
+            @endphp
+            <div class="d-flex justify-content-between align-items-center px-0 py-2 {{ !$loop->last ? 'border-bottom' : '' }}">
+              <div class="d-flex align-items-center text-truncate" style="max-width: 70%;">
+                <i class="bi bi-person-circle me-2 text-secondary" style="font-size:1.2rem; flex-shrink: 0;"></i>
+                <span class="text-truncate" title="{{ $namaSiswa }}">
+                  {{ ucwords(strtolower($namaSiswa)) }}
+                </span>
               </div>
-              <span class="badge bg-primary">{{ $absen->total_hadir ?? 0 }} kali</span>
+              <span class="badge bg-primary rounded-pill" style="flex-shrink: 0;">
+                {{ $absen->total_hadir ?? 0 }}x
+              </span>
             </div>
           @empty
-            <div class="text-muted">Belum ada data kehadiran untuk bulan ini</div>
+            <div class="text-muted py-2">
+              <i class="bi bi-info-circle me-1"></i> Belum ada data kehadiran untuk bulan ini
+            </div>
           @endforelse
         </div>
       </div>
@@ -337,17 +346,26 @@
           <form method="GET" action="{{ route('dashboard') }}" class="d-flex gap-2">
           </form>
         </div>
-        <div class="mt-2">
+        <div class="mt-2" style="max-height: 300px; overflow-y: auto;">
           @forelse(($terlambatPerSiswa ?? []) as $row)
-            <div class="list-group-item d-flex justify-content-between align-items-center px-0">
-              <div class="d-flex align-items-center">
-                <i class="bi bi-person-circle me-2 text-secondary" style="font-size:1.2rem;"></i>
-                <span>{{ ucwords(string:strtolower($row->siswa->name ?? '-')) }}</span>
-              </div> 
-              <span class="badge bg-danger">{{ $row->total ?? 0 }} kali</span>
+            @php
+                $namaSiswa = $row->siswa->name ?? 'Siswa #' . ($row->id_siswa ?? '?');
+            @endphp
+            <div class="d-flex justify-content-between align-items-center px-0 py-2 {{ !$loop->last ? 'border-bottom' : '' }}">
+              <div class="d-flex align-items-center text-truncate" style="max-width: 70%;">
+                <i class="bi bi-person-circle me-2 text-secondary" style="font-size:1.2rem; flex-shrink: 0;"></i>
+                <span class="text-truncate" title="{{ $namaSiswa }}">
+                  {{ ucwords(strtolower($namaSiswa)) }}
+                </span>
+              </div>
+              <span class="badge bg-danger rounded-pill" style="flex-shrink: 0;">
+                {{ $row->total ?? 0 }}x
+              </span>
             </div>
           @empty
-            <div class="text-muted">Belum ada data terlambat pada bulan ini</div>
+            <div class="text-muted py-2">
+              <i class="bi bi-info-circle me-1"></i> Belum ada data terlambat untuk bulan ini
+            </div>
           @endforelse
         </div>
       </div>
