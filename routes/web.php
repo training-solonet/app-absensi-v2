@@ -37,7 +37,7 @@ Route::middleware([
     Route::get('/absensi', [AbsensiController::class, 'index'])->name('absensi');
     Route::get('/terlambat', [AbsensiController::class, 'terlambat'])->name('absensi.terlambat');
     Route::match(['put', 'post'], '/absensi/{id}', [AbsensiController::class, 'update'])->name('absensi.update');
-    
+
     // Rute untuk halaman profile
     Route::view('/profile', 'profile')->name('profile');
 
