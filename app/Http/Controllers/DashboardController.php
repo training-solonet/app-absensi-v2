@@ -20,12 +20,14 @@ class DashboardController extends Controller
         $totalSiswa = Siswa::count();
 
         // Get today's attendance in a single query
-        $todayStats = Absensi::select(DB::raw('COUNT(DISTINCT id_siswa) as total_hadir'))
+        $todayStats = DB::connection('absensi_v2')
+            ->table('absen')
+            ->select(DB::raw('COUNT(DISTINCT id_siswa) as total_hadir'))
             ->whereDate('tanggal', $today)
             ->where('keterangan', 'hadir')
             ->first();
 
-        $hadirHariIni = $todayStats ? $todayStats->total_hadir : 0;
+        $hadirHariIni = $todayStats ? ($todayStats->total_hadir ?? 0) : 0;
         $belumAtauTidakHadir = $totalSiswa - $hadirHariIni;
 
         // Get student list from siswa_connectis database
@@ -104,7 +106,7 @@ class DashboardController extends Controller
         ];
 
         for ($i = 1; $i <= 12; $i++) {
-            $monthData = $monthStats[$i] ?? (object) ['hadir' => 0, 'terlambat' => 0];
+            $monthData = $monthlyStats->get($i, (object) ['hadir' => 0, 'terlambat' => 0]);
             $statistikBulanan[] = [
                 'bulan' => $monthNames[$i],
                 'hadir' => (int) $monthData->hadir,
