@@ -112,6 +112,36 @@
     header.navbar.collapsed {
       left: 70px;
     }
+
+    #header .container-fluid {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: nowrap !important;
+    }
+
+    #live-clock {
+      white-space: nowrap;
+      font-size: 0.9rem;
+      color: #fff;
+    }
+
+    @media (max-width: 575.98px) {
+      #header .container-fluid {
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 0 !important;
+      }
+      #live-clock {
+        font-size: 0.8rem;
+        white-space: nowrap;
+      }
+      #header h5 {
+        font-size: 1rem;
+      }
+    }
+    
     .card-custom {
       border-radius: 15px;
       border: none;
@@ -161,7 +191,6 @@
     .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 950; display: none; }
     .overlay.show { display: block; }
 
-    /* Responsive chart wrappers */
     .chart-donut { position: relative; height: 140px; }
     .chart-bar { position: relative; height: 260px; }
     @media (max-width: 575.98px) {
