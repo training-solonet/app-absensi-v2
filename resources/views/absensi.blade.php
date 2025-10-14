@@ -7,144 +7,185 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.css" rel="stylesheet">
-  <style>
-
+  
+<style>
 .toast-center {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      z-index: 1100;
-      min-width: 300px;
-      opacity: 0;
-      transition: opacity 0.3s ease-in-out;
-    }
-    
-    .toast-center.show {
-      opacity: 1;
-    }
-    
-    body { 
-      font-family: 'Poppins', sans-serif; 
-      background-color: #f8f9fa; }
-    .sidebar {
-      height: 100vh; 
-      background-color: #3F63E0; 
-      box-shadow: 2px 0 10px rgba(0,0,0,0.1);
-      padding: 20px; 
-      position: fixed; 
-      top: 0; 
-      left: 0; 
-      width: 240px; 
-      transition: all 0.3s ease; 
-      z-index: 1000;
-    }
-    .sidebar.collapsed { 
-      width: 70px !important; 
-      overflow: hidden; }
-    .sidebar.collapsed .nav-link span,
-    .sidebar.collapsed .badge,
-    .sidebar.collapsed .text-center img[alt="Connectis Logo"] { display: none !important; }
-    .sidebar .nav-link {
-      font-weight: 600; 
-      color: #EAF2FF; 
-      margin: 4px 8px 10px 8px; 
-      display: flex; 
-      align-items: center;
-      gap: 10px; 
-      border-radius: 12px; 
-      padding: 10px 12px; 
-      position: relative;
-    }
-    .sidebar .nav-link:hover { 
-      background: rgba(255,255,255,0.12); 
-      color: #fff; 
-    }
-    .sidebar .nav-link i { 
-      font-size: 18px; 
-      color: inherit; 
-    }
-    .sidebar.collapsed .nav-link { 
-      justify-content: center; 
-    }
-    .sidebar .nav-link.active {
-      background: rgba(255,255,255,0.18); 
-      color: #FFFFFF;
-    }
-    .sidebar .nav-link.active::before {
-      content: ''; 
-      position: absolute; 
-      left: -8px; 
-      top: 50%; 
-      transform: translateY(-50%);
-      width: 4px; 
-      height: 24px; 
-      background: #F4D03F; 
-      border-radius: 2px;
-    }
-    .toggle-btn {
-      position: absolute; 
-      top: 50%; 
-      right: -15px; 
-      transform: translateY(-50%);
-      background: #fff; 
-      border: none; 
-      border-radius: 50%; 
-      width: 30px; 
-      height: 30px;
-      box-shadow: 0 2px 5px rgba(0, 0, 0, 0.2); 
-      cursor: pointer; 
-      display: flex;
-      justify-content: center; 
-      align-items: center; 
-      z-index: 1100;
-    }
-    .content { 
-      margin-left: 260px; 
-      padding: 20px; 
-      padding-top: 80px; 
-      transition: all 0.3s ease; 
-    }
-    .content.collapsed { 
-      margin-left: 80px !important; 
-    }
-    header.navbar {
-      background-color: #3F63E0; 
-      position: fixed; 
-      top: 0; 
-      left: 240px; 
-      right: 0;
-      height: 60px; 
-      z-index: 900; 
-      transition: all 0.3s ease;
-    }
-    header.navbar.collapsed { 
-      left: 70px; 
-    }
-    .card-custom { 
-      border-radius: 12px; 
-      border: none; 
-      box-shadow: 0 4px 8px rgba(0, 0, 0, 0.05); 
-    }
-    .overlay {
-      position: fixed; 
-      inset: 0; background: rgba(0,0,0,0.35); 
-      z-index: 950; 
-      display: none;
-    }
-    .overlay.show { display: block; }
-    @media (max-width: 991.98px) {
-      .content { margin-left: 0; padding-top: 70px; }
-      header.navbar { left: 0; }
-      .toggle-btn { display: none; }
-      .sidebar {
-        width: 80%; max-width: 260px; transform: translateX(-100%);
-      }
-      .sidebar.open { transform: translateX(0); }
-    }
-    .dt-container .dt-length label { display: inline-flex; align-items: center; gap: 8px; }
-    .dt-container .dt-length select { margin-right: 6px; }
-  </style>
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1100;
+  min-width: 300px;
+  opacity: 0;
+  transition: opacity 0.3s ease-in-out;
+}
+.toast-center.show { opacity: 1; }
+
+body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f8f9fa;
+}
+
+.sidebar {
+  height: 100vh;
+  background-color: #3F63E0;
+  box-shadow: 2px 0 10px rgba(0,0,0,0.1);
+  padding: 20px;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 240px;
+  transition: all 0.3s ease;
+  z-index: 1000;
+}
+.sidebar.collapsed { width: 70px !important; overflow: hidden; }
+.sidebar.collapsed .nav-link span,
+.sidebar.collapsed .badge,
+.sidebar.collapsed .text-center img[alt="Connectis Logo"] { display: none !important; }
+
+.sidebar .nav-link {
+  font-weight: 600;
+  color: #EAF2FF;
+  margin: 4px 8px 10px 8px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  border-radius: 12px;
+  padding: 10px 12px;
+  position: relative;
+}
+.sidebar .nav-link:hover {
+  background: rgba(255,255,255,0.12);
+  color: #fff;
+}
+.sidebar .nav-link i { font-size: 18px; color: inherit; }
+.sidebar.collapsed .nav-link { justify-content: center; }
+.sidebar .nav-link.active {
+  background: rgba(255,255,255,0.18);
+  color: #FFFFFF;
+}
+.sidebar .nav-link.active::before {
+  content: '';
+  position: absolute;
+  left: -8px;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 4px;
+  height: 24px;
+  background: #F4D03F;
+  border-radius: 2px;
+}
+
+
+.toggle-btn {
+  position: absolute;
+  top: 50%;
+  right: -15px;
+  transform: translateY(-50%);
+  background: #fff;
+  border: none;
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1100;
+}
+
+.content {
+  margin-left: 260px;
+  padding: 20px;
+  padding-top: 80px;
+  transition: all 0.3s ease;
+}
+.content.collapsed { margin-left: 80px !important; }
+
+header.navbar {
+  background-color: #3F63E0;
+  position: fixed;
+  top: 0;
+  left: 240px;
+  right: 0;
+  height: 60px;
+  z-index: 900;
+  transition: all 0.3s ease;
+}
+header.navbar.collapsed { left: 70px; }
+
+#header .container-fluid {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: nowrap !important;
+  gap: 10px;
+}
+#header h5 {
+  font-size: 1.1rem;
+  color: #fff;
+  white-space: nowrap;
+}
+#live-clock {
+  color: #fff;
+  white-space: nowrap;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 575.98px) {
+  #header .container-fluid {
+    flex-direction: row !important;
+    justify-content: space-between !important;
+    align-items: center !important;
+  }
+  #header h5 {
+    font-size: 1rem;
+  }
+  #live-clock {
+    font-size: 0.8rem;
+  }
+  #profileDropdown img {
+    width: 36px;
+    height: 36px;
+  }
+}
+
+.card-custom {
+  border-radius: 12px;
+  border: none;
+  box-shadow: 0 4px 8px rgba(0,0,0,0.05);
+}
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.35);
+  z-index: 950;
+  display: none;
+}
+.overlay.show { display: block; }
+
+@media (max-width: 991.98px) {
+  .content { margin-left: 0; padding-top: 70px; }
+  header.navbar { left: 0; }
+  .toggle-btn { display: none; }
+  .sidebar {
+    width: 80%;
+    max-width: 260px;
+    transform: translateX(-100%);
+  }
+  .sidebar.open { transform: translateX(0); }
+}
+
+.dt-container .dt-length label {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.dt-container .dt-length select { margin-right: 6px; }
+</style>
+
 </head>
 <body>
   <!-- Sidebar -->
