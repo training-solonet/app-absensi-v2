@@ -13,9 +13,10 @@
       font-family: 'Poppins', sans-serif;
       background-color: #fff;
     }
+
     .sidebar {
       height: 100vh;
-      background-color: #3F63E0; /* match reference */
+      background-color: #3F63E0;
       box-shadow: 2px 0 10px rgba(0,0,0,0.1);
       padding: 20px;
       position: fixed;
@@ -25,15 +26,11 @@
       transition: all 0.3s ease;
       z-index: 1000;
     }
-    .sidebar.collapsed {
-      width: 70px !important;
-      overflow: hidden;
-    }
+    .sidebar.collapsed { width: 70px !important; overflow: hidden; }
     .sidebar.collapsed .nav-link span,
     .sidebar.collapsed .badge,
-    .sidebar.collapsed .text-center img[alt="Logo"] {
-      display: none !important;
-    }
+    .sidebar.collapsed .text-center img[alt="Logo"] { display: none !important; }
+
     .sidebar .nav-link {
       font-weight: 600;
       color: #EAF2FF;
@@ -45,13 +42,23 @@
       padding: 10px 12px;
       position: relative;
     }
+
     .sidebar .nav-link:hover { background: rgba(255,255,255,0.12); color: #fff; }
     .sidebar .nav-link i { font-size: 18px; color: inherit; }
-    .sidebar.collapsed .nav-link {
-      justify-content: center;
-    }
+    .sidebar.collapsed .nav-link { justify-content: center; }
     .sidebar .nav-link.active { background: rgba(255,255,255,0.18); color: #FFFFFF; }
-    .sidebar .nav-link.active::before { content: ''; position: absolute; left: -8px; top: 50%; transform: translateY(-50%); width: 4px; height: 24px; background: #F4D03F; border-radius: 2px; }
+    .sidebar .nav-link.active::before {
+      content: '';
+      position: absolute;
+      left: -8px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 4px;
+      height: 24px;
+      background: #F4D03F;
+      border-radius: 2px;
+    }
+
     .toggle-btn {
       position: absolute;
       top: 50%;
@@ -69,17 +76,17 @@
       align-items: center;
       z-index: 1100;
     }
+
     .content {
       margin-left: 260px;
       padding: 20px;
-      padding-top: 80px; 
+      padding-top: 80px;
       transition: all 0.3s ease;
     }
-    .content.collapsed {
-      margin-left: 80px !important;
-    }
+    .content.collapsed { margin-left: 80px !important; }
+
     header.navbar {
-      background-color:#3F63E0;
+      background-color: #3F63E0;
       position: fixed;
       top: 0;
       left: 240px;
@@ -88,16 +95,46 @@
       z-index: 900;
       transition: all 0.3s ease;
     }
-    header.navbar.collapsed {
-      left: 70px;
+    header.navbar.collapsed { left: 70px; }
+
+    #header .container-fluid {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: nowrap !important;
     }
+
+    #live-clock {
+      white-space: nowrap;
+      font-size: 0.9rem;
+      color: #fff;
+    }
+
+    @media (max-width: 575.98px) {
+      #header .container-fluid {
+        flex-direction: row !important;
+        align-items: center !important;
+        justify-content: space-between !important;
+        gap: 0 !important;
+      }
+
+      #live-clock {
+        font-size: 0.8rem;
+        white-space: nowrap;
+      }
+
+      #header h5 {
+        font-size: 1rem;
+      }
+    }
+
     .dt-container .dt-length label {
       display: inline-flex;
       align-items: center;
-      gap: 8px; 
+      gap: 8px;
     }
     .dt-container .dt-length select {
-      margin-right: 6px; 
+      margin-right: 6px;
     }
   </style>
 </head>
@@ -109,17 +146,13 @@
       <img src="{{ asset('img/logo.png') }}" alt="Logo" width="120">
     </div>
 
-    <!-- Profil Admin -->
     <div class="d-flex flex-column align-items-center text-center mb-4">
       <a href="{{ route('profile') }}" class="text-decoration-none">
         <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Admin" width="60" class="mb-2 rounded-circle">
       </a>
-      <div>
-        <span class="badge bg-white text-dark">Administrator</span>
-      </div>
+      <div><span class="badge bg-white text-dark">Administrator</span></div>
     </div>
 
-    <!-- Navigasi -->
     <nav class="nav flex-column">   
       <a class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}" href="/dashboard">
         <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
@@ -131,12 +164,10 @@
         <i class="bi bi-clipboard-check"></i> <span>Laporan Absensi</span>
       </a>
       <a href="{{ route('data-uid') }}" class="nav-link">
-        <i class="bi bi-credit-card-2-front"></i>
-        <span>Data UID</span>
-    </a>
+        <i class="bi bi-credit-card-2-front"></i> <span>Data UID</span>
+      </a>
     </nav>  
 
-    <!-- Tombol Panah -->
     <button class="toggle-btn" id="toggleBtn">
       <i class="bi bi-chevron-left"></i>
     </button>
@@ -144,16 +175,12 @@
 
   <!-- Content -->
   <div class="content" id="content">
-
-    <!-- Header -->
     <header class="navbar shadow-sm px-4" id="header">
       <div class="container-fluid d-flex justify-content-between align-items-center h-100">
         <h5 class="fw-bold mb-0 text-light">Data Siswa</h5>
 
         <div class="d-flex align-items-center">
-        <span class="text-white me-3" id="live-clock"></span>
-
-          <!-- Dropdown Profil -->
+          <span class="text-white me-3" id="live-clock"></span>
           <div class="dropdown">
             <a href="#" class="d-flex align-items-center" id="profileDropdown" 
                role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -175,7 +202,7 @@
       </div>
     </header>
 
-      <div class="table-responsive">
+    <div class="table-responsive">
       <table class="table table-bordered table-striped" id="siswaTable">
         <thead style="background-color: #8DD8FF;">
           <tr>
@@ -195,21 +222,17 @@
           @endforelse
         </tbody>
       </table>
-      </div>
     </div>
   </div>
 
   <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
   <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
 <script>
   $(document).ready(function() {
     $('#siswaTable').DataTable();
   });
-  function setTheme(sidebarColor, headerColor) {
-    document.getElementById("sidebar").style.backgroundColor = sidebarColor;
-    document.getElementById("header").style.backgroundColor = headerColor;
-  }
 
   const sidebar = document.getElementById("sidebar");
   const content = document.getElementById("content");
@@ -230,28 +253,21 @@
   });
 
   // Live Clock
-   function updateClock() {
+  function updateClock() {
     const now = new Date();
-
-    // Format tanggal
     const tanggal = now.toLocaleDateString('id-ID', {
       weekday: 'long',
       year: 'numeric',
       month: 'long',
       day: 'numeric'
     });
-
-    // Format jam
     const jam = now.toLocaleTimeString('id-ID', {
       hour: '2-digit',
       minute: '2-digit',
       second: '2-digit'
     });
-
-    // Gabung dengan tanda |
     document.getElementById('live-clock').textContent = `${tanggal} | ${jam}`;
   }
-
   setInterval(updateClock, 1000);
   updateClock();
 </script>
