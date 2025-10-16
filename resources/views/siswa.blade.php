@@ -83,7 +83,22 @@
       padding-top: 80px;
       transition: all 0.3s ease;
     }
-    .content.collapsed { margin-left: 80px !important; }
+
+    .content.collapsed {
+       margin-left: 80px !important; 
+    }
+
+    #header h5 {
+      margin-right: 10px; 
+    }
+
+    #live-clock {
+      margin-left: 12px; 
+    }
+
+    header.navbar .dropdown > a img {
+      margin-right: 6px; 
+    }
 
     header.navbar {
       background-color: #3F63E0;
