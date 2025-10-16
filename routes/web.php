@@ -47,6 +47,7 @@ Route::middleware([
     Route::resource('/siswa', SiswaController::class);
 });
 
-// Rute untuk data UID (tidak memerlukan autentikasi)
+// Rute untuk data UID
 Route::get('/data-uid', [UIDController::class, 'index'])->name('data-uid');
 Route::post('/uid/update-name', [UIDController::class, 'updateName'])->name('uid.update-name');
+Route::put('/data-uid/{id}/update-student', [UIDController::class, 'updateStudent'])->name('uid.update-student');

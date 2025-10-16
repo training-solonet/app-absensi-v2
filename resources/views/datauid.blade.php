@@ -15,7 +15,6 @@
             background-color: #fff;
         }
 
-        /* === SIDEBAR === */
         .sidebar {
             height: 100vh;
             background-color: #3F63E0;
@@ -67,7 +66,6 @@
             border-radius: 2px;
         }
 
-        /* === TOGGLE BUTTON === */
         .toggle-btn {
             position: absolute;
             top: 50%;
@@ -86,7 +84,6 @@
             z-index: 1100;
         }
 
-        /* === CONTENT & HEADER === */
         .content {
             margin-left: 260px;
             padding: 20px;
@@ -109,7 +106,6 @@
 
         header.navbar.collapsed { left: 70px; }
 
-        /* ✅ Perbaikan agar tanggal & ikon profil sejajar di semua layar */
         #header .container-fluid {
             display: flex;
             align-items: center;
@@ -130,7 +126,6 @@
             font-size: 0.9rem;
         }
 
-        /* Responsif: biar di mobile tetap sejajar */
         @media (max-width: 575.98px) {
             #header .container-fluid {
                 flex-direction: row !important;
@@ -143,7 +138,6 @@
             #profileDropdown img { width: 36px; height: 36px; }
         }
 
-        /* === DATATABLES === */
         .dt-container .dt-length label {
             display: inline-flex;
             align-items: center;
@@ -156,6 +150,7 @@
     </style>
 </head>
 <body>
+    
     <!-- Sidebar -->
     <div class="sidebar p-3" id="sidebar">
         <div class="text-center mb-4">
@@ -257,6 +252,43 @@
         </div>
     </div>
 
+    <!-- Edit UID Modal -->
+    <div class="modal fade" id="editUidModal" tabindex="-1" aria-labelledby="editUidModalLabel" aria-hidden="true">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="editUidModalLabel">Edit Data UID</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <form id="editUidForm" method="POST" action="{{ route('uid.update-student', ['id' => '__ID__']) }}" onsubmit="this.action = this.action.replace('__ID__', document.getElementById('editUidId').value)">
+                    @csrf
+                    <input type="hidden" name="id" id="editUidId">
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label for="editUidSiswa" class="form-label">Pilih Siswa</label>
+                            <select class="form-select" id="editUidSiswa" name="siswa_id" required>
+                                <option value="">-- Pilih Siswa --</option>
+                                @foreach($siswas as $siswa)
+                                    <option value="{{ $siswa->id }}" data-uid="{{ $siswa->uid ?? '' }}">
+                                        {{ $siswa->name }}
+                                    </option>
+                                @endforeach
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="editUid" class="form-label">UID</label>
+                            <input type="text" class="form-control" id="editUid" name="uid" required>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Batal</button>
+                        <button type="submit" class="btn btn-primary">Simpan</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
     <!-- Script -->
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
@@ -282,6 +314,38 @@
           } else {
             icon.classList.replace("bi-chevron-right", "bi-chevron-left");
           }
+        });
+
+        // Handle edit button click
+        $('.btn-edit-uid').on('click', function() {
+            const id = $(this).data('id');
+            const uid = $(this).data('uid');
+            const nama = $(this).data('nama');
+            const siswaId = $(this).data('siswa-id');
+            
+            $('#editUidId').val(id);
+            $('#editUid').val(uid);
+            
+            // Set selected student in dropdown
+            if (siswaId) {
+                $('#editUidSiswa').val(siswaId);
+            }
+            
+            // Show the modal
+            const editModal = new bootstrap.Modal(document.getElementById('editUidModal'));
+            editModal.show();
+        });
+
+        // When student is selected, update UID field if available
+        $('#editUidSiswa').on('change', function() {
+            const selectedOption = $(this).find('option:selected');
+            const uid = selectedOption.data('uid');
+            
+            if (uid) {
+                $('#editUid').val(uid);
+            } else {
+                $('#editUid').val('');
+            }
         });
       });
 
