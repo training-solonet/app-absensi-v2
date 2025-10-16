@@ -7,8 +7,9 @@
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
   <link href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.css" rel="stylesheet">
-  
-<style>
+
+  <style>
+/* === SEMUA KODE LAMA TETAP ADA === */
 .toast-center {
   position: fixed;
   top: 50%;
@@ -76,7 +77,6 @@ body {
   border-radius: 2px;
 }
 
-
 .toggle-btn {
   position: absolute;
   top: 50%;
@@ -103,6 +103,22 @@ body {
 }
 .content.collapsed { margin-left: 80px !important; }
 
+/* === PERBAIKAN JARAK PROFIL KANAN HEADER === */
+header.navbar .dropdown {
+  margin-right: 25px !important;
+}
+#profileDropdown img {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  border: 2px solid #fff;
+  border-radius: 50%;
+}
+#live-clock {
+  margin-right: 12px !important;
+}
+
+/* === PERBAIKAN TAMPILAN HEADER === */
 header.navbar {
   background-color: #3F63E0;
   position: fixed;
@@ -122,33 +138,31 @@ header.navbar.collapsed { left: 70px; }
   flex-wrap: nowrap !important;
   gap: 10px;
 }
+
+/* ==== GAYA BARU UNTUK TEKS JUDUL 2 BARIS ==== */
 #header h5 {
-  font-size: 1.1rem;
   color: #fff;
-  white-space: nowrap;
+  line-height: 1.1;
+  margin-bottom: 0;
 }
-#live-clock {
-  color: #fff;
-  white-space: nowrap;
-  font-size: 0.9rem;
+#header h5 span {
+  display: block;
+  font-weight: 700;
+  font-size: 1.1rem;
+}
+#header h5 small {
+  display: block;
+  font-size: 0.95rem;
+  font-weight: 600;
 }
 
+/* === MOBILE === */
 @media (max-width: 575.98px) {
-  #header .container-fluid {
-    flex-direction: row !important;
-    justify-content: space-between !important;
-    align-items: center !important;
-  }
-  #header h5 {
-    font-size: 1rem;
-  }
-  #live-clock {
-    font-size: 0.8rem;
-  }
-  #profileDropdown img {
-    width: 36px;
-    height: 36px;
-  }
+  header.navbar .dropdown { margin-right: 15px !important; }
+  #profileDropdown img { width: 36px; height: 36px; }
+  #header h5 span { font-size: 1rem; }
+  #header h5 small { font-size: 0.9rem; }
+  #live-clock { font-size: 0.8rem; }
 }
 
 .card-custom {
@@ -184,9 +198,12 @@ header.navbar.collapsed { left: 70px; }
   gap: 8px;
 }
 .dt-container .dt-length select { margin-right: 6px; }
-</style>
 
+  </style>
 </head>
+
+<body>
+  </head>
 <body>
   <!-- Sidebar -->
   <div class="sidebar p-3" id="sidebar">
@@ -225,8 +242,14 @@ header.navbar.collapsed { left: 70px; }
           <button class="btn btn-link text-white d-lg-none me-2 p-0" id="mobileMenuBtn" aria-label="Menu">
             <i class="bi bi-list" style="font-size: 1.5rem;"></i>
           </button>
-          <h5 class="fw-bold mb-0 text-light">Laporan Absensi</h5>
+
+          <!-- 🔹 Ubah teks jadi dua baris -->
+          <h5 class="fw-bold mb-0 text-light">
+            <span>Laporan</span>
+            <small>Absensi</small>
+          </h5>
         </div>
+
         <div class="d-flex align-items-center">
           <span class="text-white me-3" id="live-clock"></span>
           <div class="dropdown">
@@ -239,11 +262,13 @@ header.navbar.collapsed { left: 70px; }
                   @csrf
                   <button type="submit" class="dropdown-item d-flex align-items-center text-danger border-0 bg-transparent">
                     <i class="bi bi-box-arrow-right me-2"></i> Logout
+                  </button>
                 </form>
               </li>
             </ul>
           </div>
         </div>
+      </div>
     </header>
 
     <!-- Card Laporan Absensi -->
