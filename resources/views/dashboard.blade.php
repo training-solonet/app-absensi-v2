@@ -563,11 +563,17 @@
   });
 
 
-  function updateClock() {
+      function updateClock() {
     const now = new Date();
-    const tanggal = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     const jam = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    document.getElementById('live-clock').textContent = `${tanggal} | ${jam}`;
+    const el = document.getElementById('live-clock');
+    if (!el) return;
+    if (window.innerWidth < 576) {
+      el.textContent = jam;
+    } else {
+      const tanggal = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+      el.textContent = `${tanggal} | ${jam}`;
+    }
   }
   setInterval(updateClock, 1000);
   updateClock();
