@@ -22,16 +22,17 @@ require __DIR__.'/auth.php';
 */
 
 Route::get('/', function () {
-    return redirect()->route('login');
+    return redirect()->route('dashboard');
 });
+
+// Public dashboard route (no auth middleware)
+Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
 Route::middleware([
     'auth:sanctum',
     config('jetstream.auth_session'),
     'verified',
 ])->group(function () {
-    // Dashboard route
-    Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
 
     // Rute absensi
     Route::prefix('absensi')->group(function () {
@@ -45,9 +46,9 @@ Route::middleware([
 
     // Rute resource untuk siswa
     Route::resource('/siswa', SiswaController::class);
-});
 
-// Rute untuk data UID
-Route::get('/data-uid', [UIDController::class, 'index'])->name('data-uid');
-Route::post('/uid/update-name', [UIDController::class, 'updateName'])->name('uid.update-name');
-Route::put('/data-uid/{id}/update-student', [UIDController::class, 'updateStudent'])->name('uid.update-student');
+    // Rute untuk data UID (but protected)
+    Route::get('/data-uid', [UIDController::class, 'index'])->name('data-uid');
+    Route::post('/uid/update-name', [UIDController::class, 'updateName'])->name('uid.update-name');
+    Route::put('/data-uid/{id}/update-student', [UIDController::class, 'updateStudent'])->name('uid.update-student');
+});

@@ -13,8 +13,10 @@
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #fff;
+            overflow-x: hidden; 
         }
 
+        /* Desktop: sidebar visible. Mobile (<992px) overrides below */
         .sidebar {
             height: 100vh;
             background-color: #3F63E0;
@@ -24,9 +26,13 @@
             top: 0;
             left: 0;
             width: 240px;
-            transition: all 0.3s ease;
-            z-index: 1000;
+            transition: transform 0.25s ease, visibility 0.25s ease;
+            z-index: 2000;
+            transform: none;
+            visibility: visible;
         }
+
+        .sidebar.open { transform: translateX(0); visibility: visible; }
 
         .sidebar.collapsed { width: 70px !important; overflow: hidden; }
         .sidebar.collapsed .nav-link span,
@@ -90,21 +96,42 @@
             padding-top: 80px;
             transition: all 0.3s ease;
         }
-
         .content.collapsed { margin-left: 80px !important; }
 
-        header.navbar {
-            background-color: #3F63E0;
-            position: fixed;
-            top: 0;
-            left: 240px;
-            right: 0;
-            height: 60px;
-            z-index: 900;
-            transition: all 0.3s ease;
-        }
 
-        header.navbar.collapsed { left: 70px; }
+                /* Header sits to the right of desktop sidebar */
+                header.navbar {
+                        background-color: #3F63E0;
+                        position: fixed;
+                        top: 0;
+                        left: 240px;
+                        right: 0;
+                        height: 60px;
+                        z-index: 1000; 
+                        transition: none;
+                        padding-left: 12px !important;
+                        padding-right: 24px !important;
+                }
+
+                @media (min-width: 992px) {
+                    header.navbar.collapsed { left: 70px; }
+                }
+
+        .header-toggle {
+            background: transparent;
+            border: none;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            margin-right: 8px;
+            padding: 0;
+            cursor: pointer;
+            margin-left: -12px; /* nudge closer to left edge */
+        }
 
         #header .container-fluid {
             display: flex;
@@ -126,16 +153,32 @@
             font-size: 0.9rem;
         }
 
-        @media (max-width: 575.98px) {
+    @media (max-width: 575.98px) {
             #header .container-fluid {
                 flex-direction: row !important;
                 justify-content: space-between !important;
                 align-items: center !important;
                 gap: 5px !important;
             }
+            .content { margin-left: 0 !important; padding-top: 70px !important; }
+            header.navbar { left: 0; }
+            .sidebar { width: 80%; max-width: 320px; transform: translateX(-100%); visibility: hidden; }
+            .sidebar.open { transform: translateX(0); visibility: visible; }
             #header h5 { font-size: 1rem; }
             #live-clock { font-size: 0.8rem; }
             #profileDropdown img { width: 36px; height: 36px; }
+            .header-toggle { margin-left: -6px; }
+        }
+
+        /* Mobile/tablet: hide sidebar by default and show with .open */
+        @media (max-width: 991.98px) {
+            .content { margin-left: 0 !important; padding-top: 70px !important; }
+            header.navbar { left: 0; }
+            .toggle-btn { display: none; }
+            .sidebar { width: 80%; max-width: 320px; transform: translateX(-100%); visibility: hidden; }
+            .sidebar.open { transform: translateX(0); visibility: visible; }
+            .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 1950; display: none; }
+            .overlay.show { display: block; }
         }
 
         .dt-container .dt-length label {
@@ -180,19 +223,26 @@
                 <i class="bi bi-credit-card-2-front"></i>
                 <span>Data UID</span>
             </a>
-        </nav>  
+                </nav>
 
-        <button class="toggle-btn" id="toggleBtn">
+        <!-- floating desktop chevron toggle -->
+        <button class="toggle-btn" id="toggleBtn" aria-label="Toggle sidebar">
             <i class="bi bi-chevron-left"></i>
         </button>
-    </div>
+
+        </div>
 
     <!-- Content -->
     <div class="content" id="content">
         <!-- Header -->
         <header class="navbar shadow-sm px-4" id="header">
-            <div class="container-fluid">
-                <h5 class="fw-bold text-light">Data UID</h5>
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <button id="mobileMenuBtn" class="header-toggle d-lg-none" aria-label="Toggle sidebar">
+                        <i class="bi bi-list" aria-hidden="true"></i>
+                    </button>
+                    <h5 class="fw-bold text-light">Data UID</h5>
+                </div>
 
                 <div class="d-flex align-items-center">
                     <span id="live-clock" class="me-3">Selasa, 14 Oktober 2025 | 11.33.41</span>
@@ -289,6 +339,8 @@
         </div>
     </div>
 
+    <div class="overlay" id="overlay"></div>
+
     <!-- Script -->
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
@@ -298,22 +350,64 @@
       $(document).ready(function() {
         $('#uidTable').DataTable();
 
-        const sidebar = document.getElementById("sidebar");
-        const content = document.getElementById("content");
-        const header = document.getElementById("header");
-        const toggleBtn = document.getElementById("toggleBtn");
-        const icon = toggleBtn.querySelector("i");
+        const sidebar = document.getElementById('sidebar');
+        const content = document.getElementById('content');
+        const header = document.getElementById('header');
+        const toggleBtn = document.getElementById('toggleBtn'); // desktop chevron
+        const toggleIcon = toggleBtn ? toggleBtn.querySelector('i') : null;
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn'); // header hamburger
+        const mobileIcon = mobileMenuBtn ? mobileMenuBtn.querySelector('i') : null;
+        const overlay = document.getElementById('overlay');
 
-        toggleBtn.addEventListener("click", () => {
-          sidebar.classList.toggle("collapsed");
-          content.classList.toggle("collapsed");
-          header.classList.toggle("collapsed");
+        // desktop chevron toggles collapse
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                sidebar.classList.toggle('collapsed');
+                content.classList.toggle('collapsed');
+                header.classList.toggle('collapsed');
+                if (toggleIcon) {
+                    if (sidebar.classList.contains('collapsed')) toggleIcon.classList.replace('bi-chevron-left','bi-chevron-right');
+                    else toggleIcon.classList.replace('bi-chevron-right','bi-chevron-left');
+                }
+            });
+        }
 
-          if (sidebar.classList.contains("collapsed")) {
-            icon.classList.replace("bi-chevron-left", "bi-chevron-right");
-          } else {
-            icon.classList.replace("bi-chevron-right", "bi-chevron-left");
-          }
+        // mobile hamburger toggles overlay
+        function openMobileSidebar() {
+            sidebar.classList.add('open');
+            overlay.classList.add('show');
+            if (mobileIcon) { mobileIcon.classList.remove('bi-list'); mobileIcon.classList.add('bi-x'); }
+        }
+        function closeMobileSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+            if (mobileIcon) { mobileIcon.classList.remove('bi-x'); mobileIcon.classList.add('bi-list'); }
+        }
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (sidebar.classList.contains('open')) closeMobileSidebar(); else openMobileSidebar();
+            });
+        }
+
+        // close on outside click
+        document.addEventListener('click', function(ev) {
+            const target = ev.target;
+            if (sidebar.classList.contains('open') && !sidebar.contains(target) && !(mobileMenuBtn && mobileMenuBtn.contains(target))) {
+                closeMobileSidebar();
+            }
+        });
+
+        if (overlay) overlay.addEventListener('click', closeMobileSidebar);
+
+        // reset on resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 992) {
+                if (sidebar.classList.contains('open')) sidebar.classList.remove('open');
+                if (overlay.classList.contains('show')) overlay.classList.remove('show');
+                if (mobileIcon && mobileIcon.classList.contains('bi-x')) mobileIcon.classList.replace('bi-x','bi-list');
+            }
         });
 
         // Handle edit button click
