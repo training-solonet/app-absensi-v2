@@ -101,11 +101,12 @@
     }
 
     .content {
-      margin-left: 20px;
+      margin-left: 260px;
       padding: 20px;
       padding-top: 80px;
-      transition: margin-left 0.25s ease;
+      transition: all 0.3s ease;
     }
+    .content.collapsed { margin-left: 80px !important; }
 
     #header h5 {
       margin-right: 10px; 
@@ -119,8 +120,7 @@
       margin-right: 6px; 
     }
 
-    /* Header sits to the right of desktop sidebar */
-    header.navbar {
+  header.navbar {
       background-color: #3F63E0;
       position: fixed;
       top: 0;
@@ -129,7 +129,14 @@
       height: 60px;
       z-index: 1000; 
       transition: none;
+      padding-left: 12px !important; /* make hamburger touch edge */
+      padding-right: 24px !important;
     }
+
+  /* apply collapsed header shift only on desktop */
+  @media (min-width: 992px) {
+    header.navbar.collapsed { left: 70px; }
+  }
 
     #header .container-fluid {
       display: flex;
@@ -176,6 +183,7 @@
     @media (max-width: 991.98px) {
       .content { margin-left: 0 !important; padding-top: 70px !important; }
       header.navbar { left: 0; }
+      .toggle-btn { display: none; }
       .sidebar { width: 80%; max-width: 320px; transform: translateX(-100%); visibility: hidden; }
       .sidebar.open { transform: translateX(0); visibility: visible; }
       .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 1950; display: none; }
@@ -219,7 +227,12 @@
       <a href="{{ route('data-uid') }}" class="nav-link">
         <i class="bi bi-credit-card-2-front"></i> <span>Data UID</span>
       </a>
-    </nav>  
+    </nav>
+
+    <!-- floating desktop chevron toggle -->
+    <button class="toggle-btn" id="toggleBtn" aria-label="Toggle sidebar">
+      <i class="bi bi-chevron-left"></i>
+    </button>
 
   </div>
 
@@ -228,7 +241,7 @@
     <header class="navbar shadow-sm px-4" id="header">
       <div class="container-fluid d-flex justify-content-between align-items-center h-100">
         <div class="d-flex align-items-center">
-          <button id="toggleBtn" class="header-toggle" aria-label="Toggle sidebar">
+          <button id="mobileMenuBtn" class="header-toggle d-lg-none" aria-label="Toggle sidebar">
             <i class="bi bi-list" aria-hidden="true"></i>
           </button>
           <h5 class="fw-bold mb-0 text-light">Data Siswa</h5>
@@ -295,62 +308,64 @@
     const sidebar = document.getElementById('sidebar');
     const content = document.getElementById('content');
     const header = document.getElementById('header');
-    const toggleBtn = document.getElementById('toggleBtn');
-    const icon = toggleBtn ? toggleBtn.querySelector('i') : null;
+    const toggleBtn = document.getElementById('toggleBtn'); // desktop chevron
+    const toggleIcon = toggleBtn ? toggleBtn.querySelector('i') : null;
+    const mobileMenuBtn = document.getElementById('mobileMenuBtn'); // header hamburger for mobile
+    const mobileIcon = mobileMenuBtn ? mobileMenuBtn.querySelector('i') : null;
     const overlay = document.getElementById('overlay');
 
-    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
-
-    function openMobileSidebar() {
-      sidebar.classList.add('open');
-      overlay.classList.add('show');
-      if (icon) { icon.classList.remove('bi-list'); icon.classList.add('bi-x'); }
-      if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'true');
-    }
-    function closeMobileSidebar() {
-      sidebar.classList.remove('open');
-      overlay.classList.remove('show');
-      if (icon) { icon.classList.remove('bi-x'); icon.classList.add('bi-list'); }
-      if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
-    }
-
+    // desktop: chevron toggles collapsed state
     if (toggleBtn) {
       toggleBtn.addEventListener('click', function(e) {
         e.stopPropagation();
-        // mobile-only toggle
-        if (window.innerWidth < 992) {
-          if (sidebar.classList.contains('open')) closeMobileSidebar();
-          else openMobileSidebar();
-          return;
-        }
-        // desktop: fallback to collapse behavior if needed
+        // toggle collapsed state (header shift is applied only on desktop via CSS)
         sidebar.classList.toggle('collapsed');
         content.classList.toggle('collapsed');
         header.classList.toggle('collapsed');
-        if (icon) {
-          if (sidebar.classList.contains('collapsed')) icon.classList.replace('bi-chevron-left', 'bi-chevron-right');
-          else icon.classList.replace('bi-chevron-right', 'bi-chevron-left');
+        if (toggleIcon) {
+          if (sidebar.classList.contains('collapsed')) toggleIcon.classList.replace('bi-chevron-left','bi-chevron-right');
+          else toggleIcon.classList.replace('bi-chevron-right','bi-chevron-left');
         }
       });
     }
 
-    // close when clicking outside (mobile)
+    // mobile: header hamburger toggles overlay sidebar
+    function openMobileSidebar() {
+      sidebar.classList.add('open');
+      overlay.classList.add('show');
+      if (mobileIcon) { mobileIcon.classList.remove('bi-list'); mobileIcon.classList.add('bi-x'); }
+    }
+    function closeMobileSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+      if (mobileIcon) { mobileIcon.classList.remove('bi-x'); mobileIcon.classList.add('bi-list'); }
+    }
+
+    if (mobileMenuBtn) {
+      mobileMenuBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        // always toggle from header button (button only visible on small screens)
+        if (sidebar.classList.contains('open')) closeMobileSidebar();
+        else openMobileSidebar();
+      });
+    }
+
+    // close mobile sidebar when clicking outside
     document.addEventListener('click', function(ev) {
       const target = ev.target;
-      if (sidebar.classList.contains('open') && !sidebar.contains(target) && !toggleBtn.contains(target)) {
+      if (sidebar.classList.contains('open') && !sidebar.contains(target) && !(mobileMenuBtn && mobileMenuBtn.contains(target))) {
         closeMobileSidebar();
       }
     });
 
     if (overlay) overlay.addEventListener('click', closeMobileSidebar);
 
-    // reset on resize to avoid stuck states
+    // reset states on resize
     window.addEventListener('resize', function() {
       if (window.innerWidth >= 992) {
         if (sidebar.classList.contains('open')) sidebar.classList.remove('open');
         if (overlay.classList.contains('show')) overlay.classList.remove('show');
-        if (icon && icon.classList.contains('bi-x')) icon.classList.replace('bi-x','bi-list');
-        if (toggleBtn) toggleBtn.setAttribute('aria-expanded','false');
+        if (mobileIcon && mobileIcon.classList.contains('bi-x')) mobileIcon.classList.replace('bi-x','bi-list');
       }
     });
 
