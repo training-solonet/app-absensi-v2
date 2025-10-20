@@ -12,8 +12,10 @@
     body {
       font-family: 'Poppins', sans-serif;
       background-color: #fff;
+      overflow-x: hidden; /* prevent horizontal cut-off on mobile */
     }
 
+    /* Desktop: sidebar visible. Mobile (<992px) override below to hide by default */
     .sidebar {
       height: 100vh;
       background-color: #3F63E0;
@@ -23,9 +25,14 @@
       top: 0;
       left: 0;
       width: 240px;
-      transition: all 0.3s ease;
-      z-index: 1000;
+      transition: transform 0.25s ease, visibility 0.25s ease;
+      z-index: 2000;
+      transform: none;
+      visibility: visible;
     }
+
+    .sidebar.open { transform: translateX(0); visibility: visible; }
+
     .sidebar.collapsed { width: 70px !important; overflow: hidden; }
     .sidebar.collapsed .nav-link span,
     .sidebar.collapsed .badge,
@@ -53,7 +60,7 @@
       left: -8px;
       top: 50%;
       transform: translateY(-50%);
-      width: 4px;
+      width: 4px; 
       height: 24px;
       background: #F4D03F;
       border-radius: 2px;
@@ -77,15 +84,27 @@
       z-index: 1100;
     }
 
-    .content {
-      margin-left: 260px;
-      padding: 20px;
-      padding-top: 80px;
-      transition: all 0.3s ease;
+    .header-toggle {
+      background: transparent;
+      border: none;
+      color: #fff;
+      width: 40px;
+      height: 40px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.15rem;
+      margin-right: 8px;
+      margin-left: -12px;  
+      padding: 0;
+      cursor: pointer;
     }
 
-    .content.collapsed {
-       margin-left: 80px !important; 
+    .content {
+      margin-left: 20px;
+      padding: 20px;
+      padding-top: 80px;
+      transition: margin-left 0.25s ease;
     }
 
     #header h5 {
@@ -100,6 +119,7 @@
       margin-right: 6px; 
     }
 
+    /* Header sits to the right of desktop sidebar */
     header.navbar {
       background-color: #3F63E0;
       position: fixed;
@@ -107,10 +127,9 @@
       left: 240px;
       right: 0;
       height: 60px;
-      z-index: 900;
-      transition: all 0.3s ease;
+      z-index: 1000; 
+      transition: none;
     }
-    header.navbar.collapsed { left: 70px; }
 
     #header .container-fluid {
       display: flex;
@@ -125,13 +144,21 @@
       color: #fff;
     }
 
-    @media (max-width: 575.98px) {
+  @media (max-width: 575.98px) {
       #header .container-fluid {
         flex-direction: row !important;
         align-items: center !important;
         justify-content: space-between !important;
         gap: 0 !important;
       }
+
+      /* ensure content not hidden behind header on small screens */
+      .content { margin-left: 0 !important; padding-top: 70px !important; }
+      header.navbar { left: 0; }
+
+  /* sidebar overlay sizing on small screens */
+  .sidebar { width: 80%; max-width: 320px; transform: translateX(-100%); visibility: hidden; }
+  .sidebar.open { transform: translateX(0); visibility: visible; }
 
       #live-clock {
         font-size: 0.8rem;
@@ -141,8 +168,19 @@
       #header h5 {
         font-size: 1rem;
       }
+
+      .header-toggle { margin-left: -6px; }
     }
 
+    /* Mobile/tablet: hide sidebar by default and show with .open */
+    @media (max-width: 991.98px) {
+      .content { margin-left: 0 !important; padding-top: 70px !important; }
+      header.navbar { left: 0; }
+      .sidebar { width: 80%; max-width: 320px; transform: translateX(-100%); visibility: hidden; }
+      .sidebar.open { transform: translateX(0); visibility: visible; }
+      .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 1950; display: none; }
+      .overlay.show { display: block; }
+    }
     .dt-container .dt-length label {
       display: inline-flex;
       align-items: center;
@@ -183,16 +221,18 @@
       </a>
     </nav>  
 
-    <button class="toggle-btn" id="toggleBtn">
-      <i class="bi bi-chevron-left"></i>
-    </button>
   </div>
 
   <!-- Content -->
   <div class="content" id="content">
     <header class="navbar shadow-sm px-4" id="header">
       <div class="container-fluid d-flex justify-content-between align-items-center h-100">
-        <h5 class="fw-bold mb-0 text-light">Data Siswa</h5>
+        <div class="d-flex align-items-center">
+          <button id="toggleBtn" class="header-toggle" aria-label="Toggle sidebar">
+            <i class="bi bi-list" aria-hidden="true"></i>
+          </button>
+          <h5 class="fw-bold mb-0 text-light">Data Siswa</h5>
+        </div>
 
         <div class="d-flex align-items-center">
           <span class="text-white me-3" id="live-clock"></span>
@@ -240,51 +280,91 @@
     </div>
   </div>
 
+  </div>
+  <div class="overlay" id="overlay"></div>
+
   <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
   <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
-<script>
-  $(document).ready(function() {
-    $('#siswaTable').DataTable();
-  });
+  <script>
+    $(document).ready(function() {
+      $('#siswaTable').DataTable();
+    });
 
-  const sidebar = document.getElementById("sidebar");
-  const content = document.getElementById("content");
-  const header = document.getElementById("header");
-  const toggleBtn = document.getElementById("toggleBtn");
-  const icon = toggleBtn.querySelector("i");
+    const sidebar = document.getElementById('sidebar');
+    const content = document.getElementById('content');
+    const header = document.getElementById('header');
+    const toggleBtn = document.getElementById('toggleBtn');
+    const icon = toggleBtn ? toggleBtn.querySelector('i') : null;
+    const overlay = document.getElementById('overlay');
 
-  toggleBtn.addEventListener("click", () => {
-    sidebar.classList.toggle("collapsed");
-    content.classList.toggle("collapsed");
-    header.classList.toggle("collapsed");
+    if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
 
-    if (sidebar.classList.contains("collapsed")) {
-      icon.classList.replace("bi-chevron-left", "bi-chevron-right");
-    } else {
-      icon.classList.replace("bi-chevron-right", "bi-chevron-left");
+    function openMobileSidebar() {
+      sidebar.classList.add('open');
+      overlay.classList.add('show');
+      if (icon) { icon.classList.remove('bi-list'); icon.classList.add('bi-x'); }
+      if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'true');
     }
-  });
+    function closeMobileSidebar() {
+      sidebar.classList.remove('open');
+      overlay.classList.remove('show');
+      if (icon) { icon.classList.remove('bi-x'); icon.classList.add('bi-list'); }
+      if (toggleBtn) toggleBtn.setAttribute('aria-expanded', 'false');
+    }
 
-  // Live Clock
-  function updateClock() {
-    const now = new Date();
-    const tanggal = now.toLocaleDateString('id-ID', {
-      weekday: 'long',
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
+    if (toggleBtn) {
+      toggleBtn.addEventListener('click', function(e) {
+        e.stopPropagation();
+        // mobile-only toggle
+        if (window.innerWidth < 992) {
+          if (sidebar.classList.contains('open')) closeMobileSidebar();
+          else openMobileSidebar();
+          return;
+        }
+        // desktop: fallback to collapse behavior if needed
+        sidebar.classList.toggle('collapsed');
+        content.classList.toggle('collapsed');
+        header.classList.toggle('collapsed');
+        if (icon) {
+          if (sidebar.classList.contains('collapsed')) icon.classList.replace('bi-chevron-left', 'bi-chevron-right');
+          else icon.classList.replace('bi-chevron-right', 'bi-chevron-left');
+        }
+      });
+    }
+
+    // close when clicking outside (mobile)
+    document.addEventListener('click', function(ev) {
+      const target = ev.target;
+      if (sidebar.classList.contains('open') && !sidebar.contains(target) && !toggleBtn.contains(target)) {
+        closeMobileSidebar();
+      }
     });
-    const jam = now.toLocaleTimeString('id-ID', {
-      hour: '2-digit',
-      minute: '2-digit',
-      second: '2-digit'
+
+    if (overlay) overlay.addEventListener('click', closeMobileSidebar);
+
+    // reset on resize to avoid stuck states
+    window.addEventListener('resize', function() {
+      if (window.innerWidth >= 992) {
+        if (sidebar.classList.contains('open')) sidebar.classList.remove('open');
+        if (overlay.classList.contains('show')) overlay.classList.remove('show');
+        if (icon && icon.classList.contains('bi-x')) icon.classList.replace('bi-x','bi-list');
+        if (toggleBtn) toggleBtn.setAttribute('aria-expanded','false');
+      }
     });
-    document.getElementById('live-clock').textContent = `${tanggal} | ${jam}`;
-  }
-  setInterval(updateClock, 1000);
-  updateClock();
-</script>
+
+    // Live Clock
+    function updateClock() {
+      const now = new Date();
+      const tanggal = now.toLocaleDateString('id-ID', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+      const jam = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      document.getElementById('live-clock').textContent = `${tanggal} | ${jam}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+  </script>
 </body>
 </html>

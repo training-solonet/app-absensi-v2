@@ -13,8 +13,10 @@
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #fff;
+            overflow-x: hidden; /* prevent horizontal cut-off on mobile */
         }
 
+        /* Sidebar hidden by default and overlays header when opened */
         .sidebar {
             height: 100vh;
             background-color: #3F63E0;
@@ -24,9 +26,13 @@
             top: 0;
             left: 0;
             width: 240px;
-            transition: all 0.3s ease;
-            z-index: 1000;
+            transform: translateX(-100%);
+            transition: transform 0.25s ease;
+            z-index: 2000;
+            visibility: hidden;
         }
+
+        .sidebar.open { transform: translateX(0); visibility: visible; }
 
         .sidebar.collapsed { width: 70px !important; overflow: hidden; }
         .sidebar.collapsed .nav-link span,
@@ -85,26 +91,40 @@
         }
 
         .content {
-            margin-left: 260px;
+            margin-left: 20px;
             padding: 20px;
             padding-top: 80px;
-            transition: all 0.3s ease;
+            transition: margin-left 0.25s ease;
         }
 
-        .content.collapsed { margin-left: 80px !important; }
+        /* When sidebar opens we overlay header/content */
 
         header.navbar {
             background-color: #3F63E0;
             position: fixed;
             top: 0;
-            left: 240px;
+            left: 0;
             right: 0;
             height: 60px;
-            z-index: 900;
-            transition: all 0.3s ease;
+            z-index: 1000; /* keep header under the sidebar */
+            transition: none;
         }
 
-        header.navbar.collapsed { left: 70px; }
+        .header-toggle {
+            background: transparent;
+            border: none;
+            color: #fff;
+            width: 40px;
+            height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.15rem;
+            margin-right: 8px;
+            padding: 0;
+            cursor: pointer;
+            margin-left: -12px; /* nudge closer to left edge */
+        }
 
         #header .container-fluid {
             display: flex;
@@ -133,9 +153,14 @@
                 align-items: center !important;
                 gap: 5px !important;
             }
+            .content { margin-left: 0 !important; padding-top: 70px !important; }
+            header.navbar { left: 0; }
+            .sidebar { width: 80%; max-width: 320px; transform: translateX(-100%); }
+            .sidebar.open { transform: translateX(0); }
             #header h5 { font-size: 1rem; }
             #live-clock { font-size: 0.8rem; }
             #profileDropdown img { width: 36px; height: 36px; }
+            .header-toggle { margin-left: -6px; }
         }
 
         .dt-container .dt-length label {
@@ -182,17 +207,20 @@
             </a>
         </nav>  
 
-        <button class="toggle-btn" id="toggleBtn">
-            <i class="bi bi-chevron-left"></i>
-        </button>
+    <!-- removed floating toggle; header will have the hamburger toggle -->
     </div>
 
     <!-- Content -->
     <div class="content" id="content">
         <!-- Header -->
         <header class="navbar shadow-sm px-4" id="header">
-            <div class="container-fluid">
-                <h5 class="fw-bold text-light">Data UID</h5>
+            <div class="container-fluid d-flex justify-content-between align-items-center">
+                <div class="d-flex align-items-center">
+                    <button id="toggleBtn" class="header-toggle" aria-label="Toggle sidebar">
+                        <i class="bi bi-list" aria-hidden="true"></i>
+                    </button>
+                    <h5 class="fw-bold text-light">Data UID</h5>
+                </div>
 
                 <div class="d-flex align-items-center">
                     <span id="live-clock" class="me-3">Selasa, 14 Oktober 2025 | 11.33.41</span>
@@ -303,18 +331,39 @@
         const header = document.getElementById("header");
         const toggleBtn = document.getElementById("toggleBtn");
         const icon = toggleBtn.querySelector("i");
+                // Sidebar hidden by default; toggle .open on sidebar and .sidebar-open on content/header
+                toggleBtn.setAttribute('aria-expanded', 'false');
+                toggleBtn.addEventListener("click", (e) => {
+                    e.stopPropagation();
+                    const isOpen = sidebar.classList.toggle('open');
+                    content.classList.toggle('sidebar-open', isOpen);
+                    header.classList.toggle('sidebar-open', isOpen);
+                    toggleBtn.setAttribute('aria-expanded', String(isOpen));
 
-        toggleBtn.addEventListener("click", () => {
-          sidebar.classList.toggle("collapsed");
-          content.classList.toggle("collapsed");
-          header.classList.toggle("collapsed");
+                    if (isOpen) {
+                        sidebar.style.transform = 'translateX(0)';
+                        sidebar.style.visibility = 'visible';
+                        if (icon.classList.contains('bi-list')) icon.classList.replace('bi-list', 'bi-x');
+                    } else {
+                        sidebar.style.transform = 'translateX(-100%)';
+                        sidebar.style.visibility = 'hidden';
+                        if (icon.classList.contains('bi-x')) icon.classList.replace('bi-x', 'bi-list');
+                    }
+                });
 
-          if (sidebar.classList.contains("collapsed")) {
-            icon.classList.replace("bi-chevron-left", "bi-chevron-right");
-          } else {
-            icon.classList.replace("bi-chevron-right", "bi-chevron-left");
-          }
-        });
+                // close when clicking outside
+                document.addEventListener('click', (ev) => {
+                    const target = ev.target;
+                    if (sidebar.classList.contains('open') && !sidebar.contains(target) && !toggleBtn.contains(target)) {
+                        sidebar.classList.remove('open');
+                        content.classList.remove('sidebar-open');
+                        header.classList.remove('sidebar-open');
+                        sidebar.style.transform = 'translateX(-100%)';
+                        sidebar.style.visibility = 'hidden';
+                        toggleBtn.setAttribute('aria-expanded', 'false');
+                        if (icon.classList.contains('bi-x')) icon.classList.replace('bi-x', 'bi-list');
+                    }
+                });
 
         // Handle edit button click
         $('.btn-edit-uid').on('click', function() {
