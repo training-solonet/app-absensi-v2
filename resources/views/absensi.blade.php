@@ -103,22 +103,7 @@ body {
 }
 .content.collapsed { margin-left: 80px !important; }
 
-/* === PERBAIKAN JARAK PROFIL KANAN HEADER === */
-header.navbar .dropdown {
-  margin-right: 25px !important;
-}
-#profileDropdown img {
-  width: 42px;
-  height: 42px;
-  object-fit: cover;
-  border: 2px solid #fff;
-  border-radius: 50%;
-}
-#live-clock {
-  margin-right: 12px !important;
-}
-
-/* === PERBAIKAN TAMPILAN HEADER === */
+/* === PERBAIKAN HEADER BIAR RATA DAN TIDAK TERPOTONG === */
 header.navbar {
   background-color: #3F63E0;
   position: fixed;
@@ -128,6 +113,8 @@ header.navbar {
   height: 60px;
   z-index: 900;
   transition: all 0.3s ease;
+  padding-left: 12px !important; /* buat strip 3 mepet kiri */
+  padding-right: 24px !important; /* beri ruang kanan agar ikon tidak terpotong */
 }
 header.navbar.collapsed { left: 70px; }
 
@@ -137,9 +124,10 @@ header.navbar.collapsed { left: 70px; }
   justify-content: space-between;
   flex-wrap: nowrap !important;
   gap: 10px;
+  padding-left: 0 !important;
+  padding-right: 0 !important;
 }
 
-/* ==== GAYA BARU UNTUK TEKS JUDUL 2 BARIS ==== */
 #header h5 {
   color: #fff;
   line-height: 1.1;
@@ -156,7 +144,16 @@ header.navbar.collapsed { left: 70px; }
   font-weight: 600;
 }
 
-/* === MOBILE === */
+#profileDropdown img {
+  width: 42px;
+  height: 42px;
+  object-fit: cover;
+  border: 2px solid #fff;
+  border-radius: 50%;
+}
+#live-clock { margin-right: 12px !important; }
+
+/* === RESPONSIVE === */
 @media (max-width: 575.98px) {
   header.navbar .dropdown { margin-right: 15px !important; }
   #profileDropdown img { width: 36px; height: 36px; }
@@ -198,12 +195,9 @@ header.navbar.collapsed { left: 70px; }
   gap: 8px;
 }
 .dt-container .dt-length select { margin-right: 6px; }
-
   </style>
 </head>
 
-<body>
-  </head>
 <body>
   <!-- Sidebar -->
   <div class="sidebar p-3" id="sidebar">
@@ -236,14 +230,12 @@ header.navbar.collapsed { left: 70px; }
 
   <!-- Content -->
   <div class="content" id="content">
-    <header class="navbar shadow-sm px-4" id="header">
-      <div class="container-fluid d-flex justify-content-between align-items-center h-100">
+    <header class="navbar shadow-sm" id="header">
+      <div class="container-fluid">
         <div class="d-flex align-items-center">
-          <button class="btn btn-link text-white d-lg-none me-2 p-0" id="mobileMenuBtn" aria-label="Menu">
+          <button class="btn btn-link text-white d-lg-none me-2 p-0" id="mobileMenuBtn">
             <i class="bi bi-list" style="font-size: 1.5rem;"></i>
           </button>
-
-          <!-- 🔹 Ubah teks jadi dua baris -->
           <h5 class="fw-bold mb-0 text-light">
             <span>Laporan</span>
             <small>Absensi</small>
@@ -253,12 +245,12 @@ header.navbar.collapsed { left: 70px; }
         <div class="d-flex align-items-center">
           <span class="text-white me-3" id="live-clock"></span>
           <div class="dropdown">
-            <a href="#" class="d-flex align-items-center" id="profileDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-              <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" width="40" height="40" class="rounded-circle border-2 border-primary">
+            <a href="#" class="d-flex align-items-center" id="profileDropdown" data-bs-toggle="dropdown">
+              <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Profile" class="rounded-circle">
             </a>
-            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+            <ul class="dropdown-menu dropdown-menu-end shadow">
               <li>
-                <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                <form action="{{ route('logout') }}" method="POST">
                   @csrf
                   <button type="submit" class="dropdown-item d-flex align-items-center text-danger border-0 bg-transparent">
                     <i class="bi bi-box-arrow-right me-2"></i> Logout
