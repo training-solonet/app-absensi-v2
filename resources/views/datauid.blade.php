@@ -312,6 +312,7 @@
                 </div>
                 <form id="editUidForm" method="POST" action="{{ route('uid.update-student', ['id' => '__ID__']) }}" onsubmit="this.action = this.action.replace('__ID__', document.getElementById('editUidId').value)">
                     @csrf
+                    @method('PUT')
                     <input type="hidden" name="id" id="editUidId">
                     <div class="modal-body">
                         <div class="mb-3">
@@ -441,18 +442,41 @@
                 $('#editUid').val('');
             }
         });
+
+        // Reset modal form when hidden to avoid blank form after cancel
+        const editModalEl = document.getElementById('editUidModal');
+        if (editModalEl) {
+            editModalEl.addEventListener('hidden.bs.modal', function () {
+                // keep original table values intact; just clear temporary inputs
+                try {
+                    const form = document.getElementById('editUidForm');
+                    if (form) form.reset();
+                    const idEl = document.getElementById('editUidId');
+                    if (idEl) idEl.value = '';
+                } catch (err) {
+                    // ignore
+                }
+                // Remove any leftover modal backdrops (Bootstrap sometimes leaves these if modal was programmatically manipulated)
+                document.querySelectorAll('.modal-backdrop').forEach(el => el.remove());
+                // Ensure body state is restored
+                document.body.classList.remove('modal-open');
+                document.body.style.paddingRight = '';
+            });
+        }
       });
 
-      function updateClock() {
-        const now = new Date();
-        const tanggal = now.toLocaleDateString('id-ID', {
-          weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-        });
-        const jam = now.toLocaleTimeString('id-ID', {
-          hour: '2-digit', minute: '2-digit', second: '2-digit'
-        });
-        document.getElementById('live-clock').textContent = `${tanggal} | ${jam}`;
-      }
+            function updateClock() {
+                const now = new Date();
+                const jam = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                const el = document.getElementById('live-clock');
+                if (!el) return;
+                if (window.innerWidth < 576) {
+                    el.textContent = jam;
+                } else {
+                    const tanggal = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+                    el.textContent = `${tanggal} | ${jam}`;
+                }
+            }
       setInterval(updateClock, 1000);
       updateClock();
     </script>
