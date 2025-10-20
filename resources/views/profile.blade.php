@@ -265,6 +265,22 @@
       .sidebar.open {
         transform: translateX(0);
       }
+      .overlay {
+        display: none;
+      }
+    }
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.35);
+      z-index: 1050;
+      display: none;
+      transition: opacity 0.2s ease;
+    }
+
+    .overlay.show {
+      display: block;
+      opacity: 1;
     }
   </style>
 </head>
@@ -285,16 +301,16 @@
       </div>
     </div>
     <nav class="nav flex-column">
-      <a class="nav-link" href="/dashboard">
+  <a class="nav-link" href="/dashboard">
         <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
       </a>
-      <a class="nav-link" href="{{ route('siswa.index') }}">
+  <a class="nav-link requires-auth" href="{{ route('siswa.index') }}">
         <i class="bi bi-people-fill"></i> <span>Data Siswa</span>
       </a>
-      <a class="nav-link" href="{{ url('/absensi') }}">
+  <a class="nav-link requires-auth" href="{{ url('/absensi') }}">
         <i class="bi bi-clipboard-check"></i> <span>Laporan Absensi</span>
       </a>
-      <a class="nav-link" href="{{ route('data-uid') }}">
+  <a class="nav-link requires-auth" href="{{ route('data-uid') }}">
         <i class="bi bi-credit-card-2-front"></i> <span>Data UID</span>
       </a>
     </nav>
@@ -302,6 +318,8 @@
       <i class="bi bi-chevron-left"></i>
     </button>
   </div>
+
+  <div id="overlay" class="overlay"></div>
 
   <!-- Content -->
   <div class="content" id="content">
@@ -323,6 +341,7 @@
                 class="rounded-circle border-2 border-primary">
             </a>
             <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+              @auth
               <li>
                 <form action="{{ route('logout') }}" method="POST" class="d-inline">
                   @csrf
@@ -332,6 +351,14 @@
                   </button>
                 </form>
               </li>
+              @endauth
+              @guest
+              <li>
+                <a class="dropdown-item d-flex align-items-center" href="{{ route('login') }}">
+                  <i class="bi bi-box-arrow-in-right me-2"></i> Login
+                </a>
+              </li>
+              @endguest
             </ul>
           </div>
         </div>
@@ -382,6 +409,8 @@
       const toggleBtn = document.getElementById("toggleBtn");
       const icon = toggleBtn ? toggleBtn.querySelector("i") : null;
       const mobileMenuBtn = document.getElementById("mobileMenuBtn");
+  const overlay = document.getElementById('overlay');
+  const mobileIcon = mobileMenuBtn ? mobileMenuBtn.querySelector('i') : null;
 
       if (toggleBtn) {
         toggleBtn.addEventListener("click", () => {
@@ -397,6 +426,49 @@
           }
         });
       }
+
+      if (mobileMenuBtn) {
+        mobileMenuBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          const isOpen = sidebar.classList.contains('open');
+          if (isOpen) {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+            if (mobileIcon) mobileIcon.classList.replace('bi-x', 'bi-list');
+          } else {
+            sidebar.classList.add('open');
+            overlay.classList.add('show');
+            if (mobileIcon) mobileIcon.classList.replace('bi-list', 'bi-x');
+          }
+        });
+      }
+
+      if (overlay) {
+        overlay.addEventListener('click', () => {
+          sidebar.classList.remove('open');
+          overlay.classList.remove('show');
+          if (mobileIcon) mobileIcon.classList.replace('bi-x', 'bi-list');
+        });
+      }
+
+      document.addEventListener('click', (e) => {
+        const target = e.target;
+        if (window.innerWidth < 992) {
+          if (!sidebar.contains(target) && !mobileMenuBtn.contains(target)) {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+            if (mobileIcon) mobileIcon.classList.replace('bi-x', 'bi-list');
+          }
+        }
+      });
+
+      window.addEventListener('resize', () => {
+        if (window.innerWidth >= 992) {
+          sidebar.classList.remove('open');
+          overlay.classList.remove('show');
+          if (mobileIcon) mobileIcon.classList.replace('bi-x', 'bi-list');
+        }
+      });
 
       function updateClock() {
         const now = new Date();
@@ -416,6 +488,48 @@
       }
       setInterval(updateClock, 1000);
       updateClock();
+    </script>
+    <!-- Login confirm modal -->
+    <div class="modal fade" id="loginConfirmModal" tabindex="-1" aria-hidden="true">
+      <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+          <div class="modal-header">
+            <h5 class="modal-title">Perlu Login</h5>
+            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+          </div>
+          <div class="modal-body">
+            Anda harus login untuk mengakses halaman ini. Ingin ke halaman login sekarang?
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tidak</button>
+            <button type="button" id="confirmLoginBtn" class="btn btn-primary">Ya, ke Login</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <script>
+      const isAuthenticated = {{ Auth::check() ? 'true' : 'false' }};
+      const requiresAuthLinks = document.querySelectorAll('.requires-auth');
+      const loginModalEl = document.getElementById('loginConfirmModal');
+      const loginModal = loginModalEl ? new bootstrap.Modal(loginModalEl) : null;
+      const confirmLoginBtn = document.getElementById('confirmLoginBtn');
+
+      requiresAuthLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+          if (!isAuthenticated) {
+            e.preventDefault();
+            if (loginModal) loginModal.show();
+            loginModalEl.dataset.targetHref = this.href;
+          }
+        });
+      });
+
+      if (confirmLoginBtn) {
+        confirmLoginBtn.addEventListener('click', function() {
+          window.location.href = '{{ route("login") }}';
+        });
+      }
     </script>
 </body>
 </html>
