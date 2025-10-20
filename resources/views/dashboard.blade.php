@@ -13,7 +13,7 @@
     body {
       font-family: 'Poppins', sans-serif;
       background-color: #f8f9fa;
-      overflow-x: hidden; /* prevent horizontal cut-off on mobile */
+      overflow-x: hidden; 
     }
     .sidebar {
       height: 100vh;
@@ -121,8 +121,8 @@
       height: 60px;
       z-index: 900;
       transition: all 0.3s ease;
-      padding-left: 10px !important; /* Tambahan agar kiri lebih mepet */
-      padding-right: 20px !important; /* Tambahan agar kanan tidak kepotong */
+      padding-left: 10px !important; 
+      padding-right: 20px !important; 
     }
     header.navbar.collapsed {
       left: 70px;
@@ -136,7 +136,7 @@
     }
 
     #header .d-flex.align-items-center:first-child {
-      margin-left: -5px; /* Mepetkan icon dan teks ke kiri */
+      margin-left: -5px; 
       gap: 6px;
     }
 
@@ -270,14 +270,14 @@
     <a class="nav-link active" href="/dashboard">
       <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
     </a>
-    <a class="nav-link" href="{{ route('siswa.index') }}">
+  <a class="nav-link requires-auth" href="{{ route('siswa.index') }}">
       <i class="bi bi-people-fill"></i> <span>Data Siswa</span>
     </a>
-    <a class="nav-link" href="{{ url('/absensi') }}">
+  <a class="nav-link requires-auth" href="{{ url('/absensi') }}">
       <i class="bi bi-clipboard-check"></i> <span>Laporan Absensi</span>
     </a>
     <li class="nav-item">
-    <a href="{{ route('data-uid') }}" class="nav-link">
+  <a href="{{ route('data-uid') }}" class="nav-link requires-auth">
         <i class="bi bi-credit-card-2-front"></i>
         <span>Data UID</span>
     </a>
@@ -311,6 +311,7 @@
                  alt="Profile" width="42" height="42" class="rounded-circle border-2 border-primary">
           </a>
           <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+            @auth
             <li>
               <form action="{{ route('logout') }}" method="POST" class="d-inline">
                 @csrf
@@ -319,6 +320,14 @@
                 </button>
               </form>
             </li>
+            @endauth
+            @guest
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="{{ route('login') }}">
+                <i class="bi bi-box-arrow-in-right me-2"></i> Login
+              </a>
+            </li>
+            @endguest
           </ul>
         </div>
       </div>
@@ -562,6 +571,52 @@
   }
   setInterval(updateClock, 1000);
   updateClock();
+</script>
+<!-- Login confirm modal -->
+<div class="modal fade" id="loginConfirmModal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h5 class="modal-title">Perlu Login</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        Anda harus login untuk mengakses halaman ini. Ingin ke halaman login sekarang?
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tidak</button>
+        <button type="button" id="confirmLoginBtn" class="btn btn-primary">Ya, ke Login</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  // if authenticated is true, allow normal navigation
+  const isAuthenticated = {{ Auth::check() ? 'true' : 'false' }};
+  const requiresAuthLinks = document.querySelectorAll('.requires-auth');
+  const loginModalEl = document.getElementById('loginConfirmModal');
+  const loginModal = loginModalEl ? new bootstrap.Modal(loginModalEl) : null;
+  const confirmLoginBtn = document.getElementById('confirmLoginBtn');
+
+  requiresAuthLinks.forEach(link => {
+    link.addEventListener('click', function(e) {
+      if (!isAuthenticated) {
+        e.preventDefault();
+        // show modal
+        if (loginModal) loginModal.show();
+        // store href temporarily
+        loginModalEl.dataset.targetHref = this.href;
+      }
+    });
+  });
+
+  if (confirmLoginBtn) {
+    confirmLoginBtn.addEventListener('click', function() {
+      // redirect to login
+      window.location.href = '{{ route("login") }}';
+    });
+  }
 </script>
 </body>
 </html>

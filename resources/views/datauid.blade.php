@@ -13,10 +13,10 @@
         body {
             font-family: 'Poppins', sans-serif;
             background-color: #fff;
-            overflow-x: hidden; /* prevent horizontal cut-off on mobile */
+            overflow-x: hidden; 
         }
 
-        /* Sidebar hidden by default and overlays header when opened */
+        /* Desktop: sidebar visible. Mobile (<992px) overrides below */
         .sidebar {
             height: 100vh;
             background-color: #3F63E0;
@@ -26,10 +26,10 @@
             top: 0;
             left: 0;
             width: 240px;
-            transform: translateX(-100%);
-            transition: transform 0.25s ease;
+            transition: transform 0.25s ease, visibility 0.25s ease;
             z-index: 2000;
-            visibility: hidden;
+            transform: none;
+            visibility: visible;
         }
 
         .sidebar.open { transform: translateX(0); visibility: visible; }
@@ -91,24 +91,31 @@
         }
 
         .content {
-            margin-left: 20px;
+            margin-left: 260px;
             padding: 20px;
             padding-top: 80px;
-            transition: margin-left 0.25s ease;
+            transition: all 0.3s ease;
         }
+        .content.collapsed { margin-left: 80px !important; }
 
-        /* When sidebar opens we overlay header/content */
 
-        header.navbar {
-            background-color: #3F63E0;
-            position: fixed;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 60px;
-            z-index: 1000; /* keep header under the sidebar */
-            transition: none;
-        }
+                /* Header sits to the right of desktop sidebar */
+                header.navbar {
+                        background-color: #3F63E0;
+                        position: fixed;
+                        top: 0;
+                        left: 240px;
+                        right: 0;
+                        height: 60px;
+                        z-index: 1000; 
+                        transition: none;
+                        padding-left: 12px !important;
+                        padding-right: 24px !important;
+                }
+
+                @media (min-width: 992px) {
+                    header.navbar.collapsed { left: 70px; }
+                }
 
         .header-toggle {
             background: transparent;
@@ -146,7 +153,7 @@
             font-size: 0.9rem;
         }
 
-        @media (max-width: 575.98px) {
+    @media (max-width: 575.98px) {
             #header .container-fluid {
                 flex-direction: row !important;
                 justify-content: space-between !important;
@@ -155,12 +162,23 @@
             }
             .content { margin-left: 0 !important; padding-top: 70px !important; }
             header.navbar { left: 0; }
-            .sidebar { width: 80%; max-width: 320px; transform: translateX(-100%); }
-            .sidebar.open { transform: translateX(0); }
+            .sidebar { width: 80%; max-width: 320px; transform: translateX(-100%); visibility: hidden; }
+            .sidebar.open { transform: translateX(0); visibility: visible; }
             #header h5 { font-size: 1rem; }
             #live-clock { font-size: 0.8rem; }
             #profileDropdown img { width: 36px; height: 36px; }
             .header-toggle { margin-left: -6px; }
+        }
+
+        /* Mobile/tablet: hide sidebar by default and show with .open */
+        @media (max-width: 991.98px) {
+            .content { margin-left: 0 !important; padding-top: 70px !important; }
+            header.navbar { left: 0; }
+            .toggle-btn { display: none; }
+            .sidebar { width: 80%; max-width: 320px; transform: translateX(-100%); visibility: hidden; }
+            .sidebar.open { transform: translateX(0); visibility: visible; }
+            .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.35); z-index: 1950; display: none; }
+            .overlay.show { display: block; }
         }
 
         .dt-container .dt-length label {
@@ -205,10 +223,14 @@
                 <i class="bi bi-credit-card-2-front"></i>
                 <span>Data UID</span>
             </a>
-        </nav>  
+                </nav>
 
-    <!-- removed floating toggle; header will have the hamburger toggle -->
-    </div>
+        <!-- floating desktop chevron toggle -->
+        <button class="toggle-btn" id="toggleBtn" aria-label="Toggle sidebar">
+            <i class="bi bi-chevron-left"></i>
+        </button>
+
+        </div>
 
     <!-- Content -->
     <div class="content" id="content">
@@ -216,7 +238,7 @@
         <header class="navbar shadow-sm px-4" id="header">
             <div class="container-fluid d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
-                    <button id="toggleBtn" class="header-toggle" aria-label="Toggle sidebar">
+                    <button id="mobileMenuBtn" class="header-toggle d-lg-none" aria-label="Toggle sidebar">
                         <i class="bi bi-list" aria-hidden="true"></i>
                     </button>
                     <h5 class="fw-bold text-light">Data UID</h5>
@@ -317,6 +339,8 @@
         </div>
     </div>
 
+    <div class="overlay" id="overlay"></div>
+
     <!-- Script -->
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
     <script src="https://cdn.datatables.net/2.3.4/js/dataTables.js"></script>
@@ -326,44 +350,65 @@
       $(document).ready(function() {
         $('#uidTable').DataTable();
 
-        const sidebar = document.getElementById("sidebar");
-        const content = document.getElementById("content");
-        const header = document.getElementById("header");
-        const toggleBtn = document.getElementById("toggleBtn");
-        const icon = toggleBtn.querySelector("i");
-                // Sidebar hidden by default; toggle .open on sidebar and .sidebar-open on content/header
-                toggleBtn.setAttribute('aria-expanded', 'false');
-                toggleBtn.addEventListener("click", (e) => {
-                    e.stopPropagation();
-                    const isOpen = sidebar.classList.toggle('open');
-                    content.classList.toggle('sidebar-open', isOpen);
-                    header.classList.toggle('sidebar-open', isOpen);
-                    toggleBtn.setAttribute('aria-expanded', String(isOpen));
+        const sidebar = document.getElementById('sidebar');
+        const content = document.getElementById('content');
+        const header = document.getElementById('header');
+        const toggleBtn = document.getElementById('toggleBtn'); // desktop chevron
+        const toggleIcon = toggleBtn ? toggleBtn.querySelector('i') : null;
+        const mobileMenuBtn = document.getElementById('mobileMenuBtn'); // header hamburger
+        const mobileIcon = mobileMenuBtn ? mobileMenuBtn.querySelector('i') : null;
+        const overlay = document.getElementById('overlay');
 
-                    if (isOpen) {
-                        sidebar.style.transform = 'translateX(0)';
-                        sidebar.style.visibility = 'visible';
-                        if (icon.classList.contains('bi-list')) icon.classList.replace('bi-list', 'bi-x');
-                    } else {
-                        sidebar.style.transform = 'translateX(-100%)';
-                        sidebar.style.visibility = 'hidden';
-                        if (icon.classList.contains('bi-x')) icon.classList.replace('bi-x', 'bi-list');
-                    }
-                });
+        // desktop chevron toggles collapse
+        if (toggleBtn) {
+            toggleBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                sidebar.classList.toggle('collapsed');
+                content.classList.toggle('collapsed');
+                header.classList.toggle('collapsed');
+                if (toggleIcon) {
+                    if (sidebar.classList.contains('collapsed')) toggleIcon.classList.replace('bi-chevron-left','bi-chevron-right');
+                    else toggleIcon.classList.replace('bi-chevron-right','bi-chevron-left');
+                }
+            });
+        }
 
-                // close when clicking outside
-                document.addEventListener('click', (ev) => {
-                    const target = ev.target;
-                    if (sidebar.classList.contains('open') && !sidebar.contains(target) && !toggleBtn.contains(target)) {
-                        sidebar.classList.remove('open');
-                        content.classList.remove('sidebar-open');
-                        header.classList.remove('sidebar-open');
-                        sidebar.style.transform = 'translateX(-100%)';
-                        sidebar.style.visibility = 'hidden';
-                        toggleBtn.setAttribute('aria-expanded', 'false');
-                        if (icon.classList.contains('bi-x')) icon.classList.replace('bi-x', 'bi-list');
-                    }
-                });
+        // mobile hamburger toggles overlay
+        function openMobileSidebar() {
+            sidebar.classList.add('open');
+            overlay.classList.add('show');
+            if (mobileIcon) { mobileIcon.classList.remove('bi-list'); mobileIcon.classList.add('bi-x'); }
+        }
+        function closeMobileSidebar() {
+            sidebar.classList.remove('open');
+            overlay.classList.remove('show');
+            if (mobileIcon) { mobileIcon.classList.remove('bi-x'); mobileIcon.classList.add('bi-list'); }
+        }
+        if (mobileMenuBtn) {
+            mobileMenuBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                if (sidebar.classList.contains('open')) closeMobileSidebar(); else openMobileSidebar();
+            });
+        }
+
+        // close on outside click
+        document.addEventListener('click', function(ev) {
+            const target = ev.target;
+            if (sidebar.classList.contains('open') && !sidebar.contains(target) && !(mobileMenuBtn && mobileMenuBtn.contains(target))) {
+                closeMobileSidebar();
+            }
+        });
+
+        if (overlay) overlay.addEventListener('click', closeMobileSidebar);
+
+        // reset on resize
+        window.addEventListener('resize', function() {
+            if (window.innerWidth >= 992) {
+                if (sidebar.classList.contains('open')) sidebar.classList.remove('open');
+                if (overlay.classList.contains('show')) overlay.classList.remove('show');
+                if (mobileIcon && mobileIcon.classList.contains('bi-x')) mobileIcon.classList.replace('bi-x','bi-list');
+            }
+        });
 
         // Handle edit button click
         $('.btn-edit-uid').on('click', function() {
