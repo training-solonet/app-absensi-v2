@@ -518,7 +518,6 @@
     }
   }
 
-  // mobile menu button toggles overlay sidebar on small screens
   if (mobileMenuBtn) {
     mobileMenuBtn.addEventListener('click', function(e) {
       e.stopPropagation();
@@ -529,7 +528,6 @@
     });
   }
 
-  // document click closes mobile sidebar if open
   document.addEventListener('click', function(ev) {
     const target = ev.target;
     if (sidebar.classList.contains('open') && !sidebar.contains(target) && !(mobileMenuBtn && mobileMenuBtn.contains(target))) {
@@ -539,7 +537,6 @@
 
   if (overlay) overlay.addEventListener('click', closeMobileSidebar);
 
-  // Keep desktop toggle behavior for the left chevron button
   if (toggleBtn) {
     toggleBtn.addEventListener('click', function() {
       sidebar.classList.toggle('collapsed');
@@ -563,17 +560,11 @@
   });
 
 
-      function updateClock() {
+  function updateClock() {
     const now = new Date();
+    const tanggal = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
     const jam = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    const el = document.getElementById('live-clock');
-    if (!el) return;
-    if (window.innerWidth < 576) {
-      el.textContent = jam;
-    } else {
-      const tanggal = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-      el.textContent = `${tanggal} | ${jam}`;
-    }
+    document.getElementById('live-clock').textContent = `${tanggal} | ${jam}`;
   }
   setInterval(updateClock, 1000);
   updateClock();
@@ -598,7 +589,6 @@
 </div>
 
 <script>
-  // if authenticated is true, allow normal navigation
   const isAuthenticated = {{ Auth::check() ? 'true' : 'false' }};
   const requiresAuthLinks = document.querySelectorAll('.requires-auth');
   const loginModalEl = document.getElementById('loginConfirmModal');

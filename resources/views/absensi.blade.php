@@ -9,7 +9,6 @@
   <link href="https://cdn.datatables.net/2.3.4/css/dataTables.dataTables.css" rel="stylesheet">
 
   <style>
-/* === SEMUA KODE LAMA TETAP ADA === */
 .toast-center {
   position: fixed;
   top: 50%;
@@ -103,7 +102,6 @@ body {
 }
 .content.collapsed { margin-left: 80px !important; }
 
-/* === PERBAIKAN HEADER BIAR RATA DAN TIDAK TERPOTONG === */
 header.navbar {
   background-color: #3F63E0;
   position: fixed;
@@ -113,8 +111,8 @@ header.navbar {
   height: 60px;
   z-index: 900;
   transition: all 0.3s ease;
-  padding-left: 12px !important; /* buat strip 3 mepet kiri */
-  padding-right: 24px !important; /* beri ruang kanan agar ikon tidak terpotong */
+  padding-left: 12px !important;
+  padding-right: 24px !important; 
 }
 header.navbar.collapsed { left: 70px; }
 
@@ -153,7 +151,6 @@ header.navbar.collapsed { left: 70px; }
 }
 #live-clock { margin-right: 12px !important; }
 
-/* === RESPONSIVE === */
 @media (max-width: 575.98px) {
   header.navbar .dropdown { margin-right: 15px !important; }
   #profileDropdown img { width: 36px; height: 36px; }
@@ -266,11 +263,15 @@ header.navbar.collapsed { left: 70px; }
     <!-- Card Laporan Absensi -->
     <div class="card card-custom mt-4 p-3">
       <div class="card-body">
-        <!-- Filter -->
-        <form class="row g-3 mb-4" method="GET" action="{{ url('/absensi') }}">
-          <div class="col-md-4">
-            <label for="tanggal" class="form-label">Pilih Tanggal</label>
-            <input type="date" id="tanggal" name="tanggal" class="form-control" value="{{ isset($selectedDate) ? $selectedDate->toDateString() : '' }}">
+        <!-- Filter: Tanggal Awal & Tanggal Akhir (real-time) -->
+        <form id="filterForm" class="row g-3 mb-4" onsubmit="return false;">
+          <div class="col-md-3">
+            <label for="tanggal_awal" class="form-label">Tanggal Awal</label>
+            <input type="date" id="tanggal_awal" name="tanggal_awal" class="form-control" value="{{ request('tanggal_awal', '') }}">
+          </div>
+          <div class="col-md-3">
+            <label for="tanggal_akhir" class="form-label">Tanggal Akhir</label>
+            <input type="date" id="tanggal_akhir" name="tanggal_akhir" class="form-control" value="{{ request('tanggal_akhir', '') }}">
           </div>
           <div class="col-md-4">
             <label for="namaSiswa" class="form-label">Pilih nama siswa</label>
@@ -283,7 +284,6 @@ header.navbar.collapsed { left: 70px; }
               @endphp
               @foreach($listSiswa as $siswa)
                 @php
-                  $sid = is_object($siswa) ? ($siswa->id ?? $siswa->id_siswa ?? '') : (is_array($siswa) ? ($siswa['id'] ?? '') : '');
                   $sname = is_object($siswa) ? ($siswa->name ?? '') : (is_array($siswa) ? ($siswa['name'] ?? '') : (string)$siswa);
                 @endphp
                 @if(!empty($sname))
@@ -368,14 +368,45 @@ header.navbar.collapsed { left: 70px; }
   <script>
     $(document).ready(function() {
       const table = $('#absensiTable').DataTable();
+      // Name filter
       $('#namaSiswa').on('change', function() {
         table.column(1).search(this.value).draw();
       });
-      $('#tanggal').on('change', function() {
-        $(this).closest('form')[0].submit();
+
+      // Date range (real-time)
+      $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
+        const start = $('#tanggal_awal').val();
+        const end = $('#tanggal_akhir').val();
+        const dateStr = data[2]; // Tanggal column in dd/mm/YYYY
+        if (!dateStr) return true;
+        const parts = dateStr.split('/');
+        if (parts.length !== 3) return true;
+        const rowDate = new Date(parts[2], parts[1] - 1, parts[0]);
+
+        if (start) {
+          const s = new Date(start);
+          if (rowDate < s) return false;
+        }
+        if (end) {
+          const e = new Date(end);
+          e.setHours(23,59,59,999);
+          if (rowDate > e) return false;
+        }
+        return true;
       });
 
-      // Handle form submission
+      $('#tanggal_awal, #tanggal_akhir').on('change', function() {
+        const start = $('#tanggal_awal').val();
+        const end = $('#tanggal_akhir').val();
+        const name = $('#namaSiswa').val();
+        const params = new URLSearchParams(window.location.search);
+        if (start) params.set('tanggal_awal', start); else params.delete('tanggal_awal');
+        if (end) params.set('tanggal_akhir', end); else params.delete('tanggal_akhir');
+        if (name) params.set('nama_siswa', name); else params.delete('nama_siswa');
+        const newUrl = window.location.pathname + (params.toString() ? ('?' + params.toString()) : '');
+        window.location.href = newUrl;
+      });
+
       $('form[action*="absensi/"]').on('submit', function(e) {
         if (!confirm('Apakah Anda yakin ingin mengubah status absensi?')) {
           e.preventDefault();
@@ -413,18 +444,21 @@ header.navbar.collapsed { left: 70px; }
       if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', openSidebarMobile);
       if (overlay) overlay.addEventListener('click', closeSidebarMobile);
 
-      // Live Clock (show only time on small screens)
+      // Live Clock
       function updateClock() {
         const now = new Date();
-        const jam = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-        const el = document.getElementById('live-clock');
-        if (!el) return;
-        if (window.innerWidth < 576) {
-          el.textContent = jam;
-        } else {
-          const tanggal = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-          el.textContent = `${tanggal} | ${jam}`;
-        }
+        const tanggal = now.toLocaleDateString('id-ID', {
+          weekday: 'long',
+          year: 'numeric',
+          month: 'long',
+          day: 'numeric'
+        });
+        const jam = now.toLocaleTimeString('id-ID', {
+          hour: '2-digit',
+          minute: '2-digit',
+          second: '2-digit'
+        });
+        document.getElementById('live-clock').textContent = `${tanggal} | ${jam}`;
       }
       setInterval(updateClock, 1000);
       updateClock();
