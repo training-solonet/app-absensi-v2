@@ -11,12 +11,40 @@ class AbsensiController extends Controller
     public function index(Request $request)
     {
         $dateParam = $request->query('tanggal');
+        $startParam = $request->query('tanggal_awal');
+        $endParam = $request->query('tanggal_akhir');
+
+        // Default selectedDate used for UI when single-date view
         $selectedDate = $dateParam ? Carbon::parse($dateParam)->startOfDay() : Carbon::today();
 
-        $absen = Absensi::with('siswa')
-            ->whereDate('tanggal', $selectedDate)
-            ->orderBy('id', 'desc')
-            ->get();
+        // If a date range is provided, return all records in that inclusive range
+        if ($startParam || $endParam) {
+            try {
+                $start = $startParam ? Carbon::parse($startParam)->startOfDay() : null;
+                $end = $endParam ? Carbon::parse($endParam)->endOfDay() : null;
+            } catch (\Exception $e) {
+                // fallback to selectedDate if parsing fails
+                $start = $selectedDate->startOfDay();
+                $end = $selectedDate->endOfDay();
+            }
+
+            $query = Absensi::with('siswa')->orderBy('id', 'desc');
+            if ($start && $end) {
+                $query->whereBetween('tanggal', [$start, $end]);
+            } elseif ($start) {
+                $query->whereDate('tanggal', $start);
+            } elseif ($end) {
+                $query->whereDate('tanggal', $end);
+            }
+
+            $absen = $query->get();
+        } else {
+            // single-date behavior (existing)
+            $absen = Absensi::with('siswa')
+                ->whereDate('tanggal', $selectedDate)
+                ->orderBy('id', 'desc')
+                ->get();
+        }
 
         $prevDate = (clone $selectedDate)->subDay();
 
