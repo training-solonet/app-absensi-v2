@@ -256,6 +256,7 @@
     <img src="{{ asset('img/logo.png')}}" alt="Connectis Logo" width="120">
   </div>
 
+  @auth
   <div class="d-flex flex-column align-items-center text-center mb-4">
     <a href="{{ route('profile') }}" class="text-decoration-none">
       <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
@@ -265,28 +266,35 @@
       <span class="badge bg-white text-dark">Administrator</span>
     </div>
   </div>
+  @endauth
 
-  <nav class="nav flex-column">   
-    <a class="nav-link active" href="/dashboard">
-      <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
-    </a>
-  <a class="nav-link requires-auth" href="{{ route('siswa.index') }}">
-      <i class="bi bi-people-fill"></i> <span>Data Siswa</span>
-    </a>
-  <a class="nav-link requires-auth" href="{{ url('/absensi') }}">
-      <i class="bi bi-clipboard-check"></i> <span>Laporan Absensi</span>
-    </a>
-    <li class="nav-item">
-  <a href="{{ route('data-uid') }}" class="nav-link requires-auth">
+  <nav class="nav flex-column">
+    @auth
+      <a class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}" href="/dashboard">
+        <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
+      </a>
+      <a class="nav-link {{ request()->is('siswa*') ? 'active' : '' }}" href="{{ route('siswa.index') }}">
+        <i class="bi bi-people-fill"></i> <span>Data Siswa</span>
+      </a>
+      <a class="nav-link {{ request()->is('absensi*') ? 'active' : '' }}" href="{{ url('/absensi') }}">
+        <i class="bi bi-clipboard-check"></i> <span>Laporan Absensi</span>
+      </a>
+      <a class="nav-link {{ request()->is('data-uid*') ? 'active' : '' }}" href="{{ route('data-uid') }}">
         <i class="bi bi-credit-card-2-front"></i>
         <span>Data UID</span>
-    </a>
-</li>
-  </nav>  
+      </a>
+    @else
+      <a class="nav-link" href="{{ route('login') }}">
+        <i class="bi bi-box-arrow-in-right"></i> <span>Login</span>
+      </a>
+    @endauth
+  </nav>
 
+  @auth
   <button class="toggle-btn" id="toggleBtn">
     <i class="bi bi-chevron-left"></i>
   </button>
+  @endauth
 </div>
 <div class="overlay" id="overlay"></div>
 
@@ -296,86 +304,143 @@
   <header class="navbar shadow-sm px-4" id="header">
     <div class="container-fluid d-flex justify-content-between align-items-center h-100">
       <div class="d-flex align-items-center">
+        @auth
         <button class="btn btn-link text-white d-lg-none p-0" id="mobileMenuBtn" aria-label="Menu" style="margin-left:-6px;">
           <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+        @else
+        <button class="btn btn-link text-white d-lg-none p-0" style="margin-left:-6px; visibility: hidden;">
+          <i class="bi bi-list" style="font-size: 1.5rem;"></i>
+        @endauth
         </button>
         <h5 class="fw-bold mb-0 text-light">Dashboard</h5>
       </div>
   
       <div class="d-flex align-items-center">
-        <span class="text-white me-3" id="live-clock"></span>
-        <div class="dropdown">
-          <a href="#" class="d-flex align-items-center" id="profileDropdown" 
-             role="button" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
-                 alt="Profile" width="42" height="42" class="rounded-circle border-2 border-primary">
+        @auth
+          <span class="text-white me-3" id="live-clock"></span>
+          <div class="dropdown">
+            <a href="#" class="d-flex align-items-center" id="profileDropdown" 
+               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+              <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
+                   alt="Profile" width="42" height="42" class="rounded-circle border-2 border-primary">
+            </a>
+            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+              <li>
+                <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                  @csrf
+                  <button type="submit" class="dropdown-item d-flex align-items-center text-danger border-0 bg-transparent">
+                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                  </button>
+                </form>
+              </li>
+            </ul>
+          </div>
+        @else
+          <a href="{{ route('login') }}" class="btn btn-outline-light">
+            <i class="bi bi-box-arrow-in-right me-2"></i> Login
           </a>
-          <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
-            @auth
-            <li>
-              <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                @csrf
-                <button type="submit" class="dropdown-item d-flex align-items-center text-danger border-0 bg-transparent">
-                  <i class="bi bi-box-arrow-right me-2"></i> Logout
-                </button>
-              </form>
-            </li>
-            @endauth
-            @guest
-            <li>
-              <a class="dropdown-item d-flex align-items-center" href="{{ route('login') }}">
-                <i class="bi bi-box-arrow-in-right me-2"></i> Login
-              </a>
-            </li>
-            @endguest
-          </ul>
-        </div>
+        @endauth
       </div>
     </div>
   </header>
 
   <!-- Dashboard Content -->
   <div class="container mt-4">
-    <div class="row">
-      <div class="col-md-4 mb-3">
-        <div class="summary-card d-flex justify-content-between align-items-center p-3">
-          <div>
-            <h6 class="mb-1">Jumlah Siswa PKL</h6>
-            <h3 class="mb-0">{{ $totalSiswa ?? 0 }}</h3>
+    <div class="row g-3">
+      <div class="col-6 col-sm-6 col-md-3">
+        <div class="summary-card d-flex flex-column h-100 p-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0 fw-semibold">Jumlah Siswa PKL</h6>
+            <div class="icon-wrapper">
+              <i class="bi bi-people-fill"></i>
+            </div>
           </div>
-          <div class="icon-wrapper">
-            <i class="bi bi-people-fill"></i>
-          </div>
+          <h3 class="mb-0 mt-auto">{{ $totalSiswa ?? 0 }}</h3>
         </div>
       </div>
-      <div class="col-md-4 mb-3">
-        <div class="summary-card d-flex justify-content-between align-items-center p-3">
-          <div>
-            <h6 class="mb-1">Hadir</h6>
-            <h3 class="mb-0">{{ $hadirHariIni ?? 0 }}</h3>
+      <div class="col-6 col-sm-6 col-md-3">
+        <div class="summary-card d-flex flex-column h-100 p-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0 fw-semibold">Hadir</h6>
+            <div class="icon-wrapper">
+              <i class="bi bi-calendar-check"></i>
+            </div>
           </div>
-          <div class="icon-wrapper">
-            <i class="bi bi-calendar-check"></i>
-          </div>
+          <h3 class="mb-0 mt-auto">{{ $hadirHariIni ?? 0 }}</h3>
         </div>
       </div>
-      <div class="col-md-4 mb-3">
-        <div class="summary-card d-flex justify-content-between align-items-center p-3">
-          <div>
-            <h6 class="mb-1">Terlambat/Tidak Hadir</h6>
-            <h3 class="mb-0">{{ $belumAtauTidakHadir ?? 0 }}</h3>
+      <div class="col-6 col-sm-6 col-md-3">
+        <div class="summary-card d-flex flex-column h-100 p-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0 fw-semibold">Terlambat</h6>
+            <div class="icon-wrapper">
+              <i class="bi bi-clock-history"></i>
+            </div>
           </div>
-          <div class="icon-wrapper">
-            <i class="bi bi-geo-alt"></i>
+          <h3 class="mb-0 mt-auto">{{ $terlambatHariIni ?? 0 }}</h3>
+        </div>
+      </div>
+      <div class="col-6 col-sm-6 col-md-3">
+        <div class="summary-card d-flex flex-column h-100 p-3">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="mb-0 fw-semibold">Tidak Hadir</h6>
+            <div class="icon-wrapper">
+              <i class="bi bi-person-x"></i>
+            </div>
           </div>
+          <h3 class="mb-0 mt-auto">{{ $tidakHadirHariIni ?? 0 }}</h3>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="row mb-3">
+  <!-- Data Keterlambatan (terbaru) -->
+  <div class="mt-5">
+    <div class="card card-custom mb-4 p-3">
+    <div class="card-body">
+      @php
+          $terlambat = $terlambat ?? collect();
+      @endphp
+      <div class="d-flex align-items-center justify-content-between mb-3">
+        <h5 class="fw-bold mb-0">
+          @if(request()->has('month') && request('month') != date('m'))
+            Data Keterlambatan Bulan {{ $fullMonthNames[$selectedMonth] ?? '' }}
+          @else
+            Data Keterlambatan Hari Ini
+          @endif
+        </h5>
+      </div>
+      <div class="row g-3">
+        @forelse($terlambat as $row)
+          @php
+            $tgl = \Carbon\Carbon::parse($row->tanggal ?? now());
+            $label = $tgl->isToday() ? 'Terlambat Hari Ini' : ($tgl->isYesterday() ? 'Terlambat Kemarin' : $tgl->translatedFormat('d M Y'));
+          @endphp
+          <div class="col-12 col-md-6 col-lg-4">
+            <div class="card border-0 shadow-sm h-100">
+              <div class="card-body d-flex align-items-center">
+                <div class="me-3 text-secondary">
+                  <i class="bi bi-person-circle" style="font-size:2.2rem;"></i>
+                </div>
+                <div>
+                  <h6 class="mb-1 fw-bold text-primary">{{ ucwords(string:strtolower($row->siswa->name ?? '-')) }}</h6>
+                  <small class="text-danger">{{ $label }}</small>
+                </div> 
+              </div>
+            </div>
+          </div>
+        @empty
+          <div class="col-12">
+            <div class="text-center text-muted">Belum ada data terlambat</div>
+          </div>
+        @endforelse
+      </div>
+    </div>
+  </div>
+
+  <div class="row">
     <!-- Statistik Kehadiran Bulan Ini -->
-    <div class="col-md-6">
+    <div class="col-md-6 mb-3">
       <div class="card card-custom p-3 h-100">
         <div class="d-flex align-items-center justify-content-between mb-3">
           <h5 class="fw-bold mb-0">Jumlah Hadir</h5>
@@ -414,7 +479,7 @@
         </div>
       </div>
     </div>
-    <div class="col-md-6">
+    <div class="col-md-6 mb-3">
       <div class="card card-custom p-3 h-100">
         <div class="d-flex justify-content-between align-items-center mb-3">
           <h5 class="fw-bold mb-0">Jumlah Terlambat</h5>
@@ -443,43 +508,6 @@
             </div>
           @endforelse
         </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- Data Keterlambatan (terbaru) -->
-  <div class="card card-custom mt-4 p-3">
-    <div class="card-body">
-      @php
-          $terlambat = $terlambat ?? collect();
-      @endphp
-      <div class="d-flex align-items-center justify-content-between mb-3">
-        <h5 class="fw-bold mb-0">Data Keterlambatan</h5>
-      </div>
-      <div class="row g-3">
-        @forelse($terlambat as $row)
-          @php
-            $tgl = \Carbon\Carbon::parse($row->tanggal ?? now());
-            $label = $tgl->isToday() ? 'Terlambat Hari Ini' : ($tgl->isYesterday() ? 'Terlambat Kemarin' : $tgl->translatedFormat('d M Y'));
-          @endphp
-          <div class="col-12 col-md-6 col-lg-4">
-            <div class="card border-0 shadow-sm h-100">
-              <div class="card-body d-flex align-items-center">
-                <div class="me-3 text-secondary">
-                  <i class="bi bi-person-circle" style="font-size:2.2rem;"></i>
-                </div>
-                <div>
-                  <h6 class="mb-1 fw-bold text-primary">{{ ucwords(string:strtolower($row->siswa->name ?? '-')) }}</h6>
-                  <small class="text-danger">{{ $label }}</small>
-                </div> 
-              </div>
-            </div>
-          </div>
-        @empty
-          <div class="col-12">
-            <div class="text-center text-muted">Belum ada data terlambat</div>
-          </div>
-        @endforelse
       </div>
     </div>
   </div>
@@ -562,9 +590,14 @@
 
   function updateClock() {
     const now = new Date();
-    const tanggal = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    const jam = now.toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
-    document.getElementById('live-clock').textContent = `${tanggal} | ${jam}`;
+    const options = { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'numeric', 
+      day: 'numeric' 
+    };
+    const tanggal = now.toLocaleDateString('id-ID', options);
+    document.getElementById('live-clock').textContent = tanggal;
   }
   setInterval(updateClock, 1000);
   updateClock();

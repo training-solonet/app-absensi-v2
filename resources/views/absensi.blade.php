@@ -192,7 +192,7 @@ header.navbar.collapsed { left: 70px; }
   gap: 8px;
 }
 .dt-container .dt-length select { margin-right: 6px; }
-  </style>
+</style>
 </head>
 
 <body>
@@ -377,7 +377,7 @@ header.navbar.collapsed { left: 70px; }
       $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
         const start = $('#tanggal_awal').val();
         const end = $('#tanggal_akhir').val();
-        const dateStr = data[2]; // Tanggal column in dd/mm/YYYY
+        const dateStr = data[2];
         if (!dateStr) return true;
         const parts = dateStr.split('/');
         if (parts.length !== 3) return true;
@@ -444,21 +444,17 @@ header.navbar.collapsed { left: 70px; }
       if (mobileMenuBtn) mobileMenuBtn.addEventListener('click', openSidebarMobile);
       if (overlay) overlay.addEventListener('click', closeSidebarMobile);
 
-      // Live Clock
+      // Live Date
       function updateClock() {
         const now = new Date();
-        const tanggal = now.toLocaleDateString('id-ID', {
+        const options = { 
           weekday: 'long',
           year: 'numeric',
-          month: 'long',
+          month: 'numeric',
           day: 'numeric'
-        });
-        const jam = now.toLocaleTimeString('id-ID', {
-          hour: '2-digit',
-          minute: '2-digit',
-          second: '2-digit'
-        });
-        document.getElementById('live-clock').textContent = `${tanggal} | ${jam}`;
+        };
+        const tanggal = now.toLocaleDateString('id-ID', options);
+        document.getElementById('live-clock').textContent = tanggal;
       }
       setInterval(updateClock, 1000);
       updateClock();
