@@ -70,19 +70,21 @@ class DashboardController extends Controller
         // Get late arrivals - today only when no month filter is applied, otherwise filter by selected month
         $terlambatQuery = Absensi::with(['siswa'])
             ->where('keterangan', 'terlambat');
-            
-        if (!$request->has('month') || $request->month == date('m')) {
+
+        if (! $request->has('month') || $request->month == date('m')) {
             // If no month filter or current month is selected, show only today's late arrivals
             $terlambatQuery->whereDate('tanggal', $today);
         } else {
             // If a specific month is selected, filter by that month
-            $terlambatQuery->whereMonth('tanggal', $currentMonth)
-                          ->whereYear('tanggal', $year);
+            $terlambatQuery
+                ->whereMonth('tanggal', $currentMonth)
+                ->whereYear('tanggal', $year);
         }
-        
-        $terlambat = $terlambatQuery->orderBy('tanggal', 'desc')
-                                   ->take(6)
-                                   ->get();
+
+        $terlambat = $terlambatQuery
+            ->orderBy('tanggal', 'desc')
+            ->take(6)
+            ->get();
 
         // Get late arrivals per student for the selected month in a single query
         $terlambatPerSiswa = Absensi::with('siswa')
