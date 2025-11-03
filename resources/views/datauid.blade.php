@@ -200,6 +200,7 @@
             <img src="{{ asset('img/logo.png') }}" alt="Logo" width="120">
         </div>
 
+        @auth
         <div class="d-flex flex-column align-items-center text-center mb-4">
             <a href="{{ route('profile') }}" class="text-decoration-none">
                 <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Admin" width="60" class="mb-2 rounded-circle">
@@ -208,27 +209,36 @@
                 <span class="badge bg-white text-dark">Administrator</span>
             </div>
         </div>
+        @endauth
 
-        <nav class="nav flex-column">   
-            <a class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}" href="/dashboard">
-                <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
-            </a>
-            <a class="nav-link {{ request()->is('siswa') ? 'active' : '' }}" href="{{ route('siswa.index') }}">
-                <i class="bi bi-people-fill"></i> <span>Data Siswa</span>
-            </a>
-            <a class="nav-link {{ request()->is('absensi') ? 'active' : '' }}" href="{{ url('/absensi') }}">
-                <i class="bi bi-clipboard-check"></i> <span>Laporan Absensi</span>
-            </a>
-            <a href="{{ route('data-uid') }}" class="nav-link active">
-                <i class="bi bi-credit-card-2-front"></i>
-                <span>Data UID</span>
-            </a>
-                </nav>
+        <nav class="nav flex-column">
+            @auth
+                <a class="nav-link {{ request()->is('dashboard') ? 'active' : '' }}" href="/dashboard">
+                    <i class="bi bi-speedometer2"></i> <span>Dashboard</span>
+                </a>
+                <a class="nav-link {{ request()->is('siswa*') ? 'active' : '' }}" href="{{ route('siswa.index') }}">
+                    <i class="bi bi-people-fill"></i> <span>Data Siswa</span>
+                </a>
+                <a class="nav-link {{ request()->is('absensi*') ? 'active' : '' }}" href="{{ url('/absensi') }}">
+                    <i class="bi bi-clipboard-check"></i> <span>Laporan Absensi</span>
+                </a>
+                <a href="{{ route('data-uid') }}" class="nav-link {{ request()->is('data-uid*') ? 'active' : '' }}">
+                    <i class="bi bi-credit-card-2-front"></i>
+                    <span>Data UID</span>
+                </a>
+            @else
+                <a class="nav-link" href="{{ route('login') }}">
+                    <i class="bi bi-box-arrow-in-right"></i> <span>Login</span>
+                </a>
+            @endauth
+        </nav>
 
+        @auth
         <!-- floating desktop chevron toggle -->
         <button class="toggle-btn" id="toggleBtn" aria-label="Toggle sidebar">
             <i class="bi bi-chevron-left"></i>
         </button>
+        @endauth
 
         </div>
 
@@ -238,31 +248,43 @@
         <header class="navbar shadow-sm px-4" id="header">
             <div class="container-fluid d-flex justify-content-between align-items-center">
                 <div class="d-flex align-items-center">
+                    @auth
                     <button id="mobileMenuBtn" class="header-toggle d-lg-none" aria-label="Toggle sidebar">
                         <i class="bi bi-list" aria-hidden="true"></i>
                     </button>
+                    @else
+                    <button class="header-toggle d-lg-none" style="visibility: hidden;">
+                        <i class="bi bi-list" aria-hidden="true"></i>
+                    </button>
+                    @endauth
                     <h5 class="fw-bold text-light">Data UID</h5>
                 </div>
 
                 <div class="d-flex align-items-center">
-                    <span id="live-clock" class="me-3">Selasa, 14 Oktober 2025 | 11.33.41</span>
-                    <div class="dropdown">
-                        <a href="#" class="d-flex align-items-center" id="profileDropdown" 
-                           role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                          <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
-                               alt="Profile" width="40" height="40" class="rounded-circle border-2 border-primary">
+                    @auth
+                        <span id="live-clock" class="me-3"></span>
+                        <div class="dropdown">
+                            <a href="#" class="d-flex align-items-center" id="profileDropdown" 
+                               role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                              <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
+                                   alt="Profile" width="40" height="40" class="rounded-circle border-2 border-primary">
+                            </a>
+                            <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
+                              <li>
+                                <form action="{{ route('logout') }}" method="POST" class="d-inline">
+                                  @csrf
+                                  <button type="submit" class="dropdown-item d-flex align-items-center text-danger border-0 bg-transparent">
+                                    <i class="bi bi-box-arrow-right me-2"></i> Logout
+                                  </button>
+                                </form>
+                              </li>
+                            </ul>
+                        </div>
+                    @else
+                        <a href="{{ route('login') }}" class="btn btn-outline-light">
+                            <i class="bi bi-box-arrow-in-right me-2"></i> Login
                         </a>
-                        <ul class="dropdown-menu dropdown-menu-end shadow" aria-labelledby="profileDropdown">
-                          <li>
-                            <form action="{{ route('logout') }}" method="POST" class="d-inline">
-                              @csrf
-                              <button type="submit" class="dropdown-item d-flex align-items-center text-danger border-0 bg-transparent">
-                                <i class="bi bi-box-arrow-right me-2"></i> Logout
-                              </button>
-                            </form>
-                          </li>
-                        </ul>
-                    </div>
+                    @endauth
                 </div>
             </div>
         </header>
@@ -443,15 +465,17 @@
         });
       });
 
+      // Live Date
       function updateClock() {
         const now = new Date();
-        const tanggal = now.toLocaleDateString('id-ID', {
-          weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
-        });
-        const jam = now.toLocaleTimeString('id-ID', {
-          hour: '2-digit', minute: '2-digit', second: '2-digit'
-        });
-        document.getElementById('live-clock').textContent = `${tanggal} | ${jam}`;
+        const options = { 
+          weekday: 'long', 
+          year: 'numeric', 
+          month: 'numeric', 
+          day: 'numeric' 
+        };
+        const tanggal = now.toLocaleDateString('id-ID', options);
+        document.getElementById('live-clock').textContent = tanggal;
       }
       setInterval(updateClock, 1000);
       updateClock();
