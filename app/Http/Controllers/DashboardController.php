@@ -22,13 +22,16 @@ class DashboardController extends Controller
         // Get today's attendance in a single query
         $todayStats = DB::connection('absensi_v2')
             ->table('absen')
-            ->select(DB::raw('COUNT(DISTINCT id_siswa) as total_hadir'))
+            ->select(
+                DB::raw('COUNT(DISTINCT CASE WHEN keterangan = "hadir" THEN id_siswa END) as total_hadir'),
+                DB::raw('COUNT(DISTINCT CASE WHEN keterangan = "terlambat" THEN id_siswa END) as total_terlambat')
+            )
             ->whereDate('tanggal', $today)
-            ->where('keterangan', 'hadir')
             ->first();
 
         $hadirHariIni = $todayStats ? ($todayStats->total_hadir ?? 0) : 0;
-        $belumAtauTidakHadir = $totalSiswa - $hadirHariIni;
+        $terlambatHariIni = $todayStats ? ($todayStats->total_terlambat ?? 0) : 0;
+        $tidakHadirHariIni = $totalSiswa - $hadirHariIni;
 
         // Get student list from siswa_connectis database
         $siswaList = DB::connection('siswa_connectis')
@@ -64,11 +67,21 @@ class DashboardController extends Controller
             return ! empty($item->nama_siswa) && $item->total_hadir > 0;
         });
 
-        // Get late arrivals for the month
-        $terlambat = Absensi::with(['siswa'])
-            ->where('keterangan', 'terlambat')
-            ->whereMonth('tanggal', $currentMonth)
-            ->whereYear('tanggal', $year)
+        // Get late arrivals - today only when no month filter is applied, otherwise filter by selected month
+        $terlambatQuery = Absensi::with(['siswa'])
+            ->where('keterangan', 'terlambat');
+
+        if (! $request->has('month') || $request->month == date('m')) {
+            // If no month filter or current month is selected, show only today's late arrivals
+            $terlambatQuery->whereDate('tanggal', $today);
+        } else {
+            // If a specific month is selected, filter by that month
+            $terlambatQuery
+                ->whereMonth('tanggal', $currentMonth)
+                ->whereYear('tanggal', $year);
+        }
+
+        $terlambat = $terlambatQuery
             ->orderBy('tanggal', 'desc')
             ->take(6)
             ->get();
@@ -126,7 +139,8 @@ class DashboardController extends Controller
         return view('dashboard', compact(
             'totalSiswa',
             'hadirHariIni',
-            'belumAtauTidakHadir',
+            'terlambatHariIni',
+            'tidakHadirHariIni',
             'absensiBulanIni',
             'terlambat',
             'terlambatPerSiswa',
