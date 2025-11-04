@@ -49,22 +49,55 @@ class DashboardController extends Controller
             )
             ->whereMonth('tanggal', $currentMonth)
             ->whereYear('tanggal', $year)
+            ->where('keterangan', 'hadir')
             ->groupBy('id_siswa')
             ->orderBy('total_hadir', 'desc')
             ->get();
 
-        // Combine the data and filter out invalid entries
-        $absensiBulanIni = $absensiData->map(function ($item) use ($siswaList) {
-            $siswa = $siswaList[$item->id_siswa] ?? null;
+        // Get student names from siswa_connectis database
+        $siswaIds = $absensiData->pluck('id_siswa')->toArray();
+        $siswaList = [];
 
+        if (! empty($siswaIds)) {
+            $siswaList = DB::connection('siswa_connectis')
+                ->table('view_siswa')
+                ->whereIn('id', $siswaIds)
+                ->pluck('name', 'id')
+                ->toArray();
+        }
+
+        // Combine the data
+        $absensiBulanIni = $absensiData->map(function ($item) use ($siswaList) {
             return (object) [
                 'id_siswa' => $item->id_siswa,
-                'nama_siswa' => $siswa->nama_siswa ?? null,
+                'nama_siswa' => $siswaList[$item->id_siswa] ?? 'Siswa #'.$item->id_siswa,
                 'total_hadir' => $item->total_hadir,
+                'total_terlambat' => 0, // Will be updated below
             ];
-        })->filter(function ($item) {
-            // Only include students with a name and at least 1 attendance
-            return ! empty($item->nama_siswa) && $item->total_hadir > 0;
+        });
+
+        // Get late arrivals count for each student
+        $terlambatData = DB::connection('absensi_v2')
+            ->table('absen')
+            ->select(
+                'id_siswa',
+                DB::raw('COUNT(*) as total_terlambat')
+            )
+            ->where('keterangan', 'terlambat')
+            ->whereMonth('tanggal', $currentMonth)
+            ->whereYear('tanggal', $year)
+            ->whereIn('id_siswa', $siswaIds)
+            ->groupBy('id_siswa')
+            ->get()
+            ->keyBy('id_siswa');
+
+        // Update late counts
+        $absensiBulanIni = $absensiBulanIni->map(function ($item) use ($terlambatData) {
+            if (isset($terlambatData[$item->id_siswa])) {
+                $item->total_terlambat = $terlambatData[$item->id_siswa]->total_terlambat;
+            }
+
+            return $item;
         });
 
         // Get late arrivals - today only when no month filter is applied, otherwise filter by selected month

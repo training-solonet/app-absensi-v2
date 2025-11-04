@@ -263,15 +263,15 @@ header.navbar.collapsed { left: 70px; }
     <!-- Card Laporan Absensi -->
     <div class="card card-custom mt-4 p-3">
       <div class="card-body">
-        <!-- Filter: Tanggal Awal & Tanggal Akhir (real-time) -->
+        <!-- Filter: Tanggal Awal & Tanggal Akhir -->
         <form id="filterForm" class="row g-3 mb-4" onsubmit="return false;">
           <div class="col-md-3">
             <label for="tanggal_awal" class="form-label">Tanggal Awal</label>
-            <input type="date" id="tanggal_awal" name="tanggal_awal" class="form-control" value="{{ request('tanggal_awal', '') }}">
+            <input type="date" id="tanggal_awal" name="tanggal_awal" class="form-control" value="{{ request('tanggal_awal', now()->toDateString()) }}">
           </div>
           <div class="col-md-3">
             <label for="tanggal_akhir" class="form-label">Tanggal Akhir</label>
-            <input type="date" id="tanggal_akhir" name="tanggal_akhir" class="form-control" value="{{ request('tanggal_akhir', '') }}">
+            <input type="date" id="tanggal_akhir" name="tanggal_akhir" class="form-control" value="{{ request('tanggal_akhir', now()->toDateString()) }}">
           </div>
           <div class="col-md-4">
             <label for="namaSiswa" class="form-label">Pilih nama siswa</label>
@@ -304,7 +304,7 @@ header.navbar.collapsed { left: 70px; }
                 <th>Waktu Masuk</th>
                 <th>Waktu Keluar</th>
                 <th>Keterangan</th>
-                <th>Catatan</th>
+                <th class="text-center">Catatan</th>
                 <th>Aksi</th>
               </tr>
             </thead>
@@ -317,7 +317,48 @@ header.navbar.collapsed { left: 70px; }
                 <td>{{ date('H:i:s', strtotime($absensi->waktu_masuk)) }}</td>
                 <td>{{ date('H:i:s', strtotime($absensi->waktu_keluar)) }}</td>
                 <td>{{ $absensi->keterangan }}</td>
-                <td>{{ $absensi->catatan }}</td>
+                <td class="text-center">
+                    @if($absensi->catatan)
+                        <div class="d-flex justify-content-between align-items-center">
+                            <span class="text-start flex-grow-1">{{ $absensi->catatan }}</span>
+                            <button type="button" class="btn btn-sm btn-outline-primary ms-2 d-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#catatanModal{{ $loop->iteration }}">
+                                <i class="bi bi-pencil-square"></i>
+                            </button>
+                        </div>
+                    @else
+                        <button type="button" class="btn btn-sm btn-outline-primary d-inline-flex align-items-center gap-1" data-bs-toggle="modal" data-bs-target="#catatanModal{{ $loop->iteration }}">
+                            <i class="bi bi-plus-circle"></i>
+                            <span>tambah catatan</span>
+                        </button>
+                    @endif
+                    
+                    <!-- Modal -->
+                    <div class="modal fade" id="catatanModal{{ $loop->iteration }}" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <form action="{{ route('absensi.update', $absensi->id) }}" method="POST">
+                                    @csrf
+                                    @method('PUT')
+                                    <div class="modal-header">
+                                        <h5 class="modal-title">Tambah Catatan</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="mb-3">
+                                            <label for="catatan" class="form-label">Catatan untuk {{ $absensi->siswa ? $absensi->siswa->name : 'Siswa' }}</label>
+                                            <textarea class="form-control" id="catatan" name="catatan" rows="3" maxlength="255">{{ old('catatan', $absensi->catatan) }}</textarea>
+                                            <div class="form-text">0/50</div>
+                                        </div>
+                                    </div>
+                                    <div class="modal-footer">
+                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Tutup</button>
+                                        <button type="submit" class="btn btn-primary">Simpan</button>
+                                    </div>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                </td>
                 <td>
                   <div class="dropdown">
                     <button class="btn btn-sm btn-outline-primary dropdown-toggle" type="button" id="dropdownMenuButton{{ $loop->iteration }}" data-bs-toggle="dropdown" aria-expanded="false">
@@ -328,9 +369,20 @@ header.navbar.collapsed { left: 70px; }
                         <form action="{{ route('absensi.update', $absensi->id) }}" method="POST" class="d-inline">
                           @csrf
                           @method('PUT')
+                          <input type="hidden" name="keterangan" value="Hadir">
+                          <button type="submit" class="dropdown-item" onclick="return confirm('Apakah Anda yakin ingin mengubah status menjadi Hadir?')">
+                            <i class="bi bi-check-circle text-success me-2"></i>Hadir
+                          </button> 
+                        </form>
+                      </li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li>
+                        <form action="{{ route('absensi.update', $absensi->id) }}" method="POST" class="d-inline">
+                          @csrf
+                          @method('PUT')
                           <input type="hidden" name="keterangan" value="Izin">
                           <button type="submit" class="dropdown-item" onclick="return confirm('Apakah Anda yakin ingin mengubah status menjadi Izin?')">
-                            <i class="bi bi-check-circle text-primary me-2"></i>Izin
+                            <i class="bi bi-info-circle text-primary me-2"></i>Izin
                           </button> 
                         </form>
                       </li>
@@ -341,7 +393,7 @@ header.navbar.collapsed { left: 70px; }
                           @method('PUT')
                           <input type="hidden" name="keterangan" value="Sakit">
                           <button type="submit" class="dropdown-item" onclick="return confirm('Apakah Anda yakin ingin mengubah status menjadi Sakit?')">
-                            <i class="bi bi-exclamation-triangle text-danger me-2"></i>Sakit
+                            <i class="bi bi-thermometer-sun text-warning me-2"></i>Sakit
                           </button>
                         </form>
                       </li>
@@ -368,7 +420,7 @@ header.navbar.collapsed { left: 70px; }
   <script>
     $(document).ready(function() {
       const table = $('#absensiTable').DataTable();
-      // Name filter
+      // filter
       $('#namaSiswa').on('change', function() {
         table.column(1).search(this.value).draw();
       });
