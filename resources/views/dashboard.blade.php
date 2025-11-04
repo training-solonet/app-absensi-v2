@@ -403,10 +403,10 @@
       @endphp
       <div class="d-flex align-items-center justify-content-between mb-3">
         <h5 class="fw-bold mb-0">
-          @if(request()->has('month') && request('month') != date('m'))
-            Data Keterlambatan Bulan {{ $fullMonthNames[$selectedMonth] ?? '' }}
+          @if(request()->has('month') && isset($fullMonthNames[$selectedMonth]) && !empty($fullMonthNames[$selectedMonth]))
+            Data Keterlambatan Bulan {{ $fullMonthNames[$selectedMonth] }}
           @else
-            Data Keterlambatan Hari Ini
+            Data Keterlambatan Bulan November
           @endif
         </h5>
       </div>
@@ -423,7 +423,11 @@
                   <i class="bi bi-person-circle" style="font-size:2.2rem;"></i>
                 </div>
                 <div>
-                  <h6 class="mb-1 fw-bold text-primary">{{ ucwords(string:strtolower($row->siswa->name ?? '-')) }}</h6>
+                  <h6 class="mb-1 fw-bold">
+                    <a href="https://training.connectis.my.id/" class="text-primary text-decoration-none" target="_blank">
+                      {{ ucwords(string:strtolower($row->siswa->name ?? '-')) }}
+                    </a>
+                  </h6>
                   <small class="text-danger">{{ $label }}</small>
                 </div> 
               </div>
@@ -468,7 +472,7 @@
                 </span>
               </div>
               <span class="badge bg-primary rounded-pill" style="flex-shrink: 0;">
-                {{ $absen->total_hadir ?? 0 }}x
+                {{ $absen->total_hadir ?? 0 }}
               </span>
             </div>
           @empty

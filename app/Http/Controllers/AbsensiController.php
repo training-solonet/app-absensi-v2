@@ -3,75 +3,87 @@
 namespace App\Http\Controllers;
 
 use App\Models\Absensi;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class AbsensiController extends Controller
 {
-    public function index(Request $request)
+    /**
+     * Display a listing of the resource.
+     *
+     * @return \Illuminate\View\View
+     */
+    public function index()
     {
-        $dateParam = $request->query('tanggal');
-        $startParam = $request->query('tanggal_awal');
-        $endParam = $request->query('tanggal_akhir');
+        $selectedDate = request('tanggal', date('Y-m-d'));
 
-        // Default selectedDate used for UI when single-date view
-        $selectedDate = $dateParam ? Carbon::parse($dateParam)->startOfDay() : Carbon::today();
+        /** @var \Illuminate\Database\Eloquent\Collection<array-key, Absensi> $absen */
+        $absen = Absensi::with('siswa')
+            ->whereDate('tanggal', $selectedDate)
+            ->orderBy('tanggal', 'desc')
+            ->get();
 
-        // If a date range is provided, return all records in that inclusive range
-        if ($startParam || $endParam) {
-            try {
-                $start = $startParam ? Carbon::parse($startParam)->startOfDay() : null;
-                $end = $endParam ? Carbon::parse($endParam)->endOfDay() : null;
-            } catch (\Exception $e) {
-                // fallback to selectedDate if parsing fails
-                $start = $selectedDate->startOfDay();
-                $end = $selectedDate->endOfDay();
-            }
+        // Hitung jumlah hadir dan terlambat
+        $hadirKemarin = Absensi::whereDate('tanggal', now()->subDay())
+            ->where('keterangan', 'hadir')
+            ->count();
 
-            $query = Absensi::with('siswa')->orderBy('id', 'desc');
-            if ($start && $end) {
-                $query->whereBetween('tanggal', [$start, $end]);
-            } elseif ($start) {
-                $query->whereDate('tanggal', $start);
-            } elseif ($end) {
-                $query->whereDate('tanggal', $end);
-            }
+        $terlambatKemarin = Absensi::whereDate('tanggal', now()->subDay())
+            ->where('keterangan', 'terlambat')
+            ->count();
 
-            $absen = $query->get();
-        } else {
-            // single-date behavior (existing)
-            $absen = Absensi::with('siswa')
-                ->whereDate('tanggal', $selectedDate)
-                ->orderBy('id', 'desc')
-                ->get();
-        }
+        // Type casting untuk memastikan view-string yang valid
+        /** @var view-string $viewName */
+        $viewName = 'absensi';
 
-        $prevDate = (clone $selectedDate)->subDay();
-
-        $hadirKemarin = Absensi::whereDate('tanggal', $prevDate)
-            ->whereRaw('LOWER(TRIM(keterangan)) = ?', ['hadir'])
-            ->distinct('id_siswa')
-            ->count('id_siswa');
-
-        $terlambatKemarin = Absensi::whereDate('tanggal', $prevDate)
-            ->whereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat'])
-            ->distinct('id_siswa')
-            ->count('id_siswa');
-
-        return view('absensi', compact('absen', 'selectedDate', 'hadirKemarin', 'terlambatKemarin'));
+        return view($viewName, compact('absen', 'selectedDate', 'hadirKemarin', 'terlambatKemarin'));
     }
 
+    public function terlambat()
+    {
+        $selectedDate = request('tanggal', date('Y-m-d'));
+
+        $absen = Absensi::with('siswa')
+            ->whereDate('tanggal', $selectedDate)
+            ->where('keterangan', 'terlambat')
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        /** @var view-string $viewName */
+        $viewName = 'absensi-terlambat';
+
+        return view($viewName, compact('absen', 'selectedDate'));
+    }
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  int  $id
+     * @return \Illuminate\Http\RedirectResponse
+     */
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'keterangan' => 'required|in:Izin,Sakit',
+            'keterangan' => 'required|in:Hadir,Izin,Sakit',
+            'catatan' => 'nullable|string|max:255',
         ]);
 
+        /** @var Absensi $absensi */
         $absensi = Absensi::findOrFail($id);
-        $absensi->update([
+
+        $updates = [
             'keterangan' => $validated['keterangan'],
             'updated_at' => now(),
-        ]);
+        ];
+
+        if (isset($validated['catatan'])) {
+            $updates['catatan'] = $validated['catatan'];
+        }
+
+        if ($validated['keterangan'] === 'Hadir' && empty($absensi->getAttribute('waktu_masuk'))) {
+            $updates['waktu_masuk'] = now()->format('H:i:s');
+        }
+
+        $absensi->update($updates);
 
         return back()->with('success', 'Status absensi berhasil diperbarui');
     }
