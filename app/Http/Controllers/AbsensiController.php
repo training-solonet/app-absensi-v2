@@ -3,75 +3,63 @@
 namespace App\Http\Controllers;
 
 use App\Models\Absensi;
-use Carbon\Carbon;
 use Illuminate\Http\Request;
 
 class AbsensiController extends Controller
 {
-    public function index(Request $request)
+    public function index()
     {
-        $dateParam = $request->query('tanggal');
-        $startParam = $request->query('tanggal_awal');
-        $endParam = $request->query('tanggal_akhir');
+        $selectedDate = request('tanggal', date('Y-m-d'));
 
-        // Default selectedDate used for UI when single-date view
-        $selectedDate = $dateParam ? Carbon::parse($dateParam)->startOfDay() : Carbon::today();
+        $absen = Absensi::with('siswa')
+            ->whereDate('tanggal', $selectedDate)
+            ->orderBy('tanggal', 'desc')
+            ->get();
 
-        // If a date range is provided, return all records in that inclusive range
-        if ($startParam || $endParam) {
-            try {
-                $start = $startParam ? Carbon::parse($startParam)->startOfDay() : null;
-                $end = $endParam ? Carbon::parse($endParam)->endOfDay() : null;
-            } catch (\Exception $e) {
-                // fallback to selectedDate if parsing fails
-                $start = $selectedDate->startOfDay();
-                $end = $selectedDate->endOfDay();
-            }
+        // Hitung jumlah hadir dan terlambat
+        $hadirKemarin = Absensi::whereDate('tanggal', now()->subDay())
+            ->where('keterangan', 'hadir')
+            ->count();
 
-            $query = Absensi::with('siswa')->orderBy('id', 'desc');
-            if ($start && $end) {
-                $query->whereBetween('tanggal', [$start, $end]);
-            } elseif ($start) {
-                $query->whereDate('tanggal', $start);
-            } elseif ($end) {
-                $query->whereDate('tanggal', $end);
-            }
-
-            $absen = $query->get();
-        } else {
-            // single-date behavior (existing)
-            $absen = Absensi::with('siswa')
-                ->whereDate('tanggal', $selectedDate)
-                ->orderBy('id', 'desc')
-                ->get();
-        }
-
-        $prevDate = (clone $selectedDate)->subDay();
-
-        $hadirKemarin = Absensi::whereDate('tanggal', $prevDate)
-            ->whereRaw('LOWER(TRIM(keterangan)) = ?', ['hadir'])
-            ->distinct('id_siswa')
-            ->count('id_siswa');
-
-        $terlambatKemarin = Absensi::whereDate('tanggal', $prevDate)
-            ->whereRaw('LOWER(TRIM(keterangan)) = ?', ['terlambat'])
-            ->distinct('id_siswa')
-            ->count('id_siswa');
+        $terlambatKemarin = Absensi::whereDate('tanggal', now()->subDay())
+            ->where('keterangan', 'terlambat')
+            ->count();
 
         return view('absensi', compact('absen', 'selectedDate', 'hadirKemarin', 'terlambatKemarin'));
+    }
+
+    public function terlambat()
+    {
+        $selectedDate = request('tanggal', date('Y-m-d'));
+
+        $absen = Absensi::with('siswa')
+            ->whereDate('tanggal', $selectedDate)
+            ->where('keterangan', 'terlambat')
+            ->orderBy('tanggal', 'desc')
+            ->get();
+
+        return view('absensi-terlambat', compact('absen', 'selectedDate'));
     }
 
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'keterangan' => 'required|in:Izin,Sakit',
+            'keterangan' => 'required|in:Hadir,Izin,Sakit',
         ]);
 
         $absensi = Absensi::findOrFail($id);
-        $absensi->update([
+
+        // Jika status diubah menjadi Hadir, set waktu_masuk jika belum ada
+        $updates = [
             'keterangan' => $validated['keterangan'],
             'updated_at' => now(),
-        ]);
+        ];
+
+        if ($validated['keterangan'] === 'Hadir' && ! $absensi->waktu_masuk) {
+            $updates['waktu_masuk'] = now()->format('H:i:s');
+        }
+
+        $absensi->update($updates);
 
         return back()->with('success', 'Status absensi berhasil diperbarui');
     }
