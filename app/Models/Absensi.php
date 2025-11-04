@@ -12,6 +12,17 @@ class Absensi extends Model
     protected $table = 'absen';
 
     /**
+     * The attributes that should be cast.
+     *
+     * @var array<string, string>
+     */
+    protected $casts = [
+        'waktu_masuk' => 'datetime',
+        'waktu_keluar' => 'datetime',
+        'tanggal' => 'date',
+    ];
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var list<string>
