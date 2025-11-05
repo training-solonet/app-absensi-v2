@@ -91,13 +91,22 @@
       z-index: 1100;
     }
     .content {
-      margin-left: 260px;
+      margin-left: 20px;
       padding: 20px;
       padding-top: 80px;
       transition: all 0.3s ease;
     }
+    
+    @auth
+    .content {
+      margin-left: 260px;
+    }
     .content.collapsed {
       margin-left: 80px !important;
+    }
+    @endauth
+    .content.collapsed {
+      margin-left: 20px !important;
     }
 
     #header h5 {
@@ -116,7 +125,7 @@
       background-color: #3F63E0;
       position: fixed;
       top: 0;
-      left: 240px;
+      left: 0;
       right: 0;
       height: 60px;
       z-index: 900;
@@ -124,6 +133,15 @@
       padding-left: 10px !important; 
       padding-right: 20px !important; 
     }
+    
+    @auth
+    header.navbar {
+      left: 240px;
+    }
+    header.navbar.collapsed {
+      left: 70px;
+    }
+    @endauth
     header.navbar.collapsed {
       left: 70px;
     }
@@ -238,8 +256,8 @@
     }
 
     @media (max-width: 991.98px) {
-      .content { margin-left: 0; padding-top: 70px; }
-      header.navbar { left: 0; }
+      .content { margin-left: 0 !important; padding-top: 70px; }
+      header.navbar { left: 0 !important; }
       .toggle-btn { display: none; }
       .sidebar { width: 80%; max-width: 260px; transform: translateX(-100%); visibility: hidden; }
       .sidebar.open { transform: translateX(0); visibility: visible; }
@@ -251,12 +269,12 @@
 <body>
   
 <!-- Sidebar -->
+@auth
 <div class="sidebar p-3" id="sidebar">
   <div class="text-center mb-4">
     <img src="{{ asset('img/logo.png')}}" alt="Connectis Logo" width="120">
   </div>
 
-  @auth
   <div class="d-flex flex-column align-items-center text-center mb-4">
     <a href="{{ route('profile') }}" class="text-decoration-none">
       <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" 
@@ -307,11 +325,8 @@
         @auth
         <button class="btn btn-link text-white d-lg-none p-0" id="mobileMenuBtn" aria-label="Menu" style="margin-left:-6px;">
           <i class="bi bi-list" style="font-size: 1.5rem;"></i>
-        @else
-        <button class="btn btn-link text-white d-lg-none p-0" style="margin-left:-6px; visibility: hidden;">
-          <i class="bi bi-list" style="font-size: 1.5rem;"></i>
-        @endauth
         </button>
+        @endauth
         <h5 class="fw-bold mb-0 text-light">Dashboard</h5>
       </div>
   

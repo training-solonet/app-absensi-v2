@@ -14,13 +14,25 @@ class AbsensiController extends Controller
      */
     public function index()
     {
-        $selectedDate = request('tanggal', date('Y-m-d'));
+        $tanggalAwal = request('tanggal_awal', date('Y-m-d'));
+        $tanggalAkhir = request('tanggal_akhir', date('Y-m-d'));
+        $namaSiswa = request('nama_siswa');
 
-        /** @var \Illuminate\Database\Eloquent\Collection<array-key, Absensi> $absen */
-        $absen = Absensi::with('siswa')
-            ->whereDate('tanggal', $selectedDate)
-            ->orderBy('tanggal', 'desc')
-            ->get();
+        $query = Absensi::with('siswa')
+            ->whereBetween('tanggal', [$tanggalAwal, $tanggalAkhir])
+            ->orderBy('tanggal', 'desc');
+
+        // Filter by student name if provided
+        if ($namaSiswa) {
+            $query->whereHas('siswa', function ($q) use ($namaSiswa) {
+                $q->where('name', 'like', '%'.$namaSiswa.'%');
+            });
+        }
+
+        $absen = $query->get();
+
+        // Get unique student list for filter dropdown
+        $siswas = \App\Models\Siswa::orderBy('name')->get();
 
         // Hitung jumlah hadir dan terlambat
         $hadirKemarin = Absensi::whereDate('tanggal', now()->subDay())
@@ -31,11 +43,14 @@ class AbsensiController extends Controller
             ->where('keterangan', 'terlambat')
             ->count();
 
-        // Type casting untuk memastikan view-string yang valid
-        /** @var view-string $viewName */
-        $viewName = 'absensi';
-
-        return view($viewName, compact('absen', 'selectedDate', 'hadirKemarin', 'terlambatKemarin'));
+        return view('absensi', compact(
+            'absen',
+            'siswas',
+            'tanggalAwal',
+            'tanggalAkhir',
+            'hadirKemarin',
+            'terlambatKemarin'
+        ));
     }
 
     public function terlambat()
