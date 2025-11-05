@@ -264,30 +264,27 @@ header.navbar.collapsed { left: 70px; }
     <div class="card card-custom mt-4 p-3">
       <div class="card-body">
         <!-- Filter: Tanggal Awal & Tanggal Akhir -->
-        <form id="filterForm" class="row g-3 mb-4" onsubmit="return false;">
+        <form id="filterForm" method="GET" action="{{ route('absensi') }}" class="row g-3 mb-4">
           <div class="col-md-3">
             <label for="tanggal_awal" class="form-label">Tanggal Awal</label>
-            <input type="date" id="tanggal_awal" name="tanggal_awal" class="form-control" value="{{ request('tanggal_awal', now()->toDateString()) }}">
+            <input type="date" id="tanggal_awal" name="tanggal_awal" class="form-control" value="{{ $tanggalAwal ?? now()->toDateString() }}">
           </div>
           <div class="col-md-3">
             <label for="tanggal_akhir" class="form-label">Tanggal Akhir</label>
-            <input type="date" id="tanggal_akhir" name="tanggal_akhir" class="form-control" value="{{ request('tanggal_akhir', now()->toDateString()) }}">
+            <input type="date" id="tanggal_akhir" name="tanggal_akhir" class="form-control" value="{{ $tanggalAkhir ?? now()->toDateString() }}">
           </div>
           <div class="col-md-4">
-            <label for="namaSiswa" class="form-label">Pilih nama siswa</label>
-            <select id="namaSiswa" class="form-select">
-              <option value="">Open this select menu</option>
-              @php
-                $listSiswa = isset($siswas) && $siswas
-                  ? collect($siswas)
-                  : (isset($absen) ? collect($absen)->pluck('siswa')->filter()->unique('id') : collect());
-              @endphp
-              @foreach($listSiswa as $siswa)
+            <label for="nama_siswa" class="form-label">Pilih nama siswa</label>
+            <select id="nama_siswa" name="nama_siswa" class="form-select">
+              <option value="">Semua Siswa</option>
+              @foreach($siswas ?? [] as $siswa)
                 @php
                   $sname = is_object($siswa) ? ($siswa->name ?? '') : (is_array($siswa) ? ($siswa['name'] ?? '') : (string)$siswa);
                 @endphp
                 @if(!empty($sname))
-                  <option value="{{ $sname }}">{{ ucwords(strtolower($sname)) }}</option>
+                  <option value="{{ $sname }}" {{ request('nama_siswa') == $sname ? 'selected' : '' }}>
+                    {{ ucwords(strtolower($sname)) }}
+                  </option>
                 @endif
               @endforeach
             </select>
@@ -419,44 +416,29 @@ header.navbar.collapsed { left: 70px; }
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     $(document).ready(function() {
-      const table = $('#absensiTable').DataTable();
-      // filter
-      $('#namaSiswa').on('change', function() {
-        table.column(1).search(this.value).draw();
-      });
-
-      // Date range (real-time)
-      $.fn.dataTable.ext.search.push(function(settings, data, dataIndex) {
-        const start = $('#tanggal_awal').val();
-        const end = $('#tanggal_akhir').val();
-        const dateStr = data[2];
-        if (!dateStr) return true;
-        const parts = dateStr.split('/');
-        if (parts.length !== 3) return true;
-        const rowDate = new Date(parts[2], parts[1] - 1, parts[0]);
-
-        if (start) {
-          const s = new Date(start);
-          if (rowDate < s) return false;
+      // Initialize DataTable
+      const table = $('#absensiTable').DataTable({
+        order: [[2, 'desc']], // Default sort by date column (3rd column, 0-indexed)
+        pageLength: 50,
+        lengthMenu: [10, 25, 50, 100],
+        language: {
+          search: 'Search:',
+          lengthMenu: 'Show _MENU_ entries',
+          info: 'Showing _START_ to _END_ of _TOTAL_ entries',
+          infoEmpty: 'No data available',
+          infoFiltered: '(filtered from _MAX_ total entries)',
+          paginate: {
+            first: '«',
+            last: '»',
+            next: '›',
+            previous: '‹'
+          }
         }
-        if (end) {
-          const e = new Date(end);
-          e.setHours(23,59,59,999);
-          if (rowDate > e) return false;
-        }
-        return true;
       });
-
-      $('#tanggal_awal, #tanggal_akhir').on('change', function() {
-        const start = $('#tanggal_awal').val();
-        const end = $('#tanggal_akhir').val();
-        const name = $('#namaSiswa').val();
-        const params = new URLSearchParams(window.location.search);
-        if (start) params.set('tanggal_awal', start); else params.delete('tanggal_awal');
-        if (end) params.set('tanggal_akhir', end); else params.delete('tanggal_akhir');
-        if (name) params.set('nama_siswa', name); else params.delete('nama_siswa');
-        const newUrl = window.location.pathname + (params.toString() ? ('?' + params.toString()) : '');
-        window.location.href = newUrl;
+      
+      // Auto-submit form when filter changes
+      $('input[type="date"], select').on('change', function() {
+        $('#filterForm').submit();
       });
 
       $('form[action*="absensi/"]').on('submit', function(e) {
