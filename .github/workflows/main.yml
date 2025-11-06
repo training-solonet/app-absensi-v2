@@ -56,47 +56,7 @@ jobs:
             set -e
             echo "🚀 Deploying Laravel app to staging..."
             cd /var/www/app-absensi-v2
-            
-            # Clean up cache files
-            echo "🧹 Cleaning up cache files..."
-            rm -f bootstrap/cache/*
-            
-            # Pull latest changes
+      
             echo "⬇️ Pulling latest changes..."
-            git config --global --add safe.directory /var/www/app-absensi-v2
-            git config pull.rebase false
-            git fetch origin main
-            git reset --hard origin/main
-            
-            # Install dependencies
-            echo "📦 Installing dependencies..."
-            composer install --no-interaction --prefer-dist --optimize-autoloader --no-dev
-            
-            # Set up environment
-            echo "⚙️ Setting up environment..."
-            cp .env.staging .env
-            php artisan key:generate
-            
-            # Run migrations
-            echo "🔄 Running migrations..."
-            php artisan migrate --force
-            
-            # Clear and cache configuration
-            echo "⚡ Optimizing application..."
-            php artisan config:clear
-            php artisan cache:clear
-            php artisan view:clear
-            php artisan route:clear
-            
-            # Cache everything for production
-            php artisan config:cache
-            php artisan route:cache
-            php artisan view:cache
-            
-            # Set proper permissions
-            echo "🔒 Setting permissions..."
-            chown -R www-data:www-data /var/www/app-absensi-v2
-            chmod -R 755 /var/www/app-absensi-v2/storage
-            chmod -R 755 /var/www/app-absensi-v2/bootstrap/cache
-            
-            echo "✅ Staging deployment completed successfully! 🎉"
+            git pull origin main
+            composer install
