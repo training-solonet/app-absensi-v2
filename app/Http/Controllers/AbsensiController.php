@@ -24,9 +24,17 @@ class AbsensiController extends Controller
 
         // Filter by student name if provided
         if ($namaSiswa) {
-            $query->whereHas('siswa', function ($q) use ($namaSiswa) {
-                $q->where('name', 'like', '%'.$namaSiswa.'%');
-            });
+            // Dapatkan dulu ID siswa berdasarkan nama
+            $siswaIds = \App\Models\Siswa::where('name', 'like', '%'.$namaSiswa.'%')
+                ->pluck('id')
+                ->toArray();
+
+            if (! empty($siswaIds)) {
+                $query->whereIn('id_siswa', $siswaIds);
+            } else {
+                // Jika tidak ada siswa yang cocok, pastikan query tidak mengembalikan hasil
+                $query->where('id', 0);
+            }
         }
 
         $absen = $query->get();
