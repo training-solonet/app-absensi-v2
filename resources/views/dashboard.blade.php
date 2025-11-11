@@ -93,7 +93,7 @@
     .content {
       margin-left: 20px;
       padding: 20px;
-      padding-top: 80px;
+      padding-top: 50px;
       transition: all 0.3s ease;
     }
     
@@ -113,7 +113,7 @@
       margin-right: 10px; 
     }
 
-    #live-clock {
+    #live-clock { 
       margin-left: 12px; 
     }
 
@@ -301,6 +301,10 @@
         <i class="bi bi-credit-card-2-front"></i>
         <span>Data UID</span>
       </a>
+      <a class="nav-link {{ request()->is('absensi-uid*') ? 'active' : '' }}" href="{{ route('absensi-uid') }}">
+        <i class="bi bi-input-cursor"></i>
+        <span>Input Absensi</span>
+      </a>
     @else
       <a class="nav-link" href="{{ route('login') }}">
         <i class="bi bi-box-arrow-in-right"></i> <span>Login</span>
@@ -410,7 +414,7 @@
   </div>
 
   <!-- Data Keterlambatan (terbaru) -->
-  <div class="mt-5">
+  <div class="mt-4">
     <div class="card card-custom mb-4 p-3">
     <div class="card-body">
       @php

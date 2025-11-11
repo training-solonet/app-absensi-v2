@@ -275,14 +275,15 @@ header.navbar.collapsed { left: 70px; }
           </div>
           <div class="col-md-4">
             <label for="nama_siswa" class="form-label">Pilih nama siswa</label>
-            <select id="nama_siswa" name="nama_siswa" class="form-select">
+            <select id="nama_siswa" name="nama_siswa" class="form-select" onchange="this.form.submit()">
               <option value="">Semua Siswa</option>
               @foreach($siswas ?? [] as $siswa)
                 @php
                   $sname = is_object($siswa) ? ($siswa->name ?? '') : (is_array($siswa) ? ($siswa['name'] ?? '') : (string)$siswa);
+                  $selected = request('nama_siswa') == $sname ? 'selected' : '';
                 @endphp
                 @if(!empty($sname))
-                  <option value="{{ $sname }}" {{ request('nama_siswa') == $sname ? 'selected' : '' }}>
+                  <option value="{{ $sname }}" {{ $selected }}>
                     {{ ucwords(strtolower($sname)) }}
                   </option>
                 @endif
@@ -416,6 +417,11 @@ header.navbar.collapsed { left: 70px; }
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
   <script>
     $(document).ready(function() {
+      // Submit form when date changes
+      $('#tanggal_awal, #tanggal_akhir').on('change', function() {
+        $('#filterForm').submit();
+      });
+
       // Initialize DataTable
       const table = $('#absensiTable').DataTable({
         order: [[2, 'desc']], // Default sort by date column (3rd column, 0-indexed)

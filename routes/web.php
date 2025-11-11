@@ -1,13 +1,13 @@
 <?php
 
 use App\Http\Controllers\AbsensiController;
+use App\Http\Controllers\AbsensiInputController;
 use App\Http\Controllers\SiswaController;
 use App\Http\Controllers\UIDController;
 use App\Models\Absensi;
 use App\Models\Siswa;
 use Illuminate\Support\Facades\Route;
 
-// Muat rute autentikasi
 require __DIR__.'/auth.php';
 
 /*
@@ -27,6 +27,10 @@ Route::get('/', function () {
 
 // Public dashboard route (no auth middleware)
 Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+
+// Public UID input route
+Route::get('/absensi-uid', [AbsensiInputController::class, 'index'])->name('absensi-uid');
+Route::post('/absensi-uid', [AbsensiInputController::class, 'store'])->name('absensi-uid.store');
 
 Route::middleware([
     'auth:sanctum',
