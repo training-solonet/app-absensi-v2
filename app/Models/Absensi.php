@@ -4,6 +4,15 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
+/**
+ * @property int $id
+ * @property int $id_siswa
+ * @property \Carbon\Carbon $tanggal
+ * @property \Carbon\Carbon|null $waktu_masuk
+ * @property \Carbon\Carbon|null $waktu_keluar
+ * @property string $keterangan
+ * @property string|null $catatan
+ */
 class Absensi extends Model
 {
     // Tentukan koneksi database yang digunakan
