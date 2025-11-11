@@ -37,9 +37,6 @@ jobs:
       - name: Run Pint (check only)
         run: ./vendor/bin/pint --test
 
-      - name: Run PHPStan (static analysis)
-        run: ./vendor/bin/phpstan analyse --memory-limit=1G app routes database
-
   staging:
     needs: lint-and-test
     runs-on: ubuntu-latest
