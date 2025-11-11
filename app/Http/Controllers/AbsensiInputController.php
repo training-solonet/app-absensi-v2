@@ -3,11 +3,11 @@
 namespace App\Http\Controllers;
 
 use App\Models\Absensi;
-use App\Models\Uid;
 use App\Models\Siswa;
-use Illuminate\Http\Request;
-use Illuminate\Http\JsonResponse;
+use App\Models\Uid;
 use Carbon\Carbon;
+use Illuminate\Http\JsonResponse;
+use Illuminate\Http\Request;
 
 class AbsensiInputController extends Controller
 {
@@ -23,9 +23,6 @@ class AbsensiInputController extends Controller
 
     /**
      * Store attendance data based on UID
-     *
-     * @param Request $request
-     * @return JsonResponse
      */
     public function store(Request $request): JsonResponse
     {
@@ -40,18 +37,18 @@ class AbsensiInputController extends Controller
             // Find the UID record
             $uidRecord = Uid::where('uid', $uid)->first();
 
-            if (!$uidRecord) {
+            if (! $uidRecord) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'UID tidak ditemukan. Silakan cek kembali kartu UID Anda.'
+                    'message' => 'UID tidak ditemukan. Silakan cek kembali kartu UID Anda.',
                 ], 404);
             }
 
             // Check if UID has associated student
-            if (!$uidRecord->id_siswa) {
+            if (! $uidRecord->id_siswa) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'UID belum terdaftar ke siswa. Silakan hubungi admin.'
+                    'message' => 'UID belum terdaftar ke siswa. Silakan hubungi admin.',
                 ], 400);
             }
 
@@ -61,10 +58,10 @@ class AbsensiInputController extends Controller
             // Get student information
             $siswa = Siswa::find($siswaId);
 
-            if (!$siswa) {
+            if (! $siswa) {
                 return response()->json([
                     'success' => false,
-                    'message' => 'Data siswa tidak ditemukan.'
+                    'message' => 'Data siswa tidak ditemukan.',
                 ], 404);
             }
 
@@ -95,7 +92,7 @@ class AbsensiInputController extends Controller
                         'tanggal' => $today->format('d-m-Y'),
                         'waktu_masuk' => $existingAbsensi->waktu_masuk ? Carbon::parse($existingAbsensi->waktu_masuk)->format('H:i:s') : '-',
                         'waktu_keluar' => $existingAbsensi->waktu_keluar ? Carbon::parse($existingAbsensi->waktu_keluar)->format('H:i:s') : '-',
-                    ]
+                    ],
                 ]);
             }
 
@@ -114,15 +111,15 @@ class AbsensiInputController extends Controller
                     'nama_siswa' => $siswa->name,
                     'tanggal' => $today->format('d-m-Y'),
                     'waktu_masuk' => $now->format('H:i:s'),
-                ]
+                ],
             ]);
 
         } catch (\Exception $e) {
-            \Log::error('Absensi Input Error: ' . $e->getMessage());
+            \Log::error('Absensi Input Error: '.$e->getMessage());
 
             return response()->json([
                 'success' => false,
-                'message' => 'Terjadi kesalahan: ' . $e->getMessage()
+                'message' => 'Terjadi kesalahan: '.$e->getMessage(),
             ], 500);
         }
     }
