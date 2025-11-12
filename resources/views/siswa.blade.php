@@ -228,6 +228,10 @@
         <a href="{{ route('data-uid') }}" class="nav-link {{ request()->is('data-uid*') ? 'active' : '' }}">
           <i class="bi bi-credit-card-2-front"></i> <span>Data UID</span>
         </a>
+        <a class="nav-link {{ request()->is('absensi-uid*') ? 'active' : '' }}" href="{{ route('absensi-uid') }}">
+          <i class="bi bi-input-cursor"></i>
+          <span>Input Absensi</span>
+        </a>
       @else
         <a class="nav-link" href="{{ route('login') }}">
           <i class="bi bi-box-arrow-in-right"></i> <span>Login</span>

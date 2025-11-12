@@ -220,6 +220,10 @@ header.navbar.collapsed { left: 70px; }
       <a href="{{ route('data-uid') }}" class="nav-link">
         <i class="bi bi-credit-card-2-front"></i> <span>Data UID</span>
       </a>
+      <a class="nav-link {{ request()->is('absensi-uid*') ? 'active' : '' }}" href="{{ route('absensi-uid') }}">
+        <i class="bi bi-input-cursor"></i>
+        <span>Input Absensi</span>
+      </a>
     </nav>
     <button class="toggle-btn" id="toggleBtn"><i class="bi bi-chevron-left"></i></button>
   </div>
