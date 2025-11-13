@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Console\Scheduling\Schedule;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
 use Illuminate\Foundation\Configuration\Middleware;
@@ -17,6 +18,10 @@ $app = Application::configure(basePath: dirname(__DIR__))
             'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
             'ceklogin' => \App\Http\Middleware\CekLogin::class,
         ]);
+    })
+    ->withSchedule(function (Schedule $schedule) {
+        // Run mark absent command every day at 23:00 (11 PM)
+        $schedule->command('absensi:mark-absent')->dailyAt('23:00');
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         //

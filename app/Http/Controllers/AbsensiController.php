@@ -86,7 +86,7 @@ class AbsensiController extends Controller
     public function update(Request $request, $id)
     {
         $validated = $request->validate([
-            'keterangan' => 'required|in:Hadir,Izin,Sakit',
+            'keterangan' => 'required|in:Hadir,Terlambat,Izin,Sakit,Alpha',
             'catatan' => 'nullable|string|max:255',
         ]);
 
@@ -102,8 +102,8 @@ class AbsensiController extends Controller
             $updates['catatan'] = $validated['catatan'];
         }
 
-        if ($validated['keterangan'] === 'Hadir' && empty($absensi->getAttribute('waktu_masuk'))) {
-            $updates['waktu_masuk'] = now()->format('H:i:s');
+        if (($validated['keterangan'] === 'Hadir' || $validated['keterangan'] === 'Terlambat') && empty($absensi->getAttribute('waktu_masuk'))) {
+            $updates['waktu_masuk'] = now()->format('Y-m-d H:i:s');
         }
 
         $absensi->update($updates);
