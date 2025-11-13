@@ -82,7 +82,7 @@ class AbsensiInputController extends Controller
             if ($existingAbsensi) {
                 // Update exit time if record exists
                 $waktuKeluar = $now->format('Y-m-d H:i:s');
-                
+
                 $existingAbsensi->waktu_keluar = $waktuKeluar;
                 $existingAbsensi->save();
 

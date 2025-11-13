@@ -29,13 +29,13 @@ class MarkAbsentStudents extends Command
     public function handle()
     {
         $date = $this->argument('date') ? Carbon::parse($this->argument('date')) : Carbon::today();
-        
+
         $this->info("Memeriksa absensi untuk tanggal: {$date->format('Y-m-d')}");
 
         // Get all active students
         $allStudents = Siswa::all();
         $totalStudents = $allStudents->count();
-        
+
         $this->info("Total siswa: {$totalStudents}");
 
         // Get students who already have attendance record for the date
@@ -44,19 +44,20 @@ class MarkAbsentStudents extends Command
             ->unique()
             ->toArray();
 
-        $this->info("Siswa yang sudah absen: " . count($attendedStudentIds));
+        $this->info('Siswa yang sudah absen: '.count($attendedStudentIds));
 
         // Find students who didn't attend
         $absentStudents = $allStudents->whereNotIn('id', $attendedStudentIds);
         $absentCount = $absentStudents->count();
 
         if ($absentCount === 0) {
-            $this->info("✓ Semua siswa sudah melakukan absensi!");
+            $this->info('✓ Semua siswa sudah melakukan absensi!');
+
             return Command::SUCCESS;
         }
 
         $this->info("Siswa yang tidak hadir (Alpha): {$absentCount}");
-        
+
         // Create Alpha records for absent students
         $bar = $this->output->createProgressBar($absentCount);
         $bar->start();
@@ -68,7 +69,7 @@ class MarkAbsentStudents extends Command
                 ->where('keterangan', 'Alpha')
                 ->first();
 
-            if (!$existingAlpha) {
+            if (! $existingAlpha) {
                 Absensi::create([
                     'id_siswa' => $student->id,
                     'tanggal' => $date,
