@@ -69,6 +69,11 @@ class AbsensiInputController extends Controller
             $today = Carbon::today();
             $now = Carbon::now();
 
+            // Determine attendance status based on time
+            // If tap after 08:00:00, mark as "Terlambat" (Late)
+            $batasWaktu = Carbon::today()->setTime(8, 0, 0); // 08:00:00
+            $keterangan = $now->greaterThan($batasWaktu) ? 'Terlambat' : 'Hadir';
+
             // Check if student already has attendance record for today
             $existingAbsensi = Absensi::where('id_siswa', $siswaId)
                 ->whereDate('tanggal', $today)
@@ -76,10 +81,10 @@ class AbsensiInputController extends Controller
 
             if ($existingAbsensi) {
                 // Update exit time if record exists
-                $existingAbsensi->update([
-                    'waktu_keluar' => $now->format('H:i:s'),
-                    'updated_at' => $now,
-                ]);
+                $waktuKeluar = $now->format('Y-m-d H:i:s');
+                
+                $existingAbsensi->waktu_keluar = $waktuKeluar;
+                $existingAbsensi->save();
 
                 // Refresh the model to get updated data
                 $existingAbsensi->refresh();
@@ -91,7 +96,7 @@ class AbsensiInputController extends Controller
                         'nama_siswa' => $siswa->name,
                         'tanggal' => $today->format('d-m-Y'),
                         'waktu_masuk' => $existingAbsensi->waktu_masuk ? Carbon::parse($existingAbsensi->waktu_masuk)->format('H:i:s') : '-',
-                        'waktu_keluar' => $existingAbsensi->waktu_keluar ? Carbon::parse($existingAbsensi->waktu_keluar)->format('H:i:s') : '-',
+                        'waktu_keluar' => Carbon::parse($waktuKeluar)->format('H:i:s'),
                     ],
                 ]);
             }
@@ -100,8 +105,9 @@ class AbsensiInputController extends Controller
             $absensi = Absensi::create([
                 'id_siswa' => $siswaId,
                 'tanggal' => $today,
-                'waktu_masuk' => $now->format('H:i:s'),
-                'keterangan' => 'Hadir',
+                'waktu_masuk' => $now->format('Y-m-d H:i:s'),
+                'waktu_keluar' => null,
+                'keterangan' => $keterangan, // Hadir or Terlambat based on time
             ]);
 
             return response()->json([

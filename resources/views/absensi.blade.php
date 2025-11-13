@@ -317,7 +317,7 @@ header.navbar.collapsed { left: 70px; }
                 <td>{{ $absensi->siswa ? ucwords(strtolower($absensi->siswa->name)) : 'Siswa tidak ditemukan' }}</td>
                 <td>{{ date('d/m/Y', strtotime($absensi->tanggal)) }}</td>
                 <td>{{ date('H:i:s', strtotime($absensi->waktu_masuk)) }}</td>
-                <td>{{ date('H:i:s', strtotime($absensi->waktu_keluar)) }}</td>
+                <td>{{ $absensi->waktu_keluar ? date('H:i:s', strtotime($absensi->waktu_keluar)) : '00:00:00' }}</td>
                 <td>{{ $absensi->keterangan }}</td>
                 <td class="text-center">
                     @if($absensi->catatan)
@@ -382,6 +382,17 @@ header.navbar.collapsed { left: 70px; }
                         <form action="{{ route('absensi.update', $absensi->id) }}" method="POST" class="d-inline">
                           @csrf
                           @method('PUT')
+                          <input type="hidden" name="keterangan" value="Terlambat">
+                          <button type="submit" class="dropdown-item" onclick="return confirm('Apakah Anda yakin ingin mengubah status menjadi Terlambat?')">
+                            <i class="bi bi-clock-history text-warning me-2"></i>Terlambat
+                          </button> 
+                        </form>
+                      </li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li>
+                        <form action="{{ route('absensi.update', $absensi->id) }}" method="POST" class="d-inline">
+                          @csrf
+                          @method('PUT')
                           <input type="hidden" name="keterangan" value="Izin">
                           <button type="submit" class="dropdown-item" onclick="return confirm('Apakah Anda yakin ingin mengubah status menjadi Izin?')">
                             <i class="bi bi-info-circle text-primary me-2"></i>Izin
@@ -396,6 +407,17 @@ header.navbar.collapsed { left: 70px; }
                           <input type="hidden" name="keterangan" value="Sakit">
                           <button type="submit" class="dropdown-item" onclick="return confirm('Apakah Anda yakin ingin mengubah status menjadi Sakit?')">
                             <i class="bi bi-thermometer-sun text-warning me-2"></i>Sakit
+                          </button>
+                        </form>
+                      </li>
+                      <li><hr class="dropdown-divider"></li>
+                      <li>
+                        <form action="{{ route('absensi.update', $absensi->id) }}" method="POST" class="d-inline">
+                          @csrf
+                          @method('PUT')
+                          <input type="hidden" name="keterangan" value="Alpha">
+                          <button type="submit" class="dropdown-item" onclick="return confirm('Apakah Anda yakin ingin mengubah status menjadi Alpha?')">
+                            <i class="bi bi-x-circle text-danger me-2"></i>Alpha
                           </button>
                         </form>
                       </li>

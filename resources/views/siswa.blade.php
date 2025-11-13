@@ -222,7 +222,7 @@
         <a class="nav-link {{ request()->is('siswa*') ? 'active' : '' }}" href="{{ route('siswa.index') }}">
           <i class="bi bi-people-fill"></i> <span>Data Siswa</span>
         </a>
-        <a class="nav-link {{ request()->is('absensi*') ? 'active' : '' }}" href="{{ url('/absensi') }}">
+        <a class="nav-link {{ request()->is('absensi') || request()->is('absensi/') ? 'active' : '' }}" href="{{ url('/absensi') }}">
           <i class="bi bi-clipboard-check"></i> <span>Laporan Absensi</span>
         </a>
         <a href="{{ route('data-uid') }}" class="nav-link {{ request()->is('data-uid*') ? 'active' : '' }}">
