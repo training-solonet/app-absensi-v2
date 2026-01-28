@@ -16,7 +16,7 @@ return [
     |
     */
 
-    'default' => 'sqlite',
+    'default' => 'mysql',
 
     /*
     |--------------------------------------------------------------------------
@@ -63,9 +63,9 @@ return [
             'url' => env('DB_URL'),
             'host' => env('DB_HOST_ABSENSI_V2', '175.106.17.180'),
             'port' => env('DB_PORT_ABSENSI_V2', '3306'),
-            'database' => env('DB_DATABASE_ABSENSI_V2', 'absensi_v2'),
-            'username' => env('DB_USERNAME_ABSENSI_V2', 'udb'),
-            'password' => env('DB_PASSWORD_ABSENSI_V2', 'rahasiadong'),
+            'database' => env('DB_DATABASE_ABSENSI_V2', 'absensi'),
+            'username' => env('DB_USERNAME_ABSENSI_V2', 'scanuser'),
+            'password' => env('DB_PASSWORD_ABSENSI_V2', 'scan123!'),
             'unix_socket' => env('DB_SOCKET', ''),
             'charset' => env('DB_CHARSET', 'utf8mb4'),
             'collation' => env('DB_COLLATION', 'utf8mb4_unicode_ci'),

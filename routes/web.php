@@ -1,12 +1,12 @@
 <?php
 
-use App\Http\Controllers\AbsensiController;
-use App\Http\Controllers\AbsensiInputController;
-use App\Http\Controllers\SiswaController;
-use App\Http\Controllers\UIDController;
-use App\Models\Absensi;
-use App\Models\Siswa;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\UIDController;
+use App\Http\Controllers\AbsenController;
+use App\Http\Controllers\SiswaController;
+use App\Http\Controllers\AbsensiController;
+use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\AbsensiInputController;
 
 require __DIR__.'/auth.php';
 
@@ -26,17 +26,25 @@ Route::get('/', function () {
 });
 
 // Public dashboard route (no auth middleware)
-Route::get('/dashboard', [\App\Http\Controllers\DashboardController::class, 'index'])->name('dashboard');
+Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard');
+Route::get('/absen', [AbsenController::class, 'index'])->name('absen');
+Route::post('/process-face', [AbsenController::class, 'processFace'])->name('face.process');
 
-// Public UID input route
-Route::get('/absensi-uid', [AbsensiInputController::class, 'index'])->name('absensi-uid');
-Route::post('/absensi-uid', [AbsensiInputController::class, 'store'])->name('absensi-uid.store');
+// Route untuk face attendance
+Route::get('/face-attendance', [AbsenController::class, 'index'])->name('face.attendance');
+Route::post('/face-process', [AbsenController::class, 'processFace'])->name('face.process');
 
-Route::middleware([
-    'auth:sanctum',
-    config('jetstream.auth_session'),
-    'verified',
-])->group(function () {
+// Route untuk data mapping
+Route::get('/name-uid-mapping', [AbsenController::class, 'getNameUidMapping'])->name('name.uid.mapping');
+Route::get('/all-student-data', [AbsenController::class, 'getAllStudentData'])->name('all.student.data');
+Route::get('/search-student', [AbsenController::class, 'searchStudent'])->name('search.student');
+Route::post('/report-attendance', [AbsenController::class, 'reportAttendance'])->name('report.attendance');
+
+// Route::middleware([
+//     'auth:sanctum',
+//     config('jetstream.auth_session'),
+//     'verified',
+// ])->group(function () {
 
     // Rute absensi
     Route::prefix('absensi')->group(function () {
@@ -55,4 +63,4 @@ Route::middleware([
     Route::get('/data-uid', [UIDController::class, 'index'])->name('data-uid');
     Route::post('/uid/update-name', [UIDController::class, 'updateName'])->name('uid.update-name');
     Route::put('/data-uid/{id}/update-student', [UIDController::class, 'updateStudent'])->name('uid.update-student');
-});
+// });

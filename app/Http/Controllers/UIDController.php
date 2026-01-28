@@ -10,7 +10,11 @@ class UIDController extends Controller
 {
     public function index()
     {
-        $uids = Uid::with(['siswa:id,name'])->get();
+        $uids = Uid::with(['siswa:id,name'])
+                ->get()
+                ->filter(fn ($uid) => !empty($uid->siswa?->name))
+                ->values();
+
         $siswas = Siswa::query()->select('id', 'name')->orderBy('name')->get();
 
         return view('datauid', compact('uids', 'siswas'));
