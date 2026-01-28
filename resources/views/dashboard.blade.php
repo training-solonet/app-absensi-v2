@@ -306,6 +306,9 @@
         <span>Input Absensi</span>
       </a>
     @else
+      <a class="nav-link" href="{{ route('absen') }}">
+        <span>Absen</span>
+      </a>
       <a class="nav-link" href="{{ route('login') }}">
         <i class="bi bi-box-arrow-in-right"></i> <span>Login</span>
       </a>
@@ -355,6 +358,9 @@
             </ul>
           </div>
         @else
+          <a href="{{ route('absen') }}" class="btn btn-outline-light">
+            Absen
+          </a>
           <a href="{{ route('login') }}" class="btn btn-outline-light">
             <i class="bi bi-box-arrow-in-right me-2"></i> Login
           </a>

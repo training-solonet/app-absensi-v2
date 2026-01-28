@@ -15,6 +15,10 @@ return [
 
     'name' => env('APP_NAME', 'Laravel'),
 
+    'python_api_url' => env('PYTHON_API_URL', 'http://localhost:5000/analyze-face'),
+
+    'absensi_api_url' => env('ABSENSI_API_URL', 'https://absensi.connectis.my.id/api/absen'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Environment

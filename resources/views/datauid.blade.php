@@ -374,7 +374,9 @@
 
     <script>
       $(document).ready(function() {
-        $('#uidTable').DataTable();
+        $('#uidTable').DataTable({
+            order: [[1, 'asc']],
+        });
 
         const sidebar = document.getElementById('sidebar');
         const content = document.getElementById('content');
